@@ -1,6 +1,11 @@
-import { FastifyBaseLogger, RouteOptions } from "fastify";
+import {
+  FastifyBaseLogger,
+  FastifySchema,
+  FastifySchemaCompiler,
+  RouteOptions,
+} from "fastify";
 import { ZodTypeProvider } from "fastify-type-provider-zod";
-import type http from 'node:http'
+import type http from "node:http";
 
 // Routes
 export type Routes = Array<
@@ -10,8 +15,8 @@ export type Routes = Array<
     http.ServerResponse,
     any,
     any,
-    any,
+    FastifySchema,
     ZodTypeProvider,
     FastifyBaseLogger
   >
->
+>;

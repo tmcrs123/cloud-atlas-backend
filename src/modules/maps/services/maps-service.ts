@@ -1,8 +1,7 @@
 import { MapsInjectableDependencies } from "../config/maps-di";
 import { MapsRepository } from "../repositories/maps-repository";
-import { CREATE_MAP_SCHEMA_TYPE } from "../schemas";
-
-type CreateMapDTO = CREATE_MAP_SCHEMA_TYPE;
+import { CREATE_MAP_SCHEMA_TYPE, CreateMapDTO } from "../schemas";
+import { Map } from "../schemas";
 
 export class MapsService {
   private readonly mapsRepository: MapsRepository;
@@ -11,9 +10,7 @@ export class MapsService {
     this.mapsRepository = mapsRepository;
   }
 
-  async createMap(map: CreateMapDTO) {
-    //repository
-    const test = await this.mapsRepository.createMap()
-    return test;
+  async createMap(createMapDto: CreateMapDTO): Promise<Map> {
+    return await this.mapsRepository.createMap(createMapDto);
   }
 }
