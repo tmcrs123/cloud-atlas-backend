@@ -20,3 +20,22 @@ export type Routes = Array<
     FastifyBaseLogger
   >
 >;
+
+export type LogLevel =
+  | "fatal"
+  | "error"
+  | "warn"
+  | "info"
+  | "debug"
+  | "trace"
+  | "silent";
+
+// JWT
+export type JwtPublicKey = {
+  alg: string;
+  e: string;
+  kid: string;
+  kty: string;
+  n: string;
+  use: string;
+};

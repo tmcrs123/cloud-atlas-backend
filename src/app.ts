@@ -4,27 +4,35 @@ import fastify, {
   FastifyInstance,
   FastifyReply,
   FastifyRequest,
-  HookHandlerDoneFunction,
 } from "fastify";
 
-import http from "node:http";
-import { resolveLogger } from "./shared/configs/logger-config";
-import InternalError from "./errors/internal-error";
-import { createContainer } from "awilix";
-import { resolveMapsDiConfig } from "./modules/maps/config/maps-di";
 import { fastifyAwilixPlugin } from "@fastify/awilix";
-import { Routes } from "./shared/common-types";
-import { getMapsRoutes } from "./modules/maps/routes/maps-routes";
+import fastifyJwt from "@fastify/jwt";
+import fastifySwagger from "@fastify/swagger";
+import ScalarApiReference from "@scalar/fastify-api-reference";
+import { createContainer } from "awilix";
 import {
   createJsonSchemaTransform,
   serializerCompiler,
   validatorCompiler,
   ZodTypeProvider,
 } from "fastify-type-provider-zod";
+import { SigningKey } from "jwks-rsa";
 import { randomUUID } from "node:crypto";
-import { resolveAppDiConfig, resolveDatabaseDiConfig } from "./shared/configs";
-import fastifySwagger from "@fastify/swagger";
-import ScalarApiReference from "@scalar/fastify-api-reference";
+import http from "node:http";
+import { resolveMapsDiConfig } from "./modules/maps/config/maps-config";
+import { getMapsRoutes } from "./modules/maps/routes/maps-routes";
+import { fakeJwtPlugin } from "./plugins/fakeJwtPlugin";
+import { verifyJwtTokenPlugin } from "./plugins/verifyJwtTokenPlugin";
+import {
+  APP_CONFIG,
+  isLocalEnv,
+  resolveAppDiConfig,
+  resolveDatabaseDiConfig,
+} from "./shared/configs";
+import { resolveLogger } from "./shared/configs/logger-config";
+import { Routes } from "./shared/types/common-types";
+import { createJwksClient } from "./utils";
 
 export async function getApp(): Promise<FastifyInstance> {
   const app: FastifyInstance<
@@ -33,18 +41,9 @@ export async function getApp(): Promise<FastifyInstance> {
     http.ServerResponse,
     FastifyBaseLogger
   > = fastify({
-    loggerInstance: resolveLogger({ logLevel: "info" }),
+    loggerInstance: resolveLogger({ logLevel: APP_CONFIG.logLevel }),
     genReqId: () => randomUUID(),
-    requestIdHeader: "x-request-id",
   });
-
-  app.addHook("onSend", (request, reply, payload, done) => {
-    // Add the requestId to the response headers
-    reply.header("x-request-id", request.id);
-    done();
-  });
-
-  app.get("/bnanaas", () => {});
 
   await app.register(fastifySwagger, {
     transform: createJsonSchemaTransform({ skipList: [] }),
@@ -78,10 +77,6 @@ export async function getApp(): Promise<FastifyInstance> {
     return app.swagger();
   });
 
-  // Add schema validator and serializer - this is what enables ZOD to do type checking on requests
-  app.setValidatorCompiler(validatorCompiler);
-  app.setSerializerCompiler(serializerCompiler);
-
   //IOC
   const diContainer = createContainer({ injectionMode: "PROXY", strict: true });
   await app.register(fastifyAwilixPlugin, {
@@ -93,11 +88,53 @@ export async function getApp(): Promise<FastifyInstance> {
     disposeOnResponse: false,
   });
 
-  diContainer.register({ ...resolveAppDiConfig() });
-  diContainer.register({ ...resolveDatabaseDiConfig({ engine: "dynamoDb" }) });
+  diContainer.register({ ...resolveAppDiConfig() }); //inject APP_Config as dependency. This the only file where I accept referencing the APP_CONFIG const
+
+  diContainer.register({
+    ...resolveDatabaseDiConfig({ engine: "dynamoDb" }),
+  });
   diContainer.register({
     ...resolveMapsDiConfig(diContainer.cradle.databaseConfig),
   });
+
+  const jwtConfig = (() => {
+    if (isLocalEnv()) {
+      return { secret: APP_CONFIG.jwtPublicKey };
+    } else {
+      return {
+        secret: {
+          public: async () => {
+            const jwt_client = createJwksClient(APP_CONFIG.publicKeyURI);
+            const keys = await jwt_client.getSigningKeys();
+            //aws gives 2 keys, one old, other current. Use any to validate the tokens
+            return keys[0].getPublicKey();
+          },
+        },
+      };
+    }
+  })();
+
+  await app.register(fastifyJwt, { ...jwtConfig });
+
+  if (isLocalEnv()) await app.register(fakeJwtPlugin);
+
+  await app.register(verifyJwtTokenPlugin, {
+    skipList: new Set([
+      "/",
+      "/favicon.ico",
+      "/login",
+      "/access-token",
+      "/refresh-token",
+      "/documentation",
+      "/reference/",
+      "/reference/js/scalar.js",
+      "/reference/openapi.json",
+    ]),
+  });
+
+  // Add schema validator and serializer - this is what enables ZOD to do type checking on requests
+  app.setValidatorCompiler(validatorCompiler);
+  app.setSerializerCompiler(serializerCompiler);
 
   // this is the global error handler. By default catches ALL uncaught errors
   app.setErrorHandler(

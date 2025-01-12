@@ -7,7 +7,39 @@ export type AppConfig = {
   environment: "production" | "local" | "test";
   logLevel: LogLevel;
   port: number;
+  jwtPublicKey: string;
+  publicKeyURI: string;
 };
+
+export const APP_CONFIG: AppConfig = {
+  appVersion: valueOfFallback<AppConfig["appVersion"]>(
+    process.env["APP_VERSION"],
+    "test"
+  ),
+  baseUrl: valueOfFallback<AppConfig["baseUrl"]>(
+    process.env["BASE_URL"],
+    "localhost"
+  ),
+  environment: valueOfFallback<AppConfig["environment"]>(
+    process.env["ENVIRONMENT"],
+    "local"
+  ),
+  logLevel: valueOfFallback<AppConfig["logLevel"]>(
+    process.env["LOG_LEVEL"],
+    "info"
+  ),
+  port: valueOfFallback<AppConfig["port"]>(process.env["PORT"], 3000),
+  jwtPublicKey: valueOfFallback<AppConfig["jwtPublicKey"]>(
+    process.env["JWT_PUBLIC_KEY"],
+    "super secret key"
+  ),
+  publicKeyURI: valueOfFallback<AppConfig["publicKeyURI"]>(
+    process.env["PUBLIC_KEY_URI"],
+    ""
+  ),
+};
+
+export const isLocalEnv = () => APP_CONFIG.environment === "local";
 
 export type AppConfigDependencies = {
   appConfig: AppConfig;
@@ -22,23 +54,13 @@ export function resolveAppDiConfig(): AppDiConfig {
     appConfig: asFunction(
       () => {
         return {
-          port: valueOfFallback<AppConfig["port"]>(process.env["PORT"], 3000),
-          logLevel: valueOfFallback<AppConfig["logLevel"]>(
-            process.env["logLevel"],
-            "error"
-          ),
-          environment: valueOfFallback<AppConfig["environment"]>(
-            process.env["environment"],
-            "local"
-          ),
-          appVersion: valueOfFallback<AppConfig["appVersion"]>(
-            process.env["appVersion"],
-            "latest"
-          ),
-          baseUrl: valueOfFallback<AppConfig["baseUrl"]>(
-            process.env["baseUrl"],
-            "localhost"
-          ),
+          port: APP_CONFIG.port,
+          logLevel: APP_CONFIG.logLevel,
+          environment: APP_CONFIG.environment,
+          appVersion: APP_CONFIG.appVersion,
+          baseUrl: APP_CONFIG.baseUrl,
+          jwtPublicKey: APP_CONFIG.jwtPublicKey,
+          publicKeyURI: APP_CONFIG.publicKeyURI,
         };
       },
       { lifetime: "SINGLETON" }
@@ -46,6 +68,6 @@ export function resolveAppDiConfig(): AppDiConfig {
   };
 }
 
-function valueOfFallback<T>(value: unknown, fallback: unknown) {
+function valueOfFallback<T>(value: unknown, fallback: T) {
   return value ? (value as T) : (fallback as T);
 }

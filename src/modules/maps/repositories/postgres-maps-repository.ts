@@ -1,8 +1,8 @@
 import { MapsRepository } from "./maps-repository";
-import { Map } from "../schemas";
+import { SnappinMap } from "../schemas";
 
 export class PostgresMapsRepository implements MapsRepository {
-  async createMap(): Promise<Map> {
+  async createMap(): Promise<SnappinMap> {
     return new Promise((resolve) =>
       resolve({
         createdAt: "",

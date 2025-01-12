@@ -1,23 +1,22 @@
-import { Routes } from "../../../shared/common-types";
+import { Routes } from "../../../shared/types/common-types";
 import { createMap, getMap } from "../controllers/maps-controller";
-import { CREATE_MAP_SCHEMA } from "../schemas";
+import { CREATE_SNAPPIN_MAP_SCHEMA, SNAPPIN_MAP_SCHEMA } from "../schemas";
 
 export const getMapsRoutes = (): { routes: Routes } => {
   return {
     routes: [
       {
-        method: "POST",
+        method: "PUT",
         url: "/maps",
         handler: createMap,
         schema: {
-          body: CREATE_MAP_SCHEMA,
+          body: CREATE_SNAPPIN_MAP_SCHEMA,
           response: {
-            200: CREATE_MAP_SCHEMA,
-            400: CREATE_MAP_SCHEMA,
+            201: SNAPPIN_MAP_SCHEMA,
           },
-          description: "Create a new user bananas apples",
-          summary: "User creation endpoint",
-          tags: ["User"],
+          description: "Create a new map for the current user",
+          summary: "Map creation endpoint",
+          tags: ["Map"],
         },
       },
       {

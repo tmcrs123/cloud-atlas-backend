@@ -14,7 +14,7 @@ export type MapsInjectableDependencies = MapsModuleDependencies;
 
 export function resolveMapsDiConfig({ engine }: DatabaseConfig): MapsDiConfig {
   return {
-    mapsRepository: asFunction(() => DynamoDbMapsRepository, {
+    mapsRepository: asClass(DynamoDbMapsRepository, {
       lifetime: "SINGLETON",
     }),
     mapsService: asClass(MapsService, { lifetime: "SINGLETON" }),

@@ -8,16 +8,28 @@
   "main": "server.ts",
   "scripts": {
     "test": "test",
-    "start:dev": "cross-env tsx watch --env-file=.env src/server.ts"
+    "start:dev": "cross-env tsx watch --env-file=.env src/server.ts",
+    "docker-start-local-ddb": "docker run -p 8000:8000 -d amazon/dynamodb-local -jar DynamoDBLocal.jar -sharedDb -dbPath .",
+    "docker-build": "docker build -t fargate-test .",
+    "docker-start": "docker run --env-file .env.default  -p 3000:3000 fargate-test:latest",
+    "docker-local": "npm run docker-build && npm run docker-start",
+    "acr-login": "aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin 891376964515.dkr.ecr.us-east-1.amazonaws.com",
+    "acr-tag": "docker tag fargate-test:latest 891376964515.dkr.ecr.us-east-1.amazonaws.com/fargate-test:latest",
+    "acr-push": "docker push 891376964515.dkr.ecr.us-east-1.amazonaws.com/fargate-test:latest",
+    "acr-stuff": "npm run acr-login & npm run acr-tag & npm run acr-push"
   },
   "dependencies": {
     "@aws-sdk/client-dynamodb": "^3.721.0",
+    "@aws-sdk/util-dynamodb": "^3.726.1",
     "@fastify/awilix": "^7.0.0",
+    "@fastify/jwt": "^9.0.3",
     "@fastify/swagger": "^9.4.0",
     "@scalar/fastify-api-reference": "^1.25.101",
     "awilix": "^12.0.4",
     "fastify": "^5.2.0",
     "fastify-type-provider-zod": "^4.0.2",
+    "jwk-to-pem": "^2.0.7",
+    "jwks-rsa": "^3.1.0",
     "pino": "^9.6.0",
     "pino-pretty": "^13.0.0",
     "zod": "^3.24.1"
@@ -25,6 +37,7 @@
   "devDependencies": {
     "@biomejs/biome": "^1.9.4",
     "@fastify/swagger-ui": "^5.2.1",
+    "@types/jwk-to-pem": "^2.0.3",
     "@types/node": "^22.10.5",
     "cross-env": "^7.0.3",
     "tsx": "^4.19.2",
