@@ -1,8 +1,8 @@
 import { asClass, asFunction, Resolver } from "awilix";
-import { dbEngines, MapsRepository } from "../repositories/maps-repository";
-import { MapsService } from "../services/maps-service";
-import { AppConfig, DatabaseConfig } from "../../../shared/configs";
-import { DynamoDbMapsRepository } from "../repositories/dynamodb-maps-repository";
+import { dbEngines, MapsRepository } from "../repositories/index.js";
+import { MapsService } from "../services/index.js";
+import { AppConfig, DatabaseConfig } from "../../../shared/configs/index.js";
+import { DynamoDbMapsRepository } from "../repositories/index.js";
 
 export type MapsModuleDependencies = {
   mapsRepository: MapsRepository;

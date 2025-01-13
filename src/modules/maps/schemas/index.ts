@@ -1,1 +1,1 @@
-export * from './maps-schema'
+export * from "./maps-schema.js";

@@ -2,20 +2,24 @@
   "name": "snappin-service",
   "version": "1.0.0",
   "description": "a template for snappin services",
+  "engines": {
+    "node": ">=22.10.0"
+  },
   "license": "ISC",
   "author": "",
-  "type": "commonjs",
+  "type": "module",
   "main": "server.ts",
   "scripts": {
     "test": "test",
+    "build": "tsc",
     "start:dev": "cross-env tsx watch --env-file=.env src/server.ts",
     "docker-start-local-ddb": "docker run -p 8000:8000 -d amazon/dynamodb-local -jar DynamoDBLocal.jar -sharedDb -dbPath .",
-    "docker-build": "docker build -t fargate-test .",
-    "docker-start": "docker run --env-file .env.default  -p 3000:3000 fargate-test:latest",
+    "docker-build": "docker build -t snappin-service .",
+    "docker-start": "docker run --env-file .env  -p 3000:3000 snappin-service:latest",
     "docker-local": "npm run docker-build && npm run docker-start",
     "acr-login": "aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin 891376964515.dkr.ecr.us-east-1.amazonaws.com",
-    "acr-tag": "docker tag fargate-test:latest 891376964515.dkr.ecr.us-east-1.amazonaws.com/fargate-test:latest",
-    "acr-push": "docker push 891376964515.dkr.ecr.us-east-1.amazonaws.com/fargate-test:latest",
+    "acr-tag": "docker tag snappin-service:latest 891376964515.dkr.ecr.us-east-1.amazonaws.com/snappin-service:latest",
+    "acr-push": "docker push 891376964515.dkr.ecr.us-east-1.amazonaws.com/snappin-service:latest",
     "acr-stuff": "npm run acr-login & npm run acr-tag & npm run acr-push"
   },
   "dependencies": {

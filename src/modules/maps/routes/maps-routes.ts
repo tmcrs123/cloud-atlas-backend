@@ -1,6 +1,9 @@
-import { Routes } from "../../../shared/types/common-types";
-import { createMap, getMap } from "../controllers/maps-controller";
-import { CREATE_SNAPPIN_MAP_SCHEMA, SNAPPIN_MAP_SCHEMA } from "../schemas";
+import { Routes } from "../../../shared/types/index.js";
+import { createMap, getMap } from "../controllers/index.js";
+import {
+  CREATE_SNAPPIN_MAP_SCHEMA,
+  SNAPPIN_MAP_SCHEMA,
+} from "../schemas/index.js";
 
 export const getMapsRoutes = (): { routes: Routes } => {
   return {

@@ -1,6 +1,6 @@
-import { SnappinMap, CreateMapDTO } from "../schemas";
-import { DynamoDbMapsRepository } from "./dynamodb-maps-repository";
-import { PostgresMapsRepository } from "./postgres-maps-repository";
+import { SnappinMap, CreateMapDTO } from "../schemas/index.js";
+import { DynamoDbMapsRepository } from "./dynamodb-maps-repository.js";
+import { PostgresMapsRepository } from "./postgres-maps-repository.js";
 
 export interface MapsRepository {
   createMap(createMapDto: CreateMapDTO): Promise<SnappinMap>;

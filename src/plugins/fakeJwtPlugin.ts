@@ -1,7 +1,7 @@
 import { JWT } from "@fastify/jwt";
 import { FastifyPluginCallback } from "fastify";
 import fastifyPlugin from "fastify-plugin";
-import { generateJwtToken } from "../utils";
+import { generateJwtToken } from "../utils/index.js";
 import { randomUUID } from "node:crypto";
 
 export const fakeJwtPlugin: FastifyPluginCallback = fastifyPlugin(

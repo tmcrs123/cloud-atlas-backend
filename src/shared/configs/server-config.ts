@@ -1,6 +1,6 @@
-import { AppConfig } from "./app-config";
-import { DatabaseConfig } from "./database-config";
-import { LoggerConfig } from "./logger-config";
+import { AppConfig } from "./index.js";
+import { DatabaseConfig } from "./index.js";
+import { LoggerConfig } from "./index.js";
 
 export type ServerConfig = {
   appConfig: AppConfig;

@@ -20,19 +20,19 @@ import {
 import { SigningKey } from "jwks-rsa";
 import { randomUUID } from "node:crypto";
 import http from "node:http";
-import { resolveMapsDiConfig } from "./modules/maps/config/maps-config";
-import { getMapsRoutes } from "./modules/maps/routes/maps-routes";
-import { fakeJwtPlugin } from "./plugins/fakeJwtPlugin";
-import { verifyJwtTokenPlugin } from "./plugins/verifyJwtTokenPlugin";
+import { resolveMapsDiConfig } from "./modules/maps/config/index.js";
+import { getMapsRoutes } from "./modules/maps/routes/index.js";
+import { fakeJwtPlugin } from "./plugins/index.js";
+import { verifyJwtTokenPlugin } from "./plugins/index.js";
 import {
   APP_CONFIG,
   isLocalEnv,
   resolveAppDiConfig,
   resolveDatabaseDiConfig,
-} from "./shared/configs";
-import { resolveLogger } from "./shared/configs/logger-config";
-import { Routes } from "./shared/types/common-types";
-import { createJwksClient } from "./utils";
+} from "./shared/configs/index.js";
+import { resolveLogger } from "./shared/configs/index.js";
+import { Routes } from "./shared/types/index.js";
+import { createJwksClient } from "./utils/index.js";
 
 export async function getApp(): Promise<FastifyInstance> {
   const app: FastifyInstance<

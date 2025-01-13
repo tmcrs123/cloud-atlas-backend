@@ -1,17 +1,8 @@
-import { randomUUID } from "node:crypto";
-import {
-  CREATE_SNAPPIN_SCHEMA_TYPE,
-  CreateMapDTO,
-  SnappinMap,
-} from "../schemas";
-import { MapsRepository } from "./maps-repository";
-import {
-  DynamoDBClient,
-  PutItemCommand,
-  GetItemCommand,
-  QueryCommand,
-} from "@aws-sdk/client-dynamodb";
+import { DynamoDBClient, PutItemCommand } from "@aws-sdk/client-dynamodb";
 import { marshall } from "@aws-sdk/util-dynamodb";
+import { randomUUID } from "node:crypto";
+import { CreateMapDTO, SnappinMap } from "../schemas/index.js";
+import { MapsRepository } from "./maps-repository.js";
 export class DynamoDbMapsRepository implements MapsRepository {
   private dynamoClient: DynamoDBClient;
 

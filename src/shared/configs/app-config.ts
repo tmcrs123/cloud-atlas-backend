@@ -7,6 +7,7 @@ export type AppConfig = {
   environment: "production" | "local" | "test";
   logLevel: LogLevel;
   port: number;
+  bindAddress: string;
   jwtPublicKey: string;
   publicKeyURI: string;
 };
@@ -29,6 +30,10 @@ export const APP_CONFIG: AppConfig = {
     "info"
   ),
   port: valueOfFallback<AppConfig["port"]>(process.env["PORT"], 3000),
+  bindAddress: valueOfFallback<AppConfig["bindAddress"]>(
+    process.env["BIND_ADDRESS"],
+    "0.0.0.0"
+  ),
   jwtPublicKey: valueOfFallback<AppConfig["jwtPublicKey"]>(
     process.env["JWT_PUBLIC_KEY"],
     "super secret key"
@@ -55,6 +60,7 @@ export function resolveAppDiConfig(): AppDiConfig {
       () => {
         return {
           port: APP_CONFIG.port,
+          bindAddress: APP_CONFIG.bindAddress,
           logLevel: APP_CONFIG.logLevel,
           environment: APP_CONFIG.environment,
           appVersion: APP_CONFIG.appVersion,

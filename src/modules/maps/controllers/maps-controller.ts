@@ -1,7 +1,7 @@
 import { FastifyReply, FastifyRequest } from "fastify";
-import { CREATE_SNAPPIN_SCHEMA_TYPE, SnappinMap } from "../schemas";
-import { MapsService } from "../services/maps-service";
-import { AppConfig } from "../../../shared/configs";
+import { AppConfig } from "../../../shared/configs/index.js";
+import { CREATE_SNAPPIN_SCHEMA_TYPE } from "../schemas/index.js";
+import { MapsService } from "../services/index.js";
 
 export const createMap = async (
   request: FastifyRequest<{ Body: CREATE_SNAPPIN_SCHEMA_TYPE }>,
