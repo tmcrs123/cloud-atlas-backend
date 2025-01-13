@@ -1,15 +1,13 @@
 import { CustomError } from "./custom-error.js";
 
 export default class DatabaseConnetionError extends CustomError {
-  httpStatusCode: number = 500;
-  errorMessage: string = "Error connecting to the database";
+  constructor() {
+    super("Error connecting to the database", "DATABASE_CONNECTION_ERROR", 500);
 
-  constructor(errorMessage: string) {
-    super();
-    this.errorMessage = errorMessage;
+    Object.setPrototypeOf(this, DatabaseConnetionError.prototype);
   }
 
   serializeErrors(): { message: string; field?: string }[] {
-    return [{ message: this.errorMessage }];
+    return [{ message: this.message }];
   }
 }

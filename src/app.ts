@@ -33,6 +33,7 @@ import {
 import { resolveLogger } from "./shared/configs/index.js";
 import { Routes } from "./shared/types/index.js";
 import { createJwksClient } from "./utils/index.js";
+import { errorHandler } from "./errors/errorHandler.js";
 
 export async function getApp(): Promise<FastifyInstance> {
   const app: FastifyInstance<
@@ -137,11 +138,7 @@ export async function getApp(): Promise<FastifyInstance> {
   app.setSerializerCompiler(serializerCompiler);
 
   // this is the global error handler. By default catches ALL uncaught errors
-  app.setErrorHandler(
-    (error: FastifyError, request: FastifyRequest, reply: FastifyReply) => {
-      return reply.status(500).send(error.message);
-    }
-  );
+  app.setErrorHandler(errorHandler);
 
   // routes
   // after means after ALL plugins are loaded

@@ -4,6 +4,7 @@ const CLAIMS = ["OWN", "VIEW", "EDIT"] as const;
 
 export const SNAPPIN_MAP_SCHEMA = z.object({
   id: z.string().uuid(),
+  owner: z.optional(z.string().uuid()),
   coverPhoto: z.optional(z.string()),
   createdAt: z.string(),
   markersCount: z.number().int(),
@@ -22,4 +23,4 @@ export type CREATE_SNAPPIN_SCHEMA_TYPE = z.infer<
 
 // Models
 export type SnappinMap = z.infer<typeof SNAPPIN_MAP_SCHEMA>;
-export type CreateMapDTO = CREATE_SNAPPIN_SCHEMA_TYPE & { ownerId: string };
+export type CreateMapDTO = CREATE_SNAPPIN_SCHEMA_TYPE & { owner: string };

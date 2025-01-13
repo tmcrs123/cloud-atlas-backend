@@ -1,15 +1,13 @@
 import { CustomError } from "./custom-error.js";
 
 export default class InternalError extends CustomError {
-  httpStatusCode: number = 500;
-  errorMessage: string = "Unknown error";
+  constructor(message: string, error: string) {
+    super(message, error, 500);
 
-  constructor(errorMessage: string) {
-    super();
-    this.errorMessage = errorMessage;
+    Object.setPrototypeOf(this, InternalError);
   }
 
   serializeErrors(): { message: string; field?: string }[] {
-    return [{ message: this.errorMessage }];
+    return [{ message: this.message }];
   }
 }

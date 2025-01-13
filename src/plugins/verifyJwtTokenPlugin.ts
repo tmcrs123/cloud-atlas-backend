@@ -1,4 +1,3 @@
-import fastifyJwt from "@fastify/jwt";
 import fastify, {
   FastifyInstance,
   FastifyPluginCallback,
@@ -11,6 +10,17 @@ import fastifyPlugin from "fastify-plugin";
 export type JwtTokenPluginOptions = {
   skipList: Set<string>;
 };
+
+interface User {
+  sub: string;
+  email: string;
+}
+
+declare module "@fastify/jwt" {
+  interface FastifyJWT {
+    user: User;
+  }
+}
 
 /**
  * this is a bit weird but the way it works is:
