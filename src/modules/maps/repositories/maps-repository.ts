@@ -4,6 +4,8 @@ import { PostgresMapsRepository } from "./postgres-maps-repository.js";
 
 export interface MapsRepository {
   createMap(createMapDto: CreateMapDTO): Promise<SnappinMap>;
+  getMap(id: string): Promise<SnappinMap>;
+  deleteMap(id: string): Promise<void>;
 }
 
 // the new() => MapsRepo simply means that values returned are construtor functions

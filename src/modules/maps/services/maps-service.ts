@@ -12,4 +12,12 @@ export class MapsService {
   async createMap(createMapDto: CreateMapDTO): Promise<SnappinMap> {
     return await this.mapsRepository.createMap(createMapDto);
   }
+
+  async getMap(id: string): Promise<SnappinMap> {
+    return await this.mapsRepository.getMap(id);
+  }
+
+  async deleteMap(id: string): Promise<void> {
+    return await this.mapsRepository.deleteMap(id);
+  }
 }

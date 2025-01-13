@@ -14,4 +14,14 @@ export class PostgresMapsRepository implements MapsRepository {
       })
     );
   }
+
+  async getMap(): Promise<SnappinMap> {
+    return new Promise((resolve) => resolve({} as SnappinMap));
+  }
+
+  deleteMap(id: string): Promise<void> {
+    return new Promise((resolve) => {
+      resolve();
+    });
+  }
 }

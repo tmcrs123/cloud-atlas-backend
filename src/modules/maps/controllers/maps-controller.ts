@@ -1,10 +1,14 @@
 import { FastifyReply, FastifyRequest } from "fastify";
 import RequestValidationError from "../../../errors/request-validation-error.js";
-import { CREATE_SNAPPIN_SCHEMA_TYPE } from "../schemas/index.js";
+import {
+  CREATE_SNAPPIN_MAP_SCHEMA_TYPE,
+  DELETE_SNAPPIN_MAP_SCHEMA_TYPE,
+  GET_SNAPPIN_MAP_SCHEMA_TYPE,
+} from "../schemas/index.js";
 import { MapsService } from "../services/index.js";
 
 export const createMap = async (
-  request: FastifyRequest<{ Body: CREATE_SNAPPIN_SCHEMA_TYPE }>,
+  request: FastifyRequest<{ Body: CREATE_SNAPPIN_MAP_SCHEMA_TYPE }>,
   reply: FastifyReply
 ): Promise<void> => {
   const { title } = request.body;
@@ -17,9 +21,25 @@ export const createMap = async (
 };
 
 export const getMap = async (
-  request: FastifyRequest,
+  request: FastifyRequest<{ Params: GET_SNAPPIN_MAP_SCHEMA_TYPE }>,
   reply: FastifyReply
 ): Promise<void> => {
-  throw new RequestValidationError("bananas");
-  // return reply.status(201).send("ok");
+  const { id } = request.params;
+  const mapsService = request.diScope.resolve<MapsService>("mapsService");
+
+  let map = await mapsService.getMap(id);
+
+  return reply.status(200).send(map);
+};
+
+export const deleteMap = async (
+  request: FastifyRequest<{ Params: DELETE_SNAPPIN_MAP_SCHEMA_TYPE }>,
+  reply: FastifyReply
+): Promise<void> => {
+  const { id } = request.params;
+  const mapsService = request.diScope.resolve<MapsService>("mapsService");
+
+  await mapsService.deleteMap(id);
+
+  return reply.status(204).send();
 };

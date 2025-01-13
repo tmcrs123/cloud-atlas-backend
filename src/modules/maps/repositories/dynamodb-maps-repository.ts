@@ -1,13 +1,10 @@
 import {
   DeleteItemCommand,
-  DeleteItemCommandInput,
   DynamoDBClient,
   GetItemCommand,
-  GetItemCommandInput,
   PutItemCommand,
-  PutItemCommandInput,
 } from "@aws-sdk/client-dynamodb";
-import { marshall } from "@aws-sdk/util-dynamodb";
+import { marshall, unmarshall } from "@aws-sdk/util-dynamodb";
 import { randomUUID } from "node:crypto";
 import DatabaseGenericError from "../../../errors/database-generic-error.js";
 import { CreateMapDTO, SnappinMap } from "../schemas/index.js";
@@ -41,55 +38,56 @@ export class DynamoDbMapsRepository implements MapsRepository {
       owner: createMapDto.owner,
     };
 
-    const createMapCommand = createTypedDynamoDBCommand(
-      PutItemCommand,
-      "maps",
-      mapToCreate
-    );
+    const command = new PutItemCommand({
+      TableName: "maps",
+      Item: marshall(mapToCreate),
+    });
 
-    const createMapDynamoRes = await sendCommand(() =>
-      this.dynamoClient.send(createMapCommand)
-    );
-    console.log(JSON.stringify(createMapDynamoRes));
+    await sendCommand(() => this.dynamoClient.send(command));
 
     return { ...mapToCreate };
   }
-}
 
-type DynamoDbInput =
-  | PutItemCommandInput
-  | GetItemCommandInput
-  | DeleteItemCommandInput;
+  async getMap(id: string): Promise<SnappinMap> {
+    const command = new GetItemCommand({
+      TableName: "maps",
+      Key: {
+        id: { ...marshall(id) },
+      },
+    });
 
-type DynamoDbCommand = PutItemCommand | GetItemCommand | DeleteItemCommand;
+    const commandResponse = await sendCommand(() =>
+      this.dynamoClient.send(command)
+    );
 
-type CommandConstructor<
-  Input extends DynamoDbInput,
-  Command extends DynamoDbCommand
-> = new (input: Input) => Command;
+    if (!commandResponse.Item)
+      throw new DatabaseGenericError("Entity not found", 404);
+    return unmarshall(commandResponse.Item) as SnappinMap;
+  }
 
-function createTypedDynamoDBCommand<
-  Z,
-  Input extends DynamoDbInput,
-  Command extends DynamoDbCommand
->(
-  commandTypeCtor: CommandConstructor<Input, Command>,
-  tableName: string,
-  item: Z
-): Command {
-  const marshalledItem = marshall(item);
-  const input = { TableName: tableName, Item: marshalledItem } as Input;
-  return new commandTypeCtor(input);
-}
+  async deleteMap(id: string): Promise<void> {
+    const command = new DeleteItemCommand({
+      TableName: "maps",
+      Key: {
+        id: { ...marshall(id) },
+      },
+    });
+    const commandResponse = await sendCommand(() =>
+      this.dynamoClient.send(command)
+    );
 
-function mapDynamoDbError(err: DynamoDbError): DatabaseGenericError {
-  return new DatabaseGenericError(err.message, err.$metadata.httpStatusCode);
+    return;
+  }
 }
 
 async function sendCommand<T>(sendFn: () => Promise<T>): Promise<T> {
   try {
     return await sendFn();
   } catch (err) {
-    throw mapDynamoDbError(err as DynamoDbError);
+    let error = err as DynamoDbError;
+    throw new DatabaseGenericError(
+      error.message,
+      error.$metadata.httpStatusCode
+    );
   }
 }
