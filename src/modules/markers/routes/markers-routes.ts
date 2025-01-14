@@ -4,6 +4,7 @@ import {
   createMarker,
   deleteMarker,
   getMarker,
+  updateMarker,
 } from "../controllers/index.js";
 
 export const getMarkersRoutes = (): { routes: Routes } => {
@@ -28,6 +29,11 @@ export const getMarkersRoutes = (): { routes: Routes } => {
         method: "DELETE",
         url: "/markers/:id",
         handler: deleteMarker,
+      },
+      {
+        method: "PUT",
+        url: "/markers/:id/update",
+        handler: updateMarker,
       },
     ],
   };

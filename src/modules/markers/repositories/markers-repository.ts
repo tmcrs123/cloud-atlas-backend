@@ -1,6 +1,7 @@
 import {
   CreateSnappinMarkerDTO,
   SnappinMarker,
+  UpdateMarkerDTO,
 } from "../schemas/markers-schema.js";
 
 export interface MarkersRepository {
@@ -10,4 +11,8 @@ export interface MarkersRepository {
   ): Promise<Partial<SnappinMarker>>;
   getMarker(id: string): Promise<Partial<SnappinMarker> | null>;
   deleteMarker(id: string): Promise<void>;
+  updateMarker(
+    id: string,
+    updatedData: UpdateMarkerDTO
+  ): Promise<Partial<SnappinMarker> | null>;
 }

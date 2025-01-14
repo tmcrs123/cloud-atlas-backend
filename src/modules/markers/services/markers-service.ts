@@ -5,6 +5,8 @@ import {
   CreateSnappinMarkerDTO,
   CreateSnappinMarkerRequestBody,
   SnappinMarker,
+  UpdateMarkerDTO,
+  UpdateSnappinMarkerRequestBody,
 } from "../schemas/markers-schema.js";
 
 export class MarkersService {
@@ -41,5 +43,15 @@ export class MarkersService {
 
   async deleteMarker(id: string): Promise<void> {
     return await this.markersRepository.deleteMarker(id);
+  }
+
+  async updateMarker(
+    id: string,
+    updatedData: UpdateSnappinMarkerRequestBody
+  ): Promise<Partial<SnappinMarker> | null> {
+    return await this.markersRepository.updateMarker(id, {
+      ...updatedData,
+      updatedAt: new Date().toUTCString(),
+    });
   }
 }

@@ -1,5 +1,8 @@
 import { FastifyReply, FastifyRequest } from "fastify";
-import { CreateSnappinMarkerRequestBody } from "../schemas/index.js";
+import {
+  CreateSnappinMarkerRequestBody,
+  UpdateSnappinMarkerRequestBody,
+} from "../schemas/index.js";
 import { MarkersService } from "../services/index.js";
 import { randomUUID } from "crypto";
 
@@ -55,4 +58,22 @@ export const deleteMarker = async (
   await markersService.deleteMarker(request.params.id);
 
   return reply.status(204).send();
+};
+
+export const updateMarker = async (
+  request: FastifyRequest<{
+    Body: UpdateSnappinMarkerRequestBody;
+    Params: { id: string };
+  }>,
+  reply: FastifyReply
+): Promise<void> => {
+  const markersService =
+    request.diScope.resolve<MarkersService>("markersService");
+
+  const response = await markersService.updateMarker(
+    request.params.id,
+    request.body
+  );
+  if (!response) return reply.status(204).send();
+  return reply.status(200).send(response);
 };
