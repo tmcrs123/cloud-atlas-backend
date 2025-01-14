@@ -1,14 +1,17 @@
 import {
+  AttributeValue,
   DeleteItemCommand,
   DynamoDBClient,
   GetItemCommand,
   PutItemCommand,
+  UpdateItemCommand,
 } from "@aws-sdk/client-dynamodb";
 import { marshall, unmarshall } from "@aws-sdk/util-dynamodb";
 import { randomUUID } from "node:crypto";
 import DatabaseGenericError from "../../../errors/database-generic-error.js";
-import { CreateMapDTO, SnappinMap } from "../schemas/index.js";
+import { CreateMapDTO, SnappinMap, UpdateMapDTO } from "../schemas/index.js";
 import { MapsRepository } from "./maps-repository.js";
+import { stripProperties } from "../../../utils/stripProperties.js";
 
 type DynamoDbError = {
   message: string;
@@ -28,7 +31,7 @@ export class DynamoDbMapsRepository implements MapsRepository {
     });
   }
 
-  async createMap(createMapDto: CreateMapDTO): Promise<SnappinMap> {
+  async createMap(createMapDto: CreateMapDTO): Promise<Partial<SnappinMap>> {
     const mapToCreate: SnappinMap = {
       claims: ["EDIT"],
       title: createMapDto.title,
@@ -45,10 +48,10 @@ export class DynamoDbMapsRepository implements MapsRepository {
 
     await sendCommand(() => this.dynamoClient.send(command));
 
-    return { ...mapToCreate };
+    return stripProperties<Partial<SnappinMap>>({ ...mapToCreate }, ["owner"]);
   }
 
-  async getMap(id: string): Promise<SnappinMap> {
+  async getMap(id: string): Promise<Partial<SnappinMap> | null> {
     const command = new GetItemCommand({
       TableName: "maps",
       Key: {
@@ -60,9 +63,11 @@ export class DynamoDbMapsRepository implements MapsRepository {
       this.dynamoClient.send(command)
     );
 
-    if (!commandResponse.Item)
-      throw new DatabaseGenericError("Entity not found", 404);
-    return unmarshall(commandResponse.Item) as SnappinMap;
+    if (!commandResponse.Item) return null;
+    return stripProperties<Partial<SnappinMap>>(
+      unmarshall(commandResponse.Item),
+      ["owner"]
+    );
   }
 
   async deleteMap(id: string): Promise<void> {
@@ -72,11 +77,52 @@ export class DynamoDbMapsRepository implements MapsRepository {
         id: { ...marshall(id) },
       },
     });
+    await sendCommand(() => this.dynamoClient.send(command));
+
+    return;
+  }
+
+  async updateMap(
+    id: string,
+    updatedData: UpdateMapDTO
+  ): Promise<Partial<SnappinMap> | null> {
+    let updateExpression = [];
+    updateExpression.push("updatedAt=:updatedAt");
+    updateExpression.push("title=:title");
+
+    let expressionAttributeValues: Record<string, AttributeValue> = {};
+    expressionAttributeValues[":updatedAt"] = marshall(
+      new Date().toUTCString()
+    );
+    expressionAttributeValues[":title"] = marshall(updatedData.title);
+
+    if (updatedData.coverPhoto) {
+      updateExpression.push("coverPhoto=:coverPhoto");
+      expressionAttributeValues[":coverPhoto"] = marshall(
+        updatedData.coverPhoto
+      );
+    }
+
+    const command = new UpdateItemCommand({
+      TableName: "maps",
+      Key: {
+        id: { ...marshall(id) },
+      },
+      UpdateExpression: `SET ${updateExpression.join(", ")}`,
+      ExpressionAttributeValues: expressionAttributeValues,
+      ReturnValues: "ALL_NEW",
+    });
+
     const commandResponse = await sendCommand(() =>
       this.dynamoClient.send(command)
     );
 
-    return;
+    if (!commandResponse.Attributes) return null;
+
+    return stripProperties<Partial<SnappinMap>>(
+      unmarshall(commandResponse.Attributes),
+      ["owner"]
+    );
   }
 }
 

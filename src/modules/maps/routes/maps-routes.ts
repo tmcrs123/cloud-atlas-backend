@@ -1,5 +1,10 @@
 import { Routes } from "../../../shared/types/index.js";
-import { createMap, deleteMap, getMap } from "../controllers/index.js";
+import {
+  createMap,
+  deleteMap,
+  getMap,
+  updateMap,
+} from "../controllers/index.js";
 import {
   CREATE_SNAPPIN_MAP_SCHEMA,
   SNAPPIN_MAP_SCHEMA,
@@ -9,7 +14,7 @@ export const getMapsRoutes = (): { routes: Routes } => {
   return {
     routes: [
       {
-        method: "PUT",
+        method: "POST",
         url: "/maps",
         handler: createMap,
         schema: {
@@ -31,6 +36,11 @@ export const getMapsRoutes = (): { routes: Routes } => {
         method: "DELETE",
         url: "/maps/:id",
         handler: deleteMap,
+      },
+      {
+        method: "PUT",
+        url: "/maps/:id/update",
+        handler: updateMap,
       },
     ],
   };
