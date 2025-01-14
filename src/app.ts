@@ -34,6 +34,8 @@ import { resolveLogger } from "./shared/configs/index.js";
 import { Routes } from "./shared/types/index.js";
 import { createJwksClient } from "./utils/index.js";
 import { errorHandler } from "./errors/errorHandler.js";
+import { getMarkersRoutes } from "./modules/markers/routes/index.js";
+import { resolveMarkersDiConfig } from "./modules/markers/config/index.js";
 
 export async function getApp(): Promise<FastifyInstance> {
   const app: FastifyInstance<
@@ -97,6 +99,9 @@ export async function getApp(): Promise<FastifyInstance> {
   diContainer.register({
     ...resolveMapsDiConfig(diContainer.cradle.databaseConfig),
   });
+  diContainer.register({
+    ...resolveMarkersDiConfig(diContainer.cradle.databaseConfig),
+  });
 
   const jwtConfig = (() => {
     if (isLocalEnv()) {
@@ -156,8 +161,9 @@ function getRoutes(): {
   routes: Routes;
 } {
   const { routes: mapsRoutes } = getMapsRoutes();
+  const { routes: markersRoutes } = getMarkersRoutes();
 
   return {
-    routes: [...mapsRoutes],
+    routes: [...mapsRoutes, ...markersRoutes],
   };
 }

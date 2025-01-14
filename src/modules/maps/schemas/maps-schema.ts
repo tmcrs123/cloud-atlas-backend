@@ -12,7 +12,7 @@ export const SNAPPIN_MAP_SCHEMA = z.object({
   claims: z.array(z.enum(CLAIMS)),
 });
 
-export const CREATE_SNAPPIN_MAP_SCHEMA = z
+export const CREATE_SNAPPIN_MAP_BODY_SCHEMA = z
   .object({
     title: z.string(),
   })
@@ -45,7 +45,7 @@ export const UPDATE_SNAPPIN_MAP_PARAMS_SCHEMA = z
 
 // Zod validation types
 export type CREATE_SNAPPIN_MAP_SCHEMA_TYPE = z.infer<
-  typeof CREATE_SNAPPIN_MAP_SCHEMA
+  typeof CREATE_SNAPPIN_MAP_BODY_SCHEMA
 >;
 
 export type GET_SNAPPIN_MAP_SCHEMA_TYPE = z.infer<

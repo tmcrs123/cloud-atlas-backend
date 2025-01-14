@@ -1,6 +1,6 @@
 import { CustomError } from "./custom-error.js";
 
-export default class DatabaseGenericError extends CustomError {
+export class DatabaseGenericError extends CustomError {
   constructor(message: string, statusCode: number) {
     super(message, "DATABASE_ERROR", statusCode);
 

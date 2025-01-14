@@ -8,10 +8,10 @@ import {
 } from "@aws-sdk/client-dynamodb";
 import { marshall, unmarshall } from "@aws-sdk/util-dynamodb";
 import { randomUUID } from "node:crypto";
-import DatabaseGenericError from "../../../errors/database-generic-error.js";
+import { sendCommand } from "../../../db/utils/index.js";
+import { stripProperties } from "../../../utils/stripProperties.js";
 import { CreateMapDTO, SnappinMap, UpdateMapDTO } from "../schemas/index.js";
 import { MapsRepository } from "./maps-repository.js";
-import { stripProperties } from "../../../utils/stripProperties.js";
 
 type DynamoDbError = {
   message: string;
@@ -122,18 +122,6 @@ export class DynamoDbMapsRepository implements MapsRepository {
     return stripProperties<Partial<SnappinMap>>(
       unmarshall(commandResponse.Attributes),
       ["owner"]
-    );
-  }
-}
-
-async function sendCommand<T>(sendFn: () => Promise<T>): Promise<T> {
-  try {
-    return await sendFn();
-  } catch (err) {
-    let error = err as DynamoDbError;
-    throw new DatabaseGenericError(
-      error.message,
-      error.$metadata.httpStatusCode
     );
   }
 }

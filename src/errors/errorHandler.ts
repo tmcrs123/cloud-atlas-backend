@@ -3,7 +3,7 @@ import {
   hasZodFastifySchemaValidationErrors,
   isResponseSerializationError,
 } from "fastify-type-provider-zod";
-import DatabaseGenericError from "./database-generic-error.js";
+import { DatabaseGenericError } from "./index.js";
 
 const knownAuthErrors = new Set([
   "FST_JWT_NO_AUTHORIZATION_IN_HEADER",

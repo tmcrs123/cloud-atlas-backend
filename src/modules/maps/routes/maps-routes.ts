@@ -6,7 +6,7 @@ import {
   updateMap,
 } from "../controllers/index.js";
 import {
-  CREATE_SNAPPIN_MAP_SCHEMA,
+  CREATE_SNAPPIN_MAP_BODY_SCHEMA,
   SNAPPIN_MAP_SCHEMA,
 } from "../schemas/index.js";
 
@@ -18,7 +18,7 @@ export const getMapsRoutes = (): { routes: Routes } => {
         url: "/maps",
         handler: createMap,
         schema: {
-          body: CREATE_SNAPPIN_MAP_SCHEMA,
+          body: CREATE_SNAPPIN_MAP_BODY_SCHEMA,
           response: {
             201: SNAPPIN_MAP_SCHEMA,
           },

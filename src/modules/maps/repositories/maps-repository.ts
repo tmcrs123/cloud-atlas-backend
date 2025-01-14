@@ -11,9 +11,3 @@ export interface MapsRepository {
     updatedData: UpdateMapDTO
   ): Promise<Partial<SnappinMap> | null>;
 }
-
-// the new() => MapsRepo simply means that values returned are construtor functions
-export const dbEngines: Record<string, new () => MapsRepository> = {
-  dynamoDb: DynamoDbMapsRepository,
-  // postgres: PostgresMapsRepository,
-};
