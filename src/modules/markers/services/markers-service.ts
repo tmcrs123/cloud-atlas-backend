@@ -61,15 +61,16 @@ export class MarkersService {
     return markers;
   }
 
-  async deleteMarker(id: string): Promise<void> {
-    return await this.markersRepository.deleteMarker(id);
+  async deleteMarker(id: string, mapId: string): Promise<void> {
+    return await this.markersRepository.deleteMarker(id, mapId);
   }
 
   async updateMarker(
     id: string,
+    mapId: string,
     updatedData: UpdateMarkerRequestBody
   ): Promise<Partial<Marker> | null> {
-    return await this.markersRepository.updateMarker(id, {
+    return await this.markersRepository.updateMarker(id, mapId, {
       ...updatedData,
       updatedAt: new Date().toUTCString(),
     });

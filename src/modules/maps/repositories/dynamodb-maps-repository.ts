@@ -7,20 +7,9 @@ import {
   UpdateItemCommand,
 } from "@aws-sdk/client-dynamodb";
 import { marshall, unmarshall } from "@aws-sdk/util-dynamodb";
-import { randomUUID } from "node:crypto";
 import { sendCommand } from "../../../db/utils/index.js";
-import { stripProperties } from "../../../utils/stripProperties.js";
 import { CreateMapDTO, Map, UpdateMapDTO } from "../schemas/index.js";
 import { MapsRepository } from "./maps-repository.js";
-
-type DynamoDbError = {
-  message: string;
-  name: string;
-  $metadata: {
-    httpStatusCode: number;
-    requestId: string;
-  };
-};
 
 export class DynamoDbMapsRepository implements MapsRepository {
   private dynamoClient: DynamoDBClient;
@@ -34,7 +23,10 @@ export class DynamoDbMapsRepository implements MapsRepository {
   async createMap(createMapDto: CreateMapDTO): Promise<Partial<Map>> {
     const command = new PutItemCommand({
       TableName: "maps",
-      Item: marshall(createMapDto),
+      Item: marshall(createMapDto, {
+        removeUndefinedValues: false,
+        convertEmptyValues: false,
+      }),
     });
 
     await sendCommand(() => this.dynamoClient.send(command));
@@ -100,6 +92,7 @@ export class DynamoDbMapsRepository implements MapsRepository {
       UpdateExpression: `SET ${updateExpression.join(", ")}`,
       ExpressionAttributeValues: expressionAttributeValues,
       ReturnValues: "ALL_NEW",
+      ConditionExpression: "attribute_exists(id)",
     });
 
     const commandResponse = await sendCommand(() =>

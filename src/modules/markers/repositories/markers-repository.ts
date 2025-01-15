@@ -9,9 +9,10 @@ export interface MarkersRepository {
   createMarker(createMarkerDTO: CreateMarkerDTO): Promise<void>;
   getMarker(id: string): Promise<Partial<Marker> | null>;
   getMarkersForMap(mapId: string): Promise<Marker[] | null>;
-  deleteMarker(id: string): Promise<void>;
+  deleteMarker(id: string, mapId: string): Promise<void>;
   updateMarker(
     id: string,
+    mapId: string,
     updatedData: UpdateMarkerDTO
   ): Promise<Partial<Marker> | null>;
 }

@@ -97,11 +97,12 @@ export class DynamoDbMarkersRepository implements MarkersRepository {
     return commandResponse.Items.map((item) => unmarshall(item) as Marker);
   }
 
-  async deleteMarker(id: string): Promise<void> {
+  async deleteMarker(id: string, mapId: string): Promise<void> {
     const command = new DeleteItemCommand({
       TableName: "markers",
       Key: {
         id: { ...marshall(id) },
+        mapId: { ...marshall(mapId) },
       },
     });
     await sendCommand(() => this.dynamoClient.send(command));
@@ -111,6 +112,7 @@ export class DynamoDbMarkersRepository implements MarkersRepository {
 
   async updateMarker(
     id: string,
+    mapId: string,
     updatedData: UpdateMarkerDTO
   ): Promise<Partial<Marker> | null> {
     let updateExpression: string[] = [];
@@ -135,10 +137,12 @@ export class DynamoDbMarkersRepository implements MarkersRepository {
       TableName: "markers",
       Key: {
         id: { ...marshall(id) },
+        mapId: { ...marshall(mapId) },
       },
       UpdateExpression: `SET ${updateExpression.join(", ")}`,
       ExpressionAttributeValues: expressionAttributeValues,
       ReturnValues: "ALL_NEW",
+      ConditionExpression: "attribute_exists(id) AND attribute_exists(mapId)",
     });
 
     const commandResponse = await sendCommand(() =>

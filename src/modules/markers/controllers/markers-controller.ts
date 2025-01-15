@@ -88,7 +88,7 @@ export const deleteMarker = async (
   const markersService =
     request.diScope.resolve<MarkersService>("markersService");
 
-  await markersService.deleteMarker(request.params.id);
+  await markersService.deleteMarker(request.params.id, request.params.mapId);
 
   return reply.status(204).send();
 };
@@ -105,6 +105,7 @@ export const updateMarker = async (
 
   const response = await markersService.updateMarker(
     request.params.id,
+    request.params.mapId,
     request.body
   );
   if (!response) return reply.status(204).send();
