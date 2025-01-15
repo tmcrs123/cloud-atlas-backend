@@ -20,7 +20,8 @@
     "acr-login": "aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin 891376964515.dkr.ecr.us-east-1.amazonaws.com",
     "acr-tag": "docker tag snappin-service:latest 891376964515.dkr.ecr.us-east-1.amazonaws.com/snappin-service:latest",
     "acr-push": "docker push 891376964515.dkr.ecr.us-east-1.amazonaws.com/snappin-service:latest",
-    "acr-stuff": "npm run acr-login & npm run acr-tag & npm run acr-push"
+    "acr-stuff": "npm run acr-login & npm run acr-tag & npm run acr-push",
+    "s3-create-bucket": "aws --endpoint-url=http://localhost:4566 s3 mb s3://my-bucket"
   },
   "dependencies": {
     "@aws-sdk/client-dynamodb": "^3.721.0",
