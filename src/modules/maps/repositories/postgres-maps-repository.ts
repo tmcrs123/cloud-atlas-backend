@@ -1,8 +1,8 @@
 import { MapsRepository } from "./maps-repository.js";
-import { SnappinMap, UpdateMapDTO } from "../schemas/index.js";
+import { Map, UpdateMapDTO } from "../schemas/index.js";
 
 export class PostgresMapsRepository implements MapsRepository {
-  async createMap(): Promise<SnappinMap> {
+  async createMap(): Promise<Map> {
     return new Promise((resolve) =>
       resolve({
         createdAt: "",
@@ -15,8 +15,8 @@ export class PostgresMapsRepository implements MapsRepository {
     );
   }
 
-  async getMap(): Promise<SnappinMap> {
-    return new Promise((resolve) => resolve({} as SnappinMap));
+  async getMap(): Promise<Map> {
+    return new Promise((resolve) => resolve({} as Map));
   }
 
   deleteMap(id: string): Promise<void> {

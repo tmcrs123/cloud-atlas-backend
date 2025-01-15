@@ -4,6 +4,7 @@ import {
   createMarker,
   deleteMarker,
   getMarker,
+  getMarkersForMap,
   updateMarker,
 } from "../controllers/index.js";
 
@@ -17,12 +18,17 @@ export const getMarkersRoutes = (): { routes: Routes } => {
       },
       {
         method: "POST",
-        url: "/markers",
+        url: "/markers/:mapId",
         handler: createManyMarkers,
       },
       {
         method: "GET",
-        url: "/markers/:id",
+        url: "/markers/:mapId",
+        handler: getMarkersForMap,
+      },
+      {
+        method: "GET",
+        url: "/markerss/:id",
         handler: getMarker,
       },
       {

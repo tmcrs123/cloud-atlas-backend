@@ -1,29 +1,26 @@
 import { FastifyReply, FastifyRequest } from "fastify";
-import RequestValidationError from "../../../errors/request-validation-error.js";
 import {
-  CREATE_SNAPPIN_MAP_SCHEMA_TYPE,
-  DELETE_SNAPPIN_MAP_SCHEMA_TYPE,
-  GET_SNAPPIN_MAP_SCHEMA_TYPE,
-  UPDATE_SNAPPIN_MAP_BODY_SCHEMA_TYPE,
-  UPDATE_SNAPPIN_MAP_PARAMS_SCHEMA_TYPE,
+  CreateMapRequestBody,
+  DeleteMapRequestParams,
+  GetMapRequestParams,
+  UpdateMapRequestBody,
+  UpdateMapRequestParams,
 } from "../schemas/index.js";
 import { MapsService } from "../services/index.js";
 
 export const createMap = async (
-  request: FastifyRequest<{ Body: CREATE_SNAPPIN_MAP_SCHEMA_TYPE }>,
+  request: FastifyRequest<{ Body: CreateMapRequestBody }>,
   reply: FastifyReply
 ): Promise<void> => {
-  const { title } = request.body;
-  const { sub } = request.user;
   const mapsService = request.diScope.resolve<MapsService>("mapsService");
 
-  let map = await mapsService.createMap({ title, owner: sub });
+  let map = await mapsService.createMap({ ...request.body }, request.user.sub);
 
   return reply.status(201).header("Location", `/maps/${map.id}`).send(map);
 };
 
 export const getMap = async (
-  request: FastifyRequest<{ Params: GET_SNAPPIN_MAP_SCHEMA_TYPE }>,
+  request: FastifyRequest<{ Params: GetMapRequestParams }>,
   reply: FastifyReply
 ): Promise<void> => {
   const mapsService = request.diScope.resolve<MapsService>("mapsService");
@@ -36,7 +33,7 @@ export const getMap = async (
 };
 
 export const deleteMap = async (
-  request: FastifyRequest<{ Params: DELETE_SNAPPIN_MAP_SCHEMA_TYPE }>,
+  request: FastifyRequest<{ Params: DeleteMapRequestParams }>,
   reply: FastifyReply
 ): Promise<void> => {
   const mapsService = request.diScope.resolve<MapsService>("mapsService");
@@ -49,14 +46,14 @@ export const deleteMap = async (
 
 export const updateMap = async (
   request: FastifyRequest<{
-    Body: UPDATE_SNAPPIN_MAP_BODY_SCHEMA_TYPE;
-    Params: UPDATE_SNAPPIN_MAP_PARAMS_SCHEMA_TYPE;
+    Body: UpdateMapRequestBody;
+    Params: UpdateMapRequestParams;
   }>,
   reply: FastifyReply
 ): Promise<void> => {
   const mapsService = request.diScope.resolve<MapsService>("mapsService");
 
-  const response = await mapsService.updateMap(request.params.id, request.body);
+  const response = await mapsService.updateMap(request.body, request.params.id);
 
   if (!response) return reply.status(204).send();
   return reply.status(200).send(response);

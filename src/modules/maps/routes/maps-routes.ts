@@ -6,8 +6,8 @@ import {
   updateMap,
 } from "../controllers/index.js";
 import {
-  CREATE_SNAPPIN_MAP_BODY_SCHEMA,
-  SNAPPIN_MAP_SCHEMA,
+  CREATE_MAP_REQUEST_BODY_SCHEMA,
+  MAP_SCHEMA,
 } from "../schemas/index.js";
 
 export const getMapsRoutes = (): { routes: Routes } => {
@@ -18,9 +18,9 @@ export const getMapsRoutes = (): { routes: Routes } => {
         url: "/maps",
         handler: createMap,
         schema: {
-          body: CREATE_SNAPPIN_MAP_BODY_SCHEMA,
+          body: CREATE_MAP_REQUEST_BODY_SCHEMA,
           response: {
-            201: SNAPPIN_MAP_SCHEMA,
+            201: MAP_SCHEMA,
           },
           description: "Create a new map for the current user",
           summary: "Map creation endpoint",
@@ -39,7 +39,7 @@ export const getMapsRoutes = (): { routes: Routes } => {
       },
       {
         method: "PUT",
-        url: "/maps/:id/update",
+        url: "/maps/:id",
         handler: updateMap,
       },
     ],

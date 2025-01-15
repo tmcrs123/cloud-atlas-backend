@@ -5,13 +5,15 @@ import {
   DynamoDBClient,
   GetItemCommand,
   PutItemCommand,
+  QueryCommand,
+  QueryCommandInput,
   UpdateItemCommand,
 } from "@aws-sdk/client-dynamodb";
 import { marshall, unmarshall } from "@aws-sdk/util-dynamodb";
 import { sendCommand } from "../../../db/utils/index.js";
 import {
-  CreateSnappinMarkerDTO,
-  SnappinMarker,
+  CreateMarkerDTO,
+  Marker,
   UpdateMarkerDTO,
 } from "../schemas/markers-schema.js";
 import { MarkersRepository } from "./index.js";
@@ -25,23 +27,17 @@ export class DynamoDbMarkersRepository implements MarkersRepository {
     });
   }
 
-  async createMarker(createMarkerDTO: CreateSnappinMarkerDTO) {
-    const marker: Partial<SnappinMarker> = {
-      ...createMarkerDTO,
-      createdAt: new Date().toUTCString(),
-    };
-
+  async createMarker(createMarkerDTO: CreateMarkerDTO): Promise<void> {
     const command = new PutItemCommand({
       TableName: "markers",
-      Item: marshall(marker),
+      Item: marshall(createMarkerDTO),
     });
 
-    const response = await sendCommand(() => this.dynamoClient.send(command));
-    return marker;
+    await sendCommand(() => this.dynamoClient.send(command));
   }
 
-  async createManyMarkers(createMarkerDTOs: CreateSnappinMarkerDTO[]) {
-    const newMarkers = createMarkerDTOs.map((dto: CreateSnappinMarkerDTO) => {
+  async createManyMarkers(createMarkerDTOs: CreateMarkerDTO[]): Promise<void> {
+    const newMarkers = createMarkerDTOs.map((dto: CreateMarkerDTO) => {
       return {
         PutRequest: {
           Item: marshall({ ...dto }),
@@ -58,12 +54,12 @@ export class DynamoDbMarkersRepository implements MarkersRepository {
       createMarkersBatchWriteCommandInput
     );
 
-    const response = await sendCommand(() => this.dynamoClient.send(command));
-    console.log(response);
+    await sendCommand(() => this.dynamoClient.send(command));
+
     return;
   }
 
-  async getMarker(id: string): Promise<Partial<SnappinMarker> | null> {
+  async getMarker(id: string): Promise<Partial<Marker> | null> {
     const command = new GetItemCommand({
       TableName: "markers",
       Key: {
@@ -77,6 +73,28 @@ export class DynamoDbMarkersRepository implements MarkersRepository {
 
     if (!commandResponse.Item) return null;
     return unmarshall(commandResponse.Item);
+  }
+
+  async getMarkersForMap(mapId: string): Promise<Marker[] | null> {
+    const ExpressionAttributeValues: Record<string, AttributeValue> = {
+      ":mapId": marshall(mapId),
+    };
+    const KeyConditionExpression = "mapId = :mapId";
+
+    const command = new QueryCommand({
+      TableName: "markers",
+      ExpressionAttributeValues,
+      KeyConditionExpression,
+    });
+
+    const commandResponse = await sendCommand(() =>
+      this.dynamoClient.send(command)
+    );
+
+    if (!commandResponse.Items) return null;
+    if (commandResponse.Count === 0) return null;
+
+    return commandResponse.Items.map((item) => unmarshall(item) as Marker);
   }
 
   async deleteMarker(id: string): Promise<void> {
@@ -94,7 +112,7 @@ export class DynamoDbMarkersRepository implements MarkersRepository {
   async updateMarker(
     id: string,
     updatedData: UpdateMarkerDTO
-  ): Promise<Partial<SnappinMarker> | null> {
+  ): Promise<Partial<Marker> | null> {
     let updateExpression: string[] = [];
     let expressionAttributeValues: Record<string, AttributeValue> = {};
 

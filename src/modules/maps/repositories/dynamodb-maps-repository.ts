@@ -10,7 +10,7 @@ import { marshall, unmarshall } from "@aws-sdk/util-dynamodb";
 import { randomUUID } from "node:crypto";
 import { sendCommand } from "../../../db/utils/index.js";
 import { stripProperties } from "../../../utils/stripProperties.js";
-import { CreateMapDTO, SnappinMap, UpdateMapDTO } from "../schemas/index.js";
+import { CreateMapDTO, Map, UpdateMapDTO } from "../schemas/index.js";
 import { MapsRepository } from "./maps-repository.js";
 
 type DynamoDbError = {
@@ -31,27 +31,18 @@ export class DynamoDbMapsRepository implements MapsRepository {
     });
   }
 
-  async createMap(createMapDto: CreateMapDTO): Promise<Partial<SnappinMap>> {
-    const mapToCreate: SnappinMap = {
-      claims: ["EDIT"],
-      title: createMapDto.title,
-      id: randomUUID(),
-      createdAt: new Date().toUTCString(),
-      markersCount: 0,
-      owner: createMapDto.owner,
-    };
-
+  async createMap(createMapDto: CreateMapDTO): Promise<Partial<Map>> {
     const command = new PutItemCommand({
       TableName: "maps",
-      Item: marshall(mapToCreate),
+      Item: marshall(createMapDto),
     });
 
     await sendCommand(() => this.dynamoClient.send(command));
 
-    return stripProperties<Partial<SnappinMap>>({ ...mapToCreate }, ["owner"]);
+    return { ...createMapDto };
   }
 
-  async getMap(id: string): Promise<Partial<SnappinMap> | null> {
+  async getMap(id: string): Promise<Partial<Map> | null> {
     const command = new GetItemCommand({
       TableName: "maps",
       Key: {
@@ -64,10 +55,8 @@ export class DynamoDbMapsRepository implements MapsRepository {
     );
 
     if (!commandResponse.Item) return null;
-    return stripProperties<Partial<SnappinMap>>(
-      unmarshall(commandResponse.Item),
-      ["owner"]
-    );
+
+    return unmarshall(commandResponse.Item);
   }
 
   async deleteMap(id: string): Promise<void> {
@@ -83,9 +72,9 @@ export class DynamoDbMapsRepository implements MapsRepository {
   }
 
   async updateMap(
-    id: string,
-    updatedData: UpdateMapDTO
-  ): Promise<Partial<SnappinMap> | null> {
+    updatedData: UpdateMapDTO,
+    id: string
+  ): Promise<Partial<Map> | null> {
     let updateExpression = [];
     updateExpression.push("updatedAt=:updatedAt");
     updateExpression.push("title=:title");
@@ -119,9 +108,6 @@ export class DynamoDbMapsRepository implements MapsRepository {
 
     if (!commandResponse.Attributes) return null;
 
-    return stripProperties<Partial<SnappinMap>>(
-      unmarshall(commandResponse.Attributes),
-      ["owner"]
-    );
+    return unmarshall(commandResponse.Attributes);
   }
 }

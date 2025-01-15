@@ -1,42 +1,63 @@
 import { FastifyReply, FastifyRequest } from "fastify";
 import {
-  CreateSnappinMarkerRequestBody,
-  UpdateSnappinMarkerRequestBody,
+  CreateMarkerRequestBody,
+  CreateMarkerRequestParams,
+  DeleteMarkerRequestParams,
+  GetMarkerRequestParams,
+  Marker,
+  UpdateMarkerRequestBody,
+  UpdateMarkerRequestParams,
 } from "../schemas/index.js";
 import { MarkersService } from "../services/index.js";
 import { randomUUID } from "crypto";
 
 export const createMarker = async (
-  request: FastifyRequest<{ Body: CreateSnappinMarkerRequestBody }>,
+  request: FastifyRequest<{
+    Body: CreateMarkerRequestBody;
+    Params: CreateMarkerRequestParams;
+  }>,
   reply: FastifyReply
-): Promise<void> => {
+): Promise<Partial<Marker>> => {
   const markersService =
     request.diScope.resolve<MarkersService>("markersService");
+  const { mapId } = request.params;
 
-  let marker = await markersService.createMarker({
-    ...request.body,
-    createdAt: new Date().toUTCString(),
-    imageCount: 0,
-    id: randomUUID(),
-  });
+  let marker = await markersService.createMarker(
+    request.body,
+    request.params.mapId
+  );
 
-  return reply.status(201).send(marker);
+  return reply
+    .status(201)
+    .header("Location", `/maps/${mapId}/markers/${marker.id}`)
+    .send(marker);
 };
 
 export const createManyMarkers = async (
-  request: FastifyRequest<{ Body: CreateSnappinMarkerRequestBody[] }>,
+  request: FastifyRequest<{
+    Body: CreateMarkerRequestBody[];
+    Params: CreateMarkerRequestParams;
+  }>,
   reply: FastifyReply
-): Promise<void> => {
+): Promise<Partial<Marker>[]> => {
   const markersService =
     request.diScope.resolve<MarkersService>("markersService");
 
-  let marker = await markersService.createManyMarkers(request.body);
+  const { mapId } = request.params;
 
-  return reply.status(201).send(marker);
+  let markers = await markersService.createManyMarkers(
+    request.body,
+    request.params.mapId
+  );
+
+  return reply
+    .status(201)
+    .header("Location", `/markers/${mapId}`)
+    .send(markers);
 };
 
 export const getMarker = async (
-  request: FastifyRequest<{ Params: { id: string } }>,
+  request: FastifyRequest<{ Params: GetMarkerRequestParams }>,
   reply: FastifyReply
 ): Promise<void> => {
   const markersService =
@@ -48,8 +69,20 @@ export const getMarker = async (
   return reply.status(200).send(marker);
 };
 
+export const getMarkersForMap = async (
+  request: FastifyRequest<{ Params: { mapId: string } }>,
+  reply: FastifyReply
+): Promise<void> => {
+  const markersService =
+    request.diScope.resolve<MarkersService>("markersService");
+
+  let markers = await markersService.getMarkersForMap(request.params.mapId);
+
+  return reply.status(200).send(markers);
+};
+
 export const deleteMarker = async (
-  request: FastifyRequest<{ Params: { id: string } }>,
+  request: FastifyRequest<{ Params: DeleteMarkerRequestParams }>,
   reply: FastifyReply
 ): Promise<void> => {
   const markersService =
@@ -62,8 +95,8 @@ export const deleteMarker = async (
 
 export const updateMarker = async (
   request: FastifyRequest<{
-    Body: UpdateSnappinMarkerRequestBody;
-    Params: { id: string };
+    Body: UpdateMarkerRequestBody;
+    Params: UpdateMarkerRequestParams;
   }>,
   reply: FastifyReply
 ): Promise<void> => {
