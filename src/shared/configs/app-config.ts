@@ -1,7 +1,8 @@
-import { asFunction, Resolver } from "awilix";
+import { asClass, asFunction, Resolver } from "awilix";
 import { LogLevel } from "fastify";
+import { valueOfFallback } from "../../utils/index.js";
 
-export type AppConfig = {
+export type Configurations = {
   appVersion: string;
   baseUrl: string;
   environment: "production" | "local" | "test";
@@ -12,68 +13,46 @@ export type AppConfig = {
   publicKeyURI: string;
 };
 
-export const APP_CONFIG: AppConfig = {
-  appVersion: valueOfFallback<AppConfig["appVersion"]>(
-    process.env["APP_VERSION"],
-    "test"
-  ),
-  baseUrl: valueOfFallback<AppConfig["baseUrl"]>(
-    process.env["BASE_URL"],
-    "localhost"
-  ),
-  environment: valueOfFallback<AppConfig["environment"]>(
-    process.env["ENVIRONMENT"],
-    "local"
-  ),
-  logLevel: valueOfFallback<AppConfig["logLevel"]>(
-    process.env["LOG_LEVEL"],
-    "info"
-  ),
-  port: valueOfFallback<AppConfig["port"]>(process.env["PORT"], 3000),
-  bindAddress: valueOfFallback<AppConfig["bindAddress"]>(
-    process.env["BIND_ADDRESS"],
-    "0.0.0.0"
-  ),
-  jwtPublicKey: valueOfFallback<AppConfig["jwtPublicKey"]>(
-    process.env["JWT_PUBLIC_KEY"],
-    "super secret key"
-  ),
-  publicKeyURI: valueOfFallback<AppConfig["publicKeyURI"]>(
-    process.env["PUBLIC_KEY_URI"],
-    ""
-  ),
-};
+export class AppConfig {
+  static configurations: Configurations = {
+    appVersion: valueOfFallback<Configurations["appVersion"]>(
+      process.env["APP_VERSION"],
+      "test"
+    ),
+    baseUrl: valueOfFallback<Configurations["baseUrl"]>(
+      process.env["BASE_URL"],
+      "localhost"
+    ),
+    environment: valueOfFallback<Configurations["environment"]>(
+      process.env["ENVIRONMENT"],
+      "local"
+    ),
+    logLevel: valueOfFallback<Configurations["logLevel"]>(
+      process.env["LOG_LEVEL"],
+      "info"
+    ),
+    port: valueOfFallback<Configurations["port"]>(process.env["PORT"], 3000),
+    bindAddress: valueOfFallback<Configurations["bindAddress"]>(
+      process.env["BIND_ADDRESS"],
+      "0.0.0.0"
+    ),
+    jwtPublicKey: valueOfFallback<Configurations["jwtPublicKey"]>(
+      process.env["JWT_PUBLIC_KEY"],
+      "super secret key"
+    ),
+    publicKeyURI: valueOfFallback<Configurations["publicKeyURI"]>(
+      process.env["PUBLIC_KEY_URI"],
+      ""
+    ),
+  };
 
-export const isLocalEnv = () => APP_CONFIG.environment === "local";
+  static isLocalEnv = () => this.configurations.environment === "local";
+}
 
-export type AppConfigDependencies = {
-  appConfig: AppConfig;
-};
-
-type AppDiConfig = Record<keyof AppConfigDependencies, Resolver<AppConfig>>;
-
-export type AppInjectableDependencies = AppConfigDependencies;
+type AppDiConfig = Record<"appConfig", Resolver<AppConfig>>;
 
 export function resolveAppDiConfig(): AppDiConfig {
   return {
-    appConfig: asFunction(
-      () => {
-        return {
-          port: APP_CONFIG.port,
-          bindAddress: APP_CONFIG.bindAddress,
-          logLevel: APP_CONFIG.logLevel,
-          environment: APP_CONFIG.environment,
-          appVersion: APP_CONFIG.appVersion,
-          baseUrl: APP_CONFIG.baseUrl,
-          jwtPublicKey: APP_CONFIG.jwtPublicKey,
-          publicKeyURI: APP_CONFIG.publicKeyURI,
-        };
-      },
-      { lifetime: "SINGLETON" }
-    ),
+    appConfig: asClass(AppConfig, { lifetime: "SINGLETON" }),
   };
-}
-
-function valueOfFallback<T>(value: unknown, fallback: T) {
-  return value ? (value as T) : (fallback as T);
 }

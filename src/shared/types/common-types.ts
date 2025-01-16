@@ -34,3 +34,10 @@ export type JwtPublicKey = {
   n: string;
   use: string;
 };
+
+export type Message = {
+  id: string;
+  receiptHandle?: string | undefined;
+  body?: string | undefined;
+  description?: string | undefined;
+};

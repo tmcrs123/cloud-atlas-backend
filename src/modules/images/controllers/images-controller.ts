@@ -11,3 +11,17 @@ export const getImagesForMarker = async (
 
   return reply.status(200).send(images);
 };
+
+export const getPresignedURL = async (
+  request: FastifyRequest<{ Params: { mapId: string; markerId: string } }>,
+  reply: FastifyReply
+): Promise<void> => {
+  const imagesService = request.diScope.resolve<ImagesService>("imagesService");
+
+  let url = await imagesService.getPresignedUrl(
+    request.params.mapId,
+    request.params.markerId
+  );
+
+  return reply.status(200).send(url);
+};

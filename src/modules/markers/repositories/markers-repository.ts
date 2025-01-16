@@ -15,4 +15,5 @@ export interface MarkersRepository {
     mapId: string,
     updatedData: UpdateMarkerDTO
   ): Promise<Partial<Marker> | null>;
+  updateImageCount(id: string, mapId: string): Promise<void>;
 }

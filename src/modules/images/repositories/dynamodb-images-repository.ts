@@ -1,5 +1,7 @@
-import { DynamoDBClient } from "@aws-sdk/client-dynamodb";
+import { DynamoDBClient, PutItemCommand } from "@aws-sdk/client-dynamodb";
 import { ImagesRepository } from "./index.js";
+import { marshall } from "@aws-sdk/util-dynamodb";
+import { sendCommand } from "../../../db/utils/sendCommand.js";
 
 export class DynamoDbImagesRepository implements ImagesRepository {
   private dynamoClient: DynamoDBClient;
@@ -12,5 +14,18 @@ export class DynamoDbImagesRepository implements ImagesRepository {
 
   async getImagesForMarker(id: string): Promise<void> {
     return;
+  }
+
+  async saveImagesDetails(
+    mapId: string,
+    markerId: string,
+    imageId: string
+  ): Promise<void> {
+    const command = new PutItemCommand({
+      TableName: "images",
+      Item: marshall({ mapId, imageId, markerId }),
+    });
+
+    await sendCommand(() => this.dynamoClient.send(command));
   }
 }

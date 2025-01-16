@@ -1,26 +1,24 @@
 version: "3.8"
 
 services:
-  # dynamodb-local:
-  #   image: amazon/dynamodb-local
-  #   container_name: dynamodb-local
-  #   ports:
-  #     - "8000:8000"
-  #   command: "-jar DynamoDBLocal.jar -sharedDb -inMemory"
-  #   volumes:
-  #     - dynamodb-data:/home/dynamodblocal/data
-  #   networks:
-  #     - local-aws
+  dynamodb-local:
+    image: amazon/dynamodb-local
+    container_name: dynamodb-local
+    ports:
+      - "8000:8000"
+    command: "-jar DynamoDBLocal.jar -sharedDb -inMemory"
+    volumes:
+      - dynamodb-data:/home/dynamodblocal/data
 
   localstack:
-    image: localstack/localstack:3.8.1
+    image: localstack/localstack:latest
     hostname: localstack
     ports:
       - "4566:4566"
       - 4510-4559:4510-4559
     environment:
-      SERVICES: s3
-      DEBUG: 0
+      SERVICES: sqs
+      DEBUG: 1
       DATA_DIR: ${DATA_DIR-}
       DOCKER_HOST: unix:///var/run/docker.sock
       LOCALSTACK_HOST: localstack
@@ -28,12 +26,6 @@ services:
       - ${TMPDIR:-/tmp}/localstack:/var/log/localstack
       - /var/run/docker.sock:/var/run/docker.sock
     # restart: on-failure
-    networks:
-      - local-aws
 
 volumes:
   dynamodb-data:
-
-networks:
-  local-aws:
-    driver: bridge

@@ -72,6 +72,7 @@ export class MarkersService {
   ): Promise<Partial<Marker> | null> {
     return await this.markersRepository.updateMarker(id, mapId, {
       ...updatedData,
+      id,
       updatedAt: new Date().toUTCString(),
     });
   }

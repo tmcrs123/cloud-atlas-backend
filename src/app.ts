@@ -25,8 +25,7 @@ import { getMapsRoutes } from "./modules/maps/routes/index.js";
 import { fakeJwtPlugin } from "./plugins/index.js";
 import { verifyJwtTokenPlugin } from "./plugins/index.js";
 import {
-  APP_CONFIG,
-  isLocalEnv,
+  AppConfig,
   resolveAppDiConfig,
   resolveDatabaseDiConfig,
 } from "./shared/configs/index.js";
@@ -36,6 +35,8 @@ import { createJwksClient } from "./utils/index.js";
 import { errorHandler } from "./errors/errorHandler.js";
 import { getMarkersRoutes } from "./modules/markers/routes/index.js";
 import { resolveMarkersDiConfig } from "./modules/markers/config/index.js";
+import { getImagesRoutes } from "./modules/images/routes/images-routes.js";
+import { resolveImagesDiConfig } from "./modules/images/config/images-config.js";
 
 export async function getApp(): Promise<FastifyInstance> {
   const app: FastifyInstance<
@@ -44,8 +45,36 @@ export async function getApp(): Promise<FastifyInstance> {
     http.ServerResponse,
     FastifyBaseLogger
   > = fastify({
-    loggerInstance: resolveLogger({ logLevel: APP_CONFIG.logLevel }),
+    loggerInstance: resolveLogger({
+      logLevel: AppConfig.configurations.logLevel,
+    }),
     genReqId: () => randomUUID(),
+  });
+
+  //IOC
+  const diContainer = createContainer({ injectionMode: "PROXY", strict: true });
+  await app.register(fastifyAwilixPlugin, {
+    container: diContainer,
+    disposeOnClose: true,
+    asyncDispose: true,
+    asyncInit: true,
+    eagerInject: true,
+    disposeOnResponse: false,
+  });
+
+  diContainer.register({ ...resolveAppDiConfig() }); //inject APP_Config as dependency. This the only file where I accept referencing the APP_CONFIG const
+
+  diContainer.register({
+    ...resolveDatabaseDiConfig({ engine: "dynamoDb" }),
+  });
+  diContainer.register({
+    ...resolveMapsDiConfig(diContainer.cradle.databaseConfig),
+  });
+  diContainer.register({
+    ...resolveMarkersDiConfig(diContainer.cradle.databaseConfig),
+  });
+  diContainer.register({
+    ...resolveImagesDiConfig(),
   });
 
   await app.register(fastifySwagger, {
@@ -80,37 +109,16 @@ export async function getApp(): Promise<FastifyInstance> {
     return app.swagger();
   });
 
-  //IOC
-  const diContainer = createContainer({ injectionMode: "PROXY", strict: true });
-  await app.register(fastifyAwilixPlugin, {
-    container: diContainer,
-    disposeOnClose: true,
-    asyncDispose: true,
-    asyncInit: true,
-    eagerInject: true,
-    disposeOnResponse: false,
-  });
-
-  diContainer.register({ ...resolveAppDiConfig() }); //inject APP_Config as dependency. This the only file where I accept referencing the APP_CONFIG const
-
-  diContainer.register({
-    ...resolveDatabaseDiConfig({ engine: "dynamoDb" }),
-  });
-  diContainer.register({
-    ...resolveMapsDiConfig(diContainer.cradle.databaseConfig),
-  });
-  diContainer.register({
-    ...resolveMarkersDiConfig(diContainer.cradle.databaseConfig),
-  });
-
   const jwtConfig = (() => {
-    if (isLocalEnv()) {
-      return { secret: APP_CONFIG.jwtPublicKey };
+    if (AppConfig.isLocalEnv()) {
+      return { secret: AppConfig.configurations.jwtPublicKey };
     } else {
       return {
         secret: {
           public: async () => {
-            const jwt_client = createJwksClient(APP_CONFIG.publicKeyURI);
+            const jwt_client = createJwksClient(
+              AppConfig.configurations.publicKeyURI
+            );
             const keys = await jwt_client.getSigningKeys();
             //aws gives 2 keys, one old, other current. Use any to validate the tokens
             return keys[0].getPublicKey();
@@ -122,7 +130,7 @@ export async function getApp(): Promise<FastifyInstance> {
 
   await app.register(fastifyJwt, { ...jwtConfig });
 
-  if (isLocalEnv()) await app.register(fakeJwtPlugin);
+  if (AppConfig.isLocalEnv()) await app.register(fakeJwtPlugin);
 
   await app.register(verifyJwtTokenPlugin, {
     skipList: new Set([
@@ -162,8 +170,9 @@ function getRoutes(): {
 } {
   const { routes: mapsRoutes } = getMapsRoutes();
   const { routes: markersRoutes } = getMarkersRoutes();
+  const { routes: imagesRoutes } = getImagesRoutes();
 
   return {
-    routes: [...mapsRoutes, ...markersRoutes],
+    routes: [...mapsRoutes, ...markersRoutes, ...imagesRoutes],
   };
 }
