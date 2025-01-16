@@ -28,12 +28,15 @@ export class ImagesService {
   }
 
   async processImageUploadedMessages(messages: Message[]): Promise<void> {
-    setTimeout(() => null, 50000);
     for (const message of messages) {
-      const { mapdId, markerId, imageId } = JSON.parse(message.body!) as any;
+      const { mapId, markerId, imageId } = JSON.parse(message.body!) as any;
 
-      await this.imagesRepository.saveImagesDetails(mapdId, markerId, imageId);
-      await this.markersRepository.updateImageCount(mapdId, markerId);
+      await this.imagesRepository.saveImagesDetails(mapId, markerId, imageId);
+      await this.markersRepository.updateImageCount(markerId, mapId);
     }
+  }
+
+  async deleteImageForMarker(markerId: string, imageId: string): Promise<void> {
+    return;
   }
 }

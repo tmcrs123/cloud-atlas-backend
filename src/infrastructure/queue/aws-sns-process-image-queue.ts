@@ -1,4 +1,5 @@
 import {
+  Message as AwsMessage,
   DeleteMessageCommand,
   DeleteMessageCommandInput,
   ReceiveMessageCommand,
@@ -7,20 +8,20 @@ import {
   SendMessageCommandInput,
   SQSClient,
 } from "@aws-sdk/client-sqs";
-import { Message as AwsMessage } from "@aws-sdk/client-sqs";
-import { IQueue } from "./queue.interface.js";
-import { AppConfig } from "../../shared/configs/app-config.js";
 import { ImagesService } from "../../modules/images/services/images-service.js";
+import { AppConfig } from "../../shared/configs/app-config.js";
 import { Message } from "../../shared/types/index.js";
+import { Queue } from "./queue.js";
+import { QueueInjectableDependencies } from "./config/index.js";
 
-export class AwsSNSProcessImageQueue implements IQueue {
+export class AwsSNSProcessImageQueue implements Queue {
   private appConfig: AppConfig;
   private queueUrl: string;
 
   private sqsClient: SQSClient;
   private imagesService: ImagesService;
 
-  constructor(appConfig: AppConfig, imagesService: ImagesService) {
+  constructor({ appConfig, imagesService }: QueueInjectableDependencies) {
     this.appConfig = appConfig;
     this.imagesService = imagesService;
 
@@ -48,7 +49,7 @@ export class AwsSNSProcessImageQueue implements IQueue {
   async receive(): Promise<Message[] | undefined> {
     const input: ReceiveMessageCommandInput = {
       QueueUrl: this.queueUrl,
-      MaxNumberOfMessages: 25,
+      MaxNumberOfMessages: 10,
       WaitTimeSeconds: 10,
     };
 
@@ -79,6 +80,7 @@ export class AwsSNSProcessImageQueue implements IQueue {
 
     await this.sqsClient.send(new DeleteMessageCommand(input));
   }
+
   startPolling(): void {
     setInterval(() => {
       this.receive();

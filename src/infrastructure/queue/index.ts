@@ -1,1 +1,1 @@
-export * from "./queue.interface.js";
+export * from "./queue.js";

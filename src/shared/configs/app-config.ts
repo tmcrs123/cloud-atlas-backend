@@ -14,7 +14,7 @@ export type Configurations = {
 };
 
 export class AppConfig {
-  static configurations: Configurations = {
+  configurations: Configurations = {
     appVersion: valueOfFallback<Configurations["appVersion"]>(
       process.env["APP_VERSION"],
       "test"
@@ -46,7 +46,7 @@ export class AppConfig {
     ),
   };
 
-  static isLocalEnv = () => this.configurations.environment === "local";
+  isLocalEnv = () => this.configurations.environment === "local";
 }
 
 type AppDiConfig = Record<"appConfig", Resolver<AppConfig>>;

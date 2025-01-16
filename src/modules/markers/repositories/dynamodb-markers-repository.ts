@@ -154,15 +154,15 @@ export class DynamoDbMarkersRepository implements MarkersRepository {
     return unmarshall(commandResponse.Attributes);
   }
 
-  async updateImageCount(id: string, mapId: string): Promise<void> {
+  async updateImageCount(markerId: string, mapId: string): Promise<void> {
     const command = new UpdateItemCommand({
       TableName: "markers",
       Key: {
-        id: { ...marshall(id) },
+        id: { ...marshall(markerId) },
         mapId: { ...marshall(mapId) },
       },
-      UpdateExpression: "ADD imagesCount :imagesCount",
-      ExpressionAttributeValues: { ":imagesCount": marshall(1) },
+      UpdateExpression: "ADD imageCount :imageCount",
+      ExpressionAttributeValues: { ":imageCount": marshall(1) },
     });
 
     await sendCommand(() => this.dynamoClient.send(command));

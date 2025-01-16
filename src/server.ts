@@ -6,8 +6,9 @@ async function server() {
 
   app.listen(
     {
-      port: app.diContainer.resolve<AppConfig>("appConfig").port,
-      host: app.diContainer.resolve<AppConfig>("appConfig").bindAddress,
+      port: app.diContainer.resolve<AppConfig>("appConfig").configurations.port,
+      host: app.diContainer.resolve<AppConfig>("appConfig").configurations
+        .bindAddress,
     },
     (err, address) => {
       if (err) console.log(err, address);

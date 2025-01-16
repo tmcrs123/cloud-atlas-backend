@@ -1,10 +1,4 @@
-import fastify, {
-  FastifyBaseLogger,
-  FastifyError,
-  FastifyInstance,
-  FastifyReply,
-  FastifyRequest,
-} from "fastify";
+import fastify, { FastifyBaseLogger, FastifyInstance } from "fastify";
 
 import { fastifyAwilixPlugin } from "@fastify/awilix";
 import fastifyJwt from "@fastify/jwt";
@@ -17,28 +11,29 @@ import {
   validatorCompiler,
   ZodTypeProvider,
 } from "fastify-type-provider-zod";
-import { SigningKey } from "jwks-rsa";
 import { randomUUID } from "node:crypto";
 import http from "node:http";
+import { errorHandler } from "./errors/errorHandler.js";
+import { resolveImagesDiConfig } from "./modules/images/config/images-config.js";
+import { getImagesRoutes } from "./modules/images/routes/images-routes.js";
 import { resolveMapsDiConfig } from "./modules/maps/config/index.js";
 import { getMapsRoutes } from "./modules/maps/routes/index.js";
-import { fakeJwtPlugin } from "./plugins/index.js";
-import { verifyJwtTokenPlugin } from "./plugins/index.js";
+import { resolveMarkersDiConfig } from "./modules/markers/config/index.js";
+import { getMarkersRoutes } from "./modules/markers/routes/index.js";
+import { fakeJwtPlugin, verifyJwtTokenPlugin } from "./plugins/index.js";
 import {
   AppConfig,
   resolveAppDiConfig,
   resolveDatabaseDiConfig,
+  resolveLogger,
 } from "./shared/configs/index.js";
-import { resolveLogger } from "./shared/configs/index.js";
 import { Routes } from "./shared/types/index.js";
 import { createJwksClient } from "./utils/index.js";
-import { errorHandler } from "./errors/errorHandler.js";
-import { getMarkersRoutes } from "./modules/markers/routes/index.js";
-import { resolveMarkersDiConfig } from "./modules/markers/config/index.js";
-import { getImagesRoutes } from "./modules/images/routes/images-routes.js";
-import { resolveImagesDiConfig } from "./modules/images/config/images-config.js";
+import { resolveQueueDiConfig } from "./infrastructure/queue/config/index.js";
+import { Queue } from "./infrastructure/queue/index.js";
 
 export async function getApp(): Promise<FastifyInstance> {
+  const appConfig = new AppConfig();
   const app: FastifyInstance<
     http.Server,
     http.IncomingMessage,
@@ -46,7 +41,7 @@ export async function getApp(): Promise<FastifyInstance> {
     FastifyBaseLogger
   > = fastify({
     loggerInstance: resolveLogger({
-      logLevel: AppConfig.configurations.logLevel,
+      logLevel: appConfig.configurations.logLevel,
     }),
     genReqId: () => randomUUID(),
   });
@@ -75,6 +70,9 @@ export async function getApp(): Promise<FastifyInstance> {
   });
   diContainer.register({
     ...resolveImagesDiConfig(),
+  });
+  diContainer.register({
+    ...resolveQueueDiConfig(),
   });
 
   await app.register(fastifySwagger, {
@@ -110,14 +108,14 @@ export async function getApp(): Promise<FastifyInstance> {
   });
 
   const jwtConfig = (() => {
-    if (AppConfig.isLocalEnv()) {
-      return { secret: AppConfig.configurations.jwtPublicKey };
+    if (appConfig.isLocalEnv()) {
+      return { secret: appConfig.configurations.jwtPublicKey };
     } else {
       return {
         secret: {
           public: async () => {
             const jwt_client = createJwksClient(
-              AppConfig.configurations.publicKeyURI
+              appConfig.configurations.publicKeyURI
             );
             const keys = await jwt_client.getSigningKeys();
             //aws gives 2 keys, one old, other current. Use any to validate the tokens
@@ -130,7 +128,7 @@ export async function getApp(): Promise<FastifyInstance> {
 
   await app.register(fastifyJwt, { ...jwtConfig });
 
-  if (AppConfig.isLocalEnv()) await app.register(fakeJwtPlugin);
+  if (appConfig.isLocalEnv()) await app.register(fakeJwtPlugin);
 
   await app.register(verifyJwtTokenPlugin, {
     skipList: new Set([
@@ -161,6 +159,8 @@ export async function getApp(): Promise<FastifyInstance> {
       app.withTypeProvider<ZodTypeProvider>().route(route);
     }
   });
+
+  (diContainer.cradle.queue as Queue).startPolling();
 
   return app;
 }
