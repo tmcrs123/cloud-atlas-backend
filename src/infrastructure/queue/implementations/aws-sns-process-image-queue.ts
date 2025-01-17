@@ -8,11 +8,11 @@ import {
   SendMessageCommandInput,
   SQSClient,
 } from "@aws-sdk/client-sqs";
-import { ImagesService } from "../../modules/images/services/images-service.js";
-import { AppConfig } from "../../shared/configs/app-config.js";
-import { Message } from "../../shared/types/index.js";
-import { Queue } from "./queue.js";
-import { QueueInjectableDependencies } from "./config/index.js";
+import { Queue } from "../interfaces/index.js";
+import { AppConfig } from "../../../shared/configs/index.js";
+import { ImagesService } from "../../../modules/images/services/index.js";
+import { QueueInjectableDependencies } from "../config/index.js";
+import { Message } from "../../../shared/types/index.js";
 
 export class AwsSNSProcessImageQueue implements Queue {
   private appConfig: AppConfig;
@@ -28,10 +28,10 @@ export class AwsSNSProcessImageQueue implements Queue {
     this.sqsClient = new SQSClient({
       region: "us-east-1",
       credentials: {
-        accessKeyId: "test", // Dummy for LocalStack
-        secretAccessKey: "test", // Dummy for LocalStack
+        accessKeyId: "test",
+        secretAccessKey: "test",
       },
-      endpoint: "http://localhost:4566", // LocalStack SQS endpoint
+      endpoint: "http://localhost:4566",
     });
 
     this.queueUrl =

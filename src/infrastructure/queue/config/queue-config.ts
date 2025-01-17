@@ -1,8 +1,8 @@
 import { asClass, Resolver } from "awilix";
 import { AppConfig } from "../../../shared/configs/index.js";
 import { ImagesService } from "../../../modules/images/services/index.js";
-import { Queue } from "../queue.js";
-import { AwsSNSProcessImageQueue } from "../aws-sns-process-image-queue.js";
+import { Queue } from "../interfaces/queue.js";
+import { AwsSNSProcessImageQueue } from "../implementations/index.js";
 
 export type QueueInfrastructureDependencies = {
   appConfig: AppConfig;

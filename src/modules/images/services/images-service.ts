@@ -1,3 +1,4 @@
+import { Topic } from "../../../infrastructure/topic/interfaces/index.js";
 import { Message } from "../../../shared/types/index.js";
 import { MarkersRepository } from "../../markers/repositories/markers-repository.js";
 import { ImagesInjectableDependencies } from "../config/index.js";
@@ -8,15 +9,18 @@ export class ImagesService {
   private readonly imagesRepository: ImagesRepository;
   private readonly markersRepository: MarkersRepository;
   private readonly imagesURLsService: ImagesURLsService;
+  private readonly topic: Topic;
 
   constructor({
     imagesRepository,
     markersRepository,
     imagesURLsService,
+    topic,
   }: ImagesInjectableDependencies) {
     this.imagesRepository = imagesRepository;
     this.markersRepository = markersRepository;
     this.imagesURLsService = imagesURLsService;
+    this.topic = topic;
   }
 
   async getImagesForMarker(id: string): Promise<void> {
@@ -37,6 +41,9 @@ export class ImagesService {
   }
 
   async deleteImageForMarker(markerId: string, imageId: string): Promise<void> {
+    await this.imagesRepository.deleteImageFromMarker(markerId, imageId);
+
+    //post message to SNS
     return;
   }
 }

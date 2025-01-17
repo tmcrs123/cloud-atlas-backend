@@ -29,8 +29,11 @@ import {
 } from "./shared/configs/index.js";
 import { Routes } from "./shared/types/index.js";
 import { createJwksClient } from "./utils/index.js";
-import { resolveQueueDiConfig } from "./infrastructure/queue/config/index.js";
-import { Queue } from "./infrastructure/queue/index.js";
+import {
+  resolveQueueDiConfig,
+  resolveTopicDiConfig,
+} from "./infrastructure/queue/config/index.js";
+import { Queue } from "./infrastructure/queue/interfaces/index.js";
 
 export async function getApp(): Promise<FastifyInstance> {
   const appConfig = new AppConfig();
@@ -73,6 +76,9 @@ export async function getApp(): Promise<FastifyInstance> {
   });
   diContainer.register({
     ...resolveQueueDiConfig(),
+  });
+  diContainer.register({
+    ...resolveTopicDiConfig(),
   });
 
   await app.register(fastifySwagger, {
