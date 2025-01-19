@@ -8,6 +8,4 @@ export abstract class CustomError extends Error {
     this.error = error;
     this.statusCode = statusCode;
   }
-
-  abstract serializeErrors(): { message: string; field?: string }[];
 }

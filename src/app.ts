@@ -139,6 +139,7 @@ export async function getApp(): Promise<FastifyInstance> {
   await app.register(verifyJwtTokenPlugin, {
     skipList: new Set([
       "/",
+      "/healthcheck",
       "/favicon.ico",
       "/login",
       "/access-token",
@@ -166,7 +167,8 @@ export async function getApp(): Promise<FastifyInstance> {
     }
   });
 
-  (diContainer.cradle.queue as Queue).startPolling();
+  if (!appConfig.isLocalEnv())
+    (diContainer.cradle.queue as Queue).startPolling();
 
   return app;
 }
@@ -179,6 +181,15 @@ function getRoutes(): {
   const { routes: imagesRoutes } = getImagesRoutes();
 
   return {
-    routes: [...mapsRoutes, ...markersRoutes, ...imagesRoutes],
+    routes: [
+      ...mapsRoutes,
+      ...markersRoutes,
+      ...imagesRoutes,
+      {
+        method: "GET",
+        url: "/healthcheck",
+        handler: (req, rep) => rep.status(200).send("ok"),
+      },
+    ],
   };
 }

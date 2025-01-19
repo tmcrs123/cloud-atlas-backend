@@ -1,15 +1,9 @@
 import { CustomError } from "./custom-error.js";
 
 export default class RequestValidationError extends CustomError {
-  httpStatusCode: number = 400;
-  errorMessage: string = "Invalid request parameters";
+  constructor() {
+    super("Invalid request parameters", "REQUEST_PARAMETERS_ERROR", 400);
 
-  constructor(errorMessage: string) {
-    super();
-    this.errorMessage = errorMessage;
-  }
-
-  serializeErrors(): { message: string; field?: string }[] {
-    return [{ message: this.errorMessage }];
+    Object.setPrototypeOf(this, RequestValidationError.prototype);
   }
 }

@@ -46,7 +46,7 @@ export class AwsSNSProcessImageQueue implements Queue {
 
     await this.sqsClient.send(new SendMessageCommand(input));
   }
-  async receive(): Promise<Message[] | undefined> {
+  async receive(): Promise<void> {
     const input: ReceiveMessageCommandInput = {
       QueueUrl: this.queueUrl,
       MaxNumberOfMessages: 10,
@@ -62,7 +62,7 @@ export class AwsSNSProcessImageQueue implements Queue {
       };
     });
 
-    if (!messages) return undefined;
+    if (!messages) return;
     await this.imagesService.processImageUploadedMessages(messages);
 
     await Promise.all(

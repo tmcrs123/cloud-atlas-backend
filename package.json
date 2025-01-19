@@ -1,5 +1,5 @@
 {
-  "name": "snappin-service",
+  "name": "snappin",
   "version": "1.0.0",
   "description": "a template for snappin services",
   "engines": {
@@ -14,12 +14,12 @@
     "build": "tsc",
     "start:dev": "cross-env tsx watch --env-file=.env src/server.ts",
     "docker-start-local-ddb": "docker run -p 8000:8000 -d amazon/dynamodb-local -jar DynamoDBLocal.jar -sharedDb -dbPath .",
-    "docker-build": "docker build -t snappin-service .",
-    "docker-start": "docker run --env-file .env  -p 3000:3000 snappin-service:latest",
+    "docker-build": "docker build -t snappin-api .",
+    "docker-start": "docker run --env-file .env  -p 3000:3000 snappin:latest",
     "docker-local": "npm run docker-build && npm run docker-start",
     "acr-login": "aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin 891376964515.dkr.ecr.us-east-1.amazonaws.com",
-    "acr-tag": "docker tag snappin-service:latest 891376964515.dkr.ecr.us-east-1.amazonaws.com/snappin-service:latest",
-    "acr-push": "docker push 891376964515.dkr.ecr.us-east-1.amazonaws.com/snappin-service:latest",
+    "acr-tag": "docker tag snappin-api:latest 891376964515.dkr.ecr.us-east-1.amazonaws.com/snappin-api:latest",
+    "acr-push": "docker push 891376964515.dkr.ecr.us-east-1.amazonaws.com/snappin-api:latest",
     "acr-stuff": "npm run acr-login & npm run acr-tag & npm run acr-push",
     "s3-mb": "aws --endpoint-url=http://localhost:4566 s3 mb s3://my-bucket",
     "s3-lb": "aws --endpoint-url=http://localhost:4566 s3 ls",

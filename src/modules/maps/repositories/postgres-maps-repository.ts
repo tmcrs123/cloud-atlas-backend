@@ -25,9 +25,12 @@ export class PostgresMapsRepository implements MapsRepository {
     });
   }
 
-  updateMap(id: string, updatedData: UpdateMapDTO): Promise<void> {
+  updateMap(
+    updatedData: UpdateMapDTO,
+    id: string
+  ): Promise<Partial<Map> | null> {
     return new Promise((resolve) => {
-      resolve();
+      resolve(null);
     });
   }
 }
