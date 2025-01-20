@@ -17,19 +17,25 @@ import {
   UpdateMarkerDTO,
 } from "../schemas/markers-schema.js";
 import { MarkersRepository } from "./index.js";
+import { AppConfig } from "../../../shared/configs/index.js";
+import { MarkersInjectableDependencies } from "../config/index.js";
 
 export class DynamoDbMarkersRepository implements MarkersRepository {
   private dynamoClient: DynamoDBClient;
+  private appConfig: AppConfig;
 
-  constructor() {
+  constructor({ appConfig }: MarkersInjectableDependencies) {
+    this.appConfig = appConfig;
     this.dynamoClient = new DynamoDBClient({
-      endpoint: "http://localhost:8000",
+      ...(this.appConfig.isLocalEnv() && {
+        endpoint: this.appConfig.configurations.databaseEndpoint,
+      }),
     });
   }
 
   async createMarker(createMarkerDTO: CreateMarkerDTO): Promise<void> {
     const command = new PutItemCommand({
-      TableName: "markers",
+      TableName: this.appConfig.configurations.markersTableName,
       Item: marshall(createMarkerDTO),
     });
 
@@ -61,7 +67,7 @@ export class DynamoDbMarkersRepository implements MarkersRepository {
 
   async getMarker(id: string): Promise<Partial<Marker> | null> {
     const command = new GetItemCommand({
-      TableName: "markers",
+      TableName: this.appConfig.configurations.markersTableName,
       Key: {
         id: { ...marshall(id) },
       },
@@ -82,7 +88,7 @@ export class DynamoDbMarkersRepository implements MarkersRepository {
     const KeyConditionExpression = "mapId = :mapId";
 
     const command = new QueryCommand({
-      TableName: "markers",
+      TableName: this.appConfig.configurations.markersTableName,
       ExpressionAttributeValues,
       KeyConditionExpression,
     });
@@ -99,7 +105,7 @@ export class DynamoDbMarkersRepository implements MarkersRepository {
 
   async deleteMarker(id: string, mapId: string): Promise<void> {
     const command = new DeleteItemCommand({
-      TableName: "markers",
+      TableName: this.appConfig.configurations.markersTableName,
       Key: {
         id: { ...marshall(id) },
         mapId: { ...marshall(mapId) },
@@ -134,7 +140,7 @@ export class DynamoDbMarkersRepository implements MarkersRepository {
     };
 
     const command = new UpdateItemCommand({
-      TableName: "markers",
+      TableName: this.appConfig.configurations.markersTableName,
       Key: {
         id: { ...marshall(id) },
         mapId: { ...marshall(mapId) },
@@ -156,7 +162,7 @@ export class DynamoDbMarkersRepository implements MarkersRepository {
 
   async updateImageCount(markerId: string, mapId: string): Promise<void> {
     const command = new UpdateItemCommand({
-      TableName: "markers",
+      TableName: this.appConfig.configurations.markersTableName,
       Key: {
         id: { ...marshall(markerId) },
         mapId: { ...marshall(mapId) },

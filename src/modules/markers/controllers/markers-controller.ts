@@ -9,7 +9,7 @@ import {
   UpdateMarkerRequestParams,
 } from "../schemas/index.js";
 import { MarkersService } from "../services/index.js";
-import { randomUUID } from "crypto";
+import { AppConfig } from "../../../shared/configs/index.js";
 
 export const createMarker = async (
   request: FastifyRequest<{
@@ -20,6 +20,9 @@ export const createMarker = async (
 ): Promise<Partial<Marker>> => {
   const markersService =
     request.diScope.resolve<MarkersService>("markersService");
+
+  const appConfig = request.diScope.resolve<AppConfig>("appConfig");
+
   const { mapId } = request.params;
 
   let marker = await markersService.createMarker(
@@ -29,7 +32,10 @@ export const createMarker = async (
 
   return reply
     .status(201)
-    .header("Location", `/maps/${mapId}/markers/${marker.id}`)
+    .header(
+      "Location",
+      `${appConfig.getURL()}/maps/${mapId}/markers/${marker.id}`
+    )
     .send(marker);
 };
 
@@ -43,6 +49,8 @@ export const createManyMarkers = async (
   const markersService =
     request.diScope.resolve<MarkersService>("markersService");
 
+  const appConfig = request.diScope.resolve<AppConfig>("appConfig");
+
   const { mapId } = request.params;
 
   let markers = await markersService.createManyMarkers(
@@ -52,7 +60,7 @@ export const createManyMarkers = async (
 
   return reply
     .status(201)
-    .header("Location", `/markers/${mapId}`)
+    .header("Location", `${appConfig.getURL()}/markers/${mapId}`)
     .send(markers);
 };
 

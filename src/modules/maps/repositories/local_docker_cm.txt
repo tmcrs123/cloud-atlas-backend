@@ -1,3 +1,0 @@
-docker run -d -p 8000:8000 --name dynamodb-local \
-  -e DBPATH=/data \
-  amazon/dynamodb-local -jar DynamoDBLocal.jar -sharedDb -inMemory

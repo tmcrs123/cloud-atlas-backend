@@ -5,7 +5,6 @@ import {
   CreateMarkerDTO,
   CreateMarkerRequestBody,
   Marker,
-  UpdateMarkerDTO,
   UpdateMarkerRequestBody,
 } from "../schemas/markers-schema.js";
 

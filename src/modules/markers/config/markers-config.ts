@@ -1,5 +1,5 @@
 import { asClass, Resolver } from "awilix";
-import { DatabaseConfig } from "../../../shared/configs/index.js";
+import { AppConfig, DatabaseConfig } from "../../../shared/configs/index.js";
 import {
   DynamoDbMarkersRepository,
   MarkersRepository,
@@ -7,6 +7,7 @@ import {
 import { MarkersService } from "../services/index.js";
 
 export type MarkersModuleDependencies = {
+  appConfig: AppConfig;
   markersRepository: MarkersRepository;
   markersService: MarkersService;
 };
@@ -18,6 +19,9 @@ export function resolveMarkersDiConfig({
   engine,
 }: DatabaseConfig): MarkersDiConfig {
   return {
+    appConfig: asClass(AppConfig, {
+      lifetime: "SINGLETON",
+    }),
     markersRepository: asClass(DynamoDbMarkersRepository, {
       lifetime: "SINGLETON",
     }),

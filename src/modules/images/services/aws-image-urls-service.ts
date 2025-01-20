@@ -2,22 +2,29 @@ import { createPresignedPost } from "@aws-sdk/s3-presigned-post";
 import { S3Client } from "@aws-sdk/client-s3";
 import { randomUUID } from "node:crypto";
 import { ImagesURLsService } from "./index.js";
+import { AppConfig } from "../../../shared/configs/index.js";
+import { ImagesInjectableDependencies } from "../config/index.js";
 
 export class AwsImagesURLsService implements ImagesURLsService {
   private readonly s3Client: S3Client;
+  private appConfig: AppConfig;
 
-  constructor() {
+  constructor({ appConfig }: ImagesInjectableDependencies) {
+    this.appConfig = appConfig;
     this.s3Client = new S3Client({
-      region: "us-east-1",
-      endpoint: "http://localhost:4566",
+      region: this.appConfig.awsConfiguration.region,
+      ...(this.appConfig.isLocalEnv() && {
+        endpoint: this.appConfig.configurations.infrastructureEndpoint,
+      }),
     });
   }
 
   async getPreSignedUrl(mapId: string, markerId: string): Promise<any> {
     const { url, fields } = await createPresignedPost(this.s3Client, {
-      Bucket: "snappin-dump",
+      Bucket: this.appConfig.awsConfiguration.s3DumpBucketName,
       Key: `${mapId}/${markerId}/${randomUUID()}`,
-      Expires: 600, //Seconds before the presigned post expires. 3600 by default.
+      Expires:
+        this.appConfig.awsConfiguration.s3PresignedUrlExpirationInSeconds,
     });
     return { url, fields };
   }

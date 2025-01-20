@@ -10,19 +10,25 @@ import { marshall, unmarshall } from "@aws-sdk/util-dynamodb";
 import { sendCommand } from "../../../db/utils/index.js";
 import { CreateMapDTO, Map, UpdateMapDTO } from "../schemas/index.js";
 import { MapsRepository } from "./maps-repository.js";
+import { AppConfig } from "../../../shared/configs/index.js";
+import { MapsInjectableDependencies } from "../config/maps-config.js";
 
 export class DynamoDbMapsRepository implements MapsRepository {
   private dynamoClient: DynamoDBClient;
+  private appConfig: AppConfig;
 
-  constructor() {
+  constructor({ appConfig }: MapsInjectableDependencies) {
+    this.appConfig = appConfig;
     this.dynamoClient = new DynamoDBClient({
-      endpoint: "http://localhost:8000",
+      ...(this.appConfig.isLocalEnv() && {
+        endpoint: this.appConfig.configurations.databaseEndpoint,
+      }),
     });
   }
 
   async createMap(createMapDto: CreateMapDTO): Promise<Partial<Map>> {
     const command = new PutItemCommand({
-      TableName: "maps",
+      TableName: this.appConfig.configurations.mapsTableName,
       Item: marshall(createMapDto, {
         removeUndefinedValues: false,
         convertEmptyValues: false,
@@ -36,7 +42,7 @@ export class DynamoDbMapsRepository implements MapsRepository {
 
   async getMap(id: string): Promise<Partial<Map> | null> {
     const command = new GetItemCommand({
-      TableName: "maps",
+      TableName: this.appConfig.configurations.mapsTableName,
       Key: {
         id: { ...marshall(id) },
       },
@@ -53,7 +59,7 @@ export class DynamoDbMapsRepository implements MapsRepository {
 
   async deleteMap(id: string): Promise<void> {
     const command = new DeleteItemCommand({
-      TableName: "maps",
+      TableName: this.appConfig.configurations.mapsTableName,
       Key: {
         id: { ...marshall(id) },
       },
@@ -85,7 +91,7 @@ export class DynamoDbMapsRepository implements MapsRepository {
     }
 
     const command = new UpdateItemCommand({
-      TableName: "maps",
+      TableName: this.appConfig.configurations.mapsTableName,
       Key: {
         id: { ...marshall(id) },
       },

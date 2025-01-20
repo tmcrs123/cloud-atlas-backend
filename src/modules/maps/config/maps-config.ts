@@ -1,5 +1,5 @@
 import { asClass, Resolver } from "awilix";
-import { DatabaseConfig } from "../../../shared/configs/index.js";
+import { AppConfig, DatabaseConfig } from "../../../shared/configs/index.js";
 import {
   DynamoDbMapsRepository,
   MapsRepository,
@@ -7,6 +7,7 @@ import {
 import { MapsService } from "../services/index.js";
 
 export type MapsModuleDependencies = {
+  appConfig: AppConfig;
   mapsRepository: MapsRepository;
   mapsService: MapsService;
 };
@@ -16,6 +17,9 @@ export type MapsInjectableDependencies = MapsModuleDependencies;
 
 export function resolveMapsDiConfig({ engine }: DatabaseConfig): MapsDiConfig {
   return {
+    appConfig: asClass(AppConfig, {
+      lifetime: "SINGLETON",
+    }),
     mapsRepository: asClass(DynamoDbMapsRepository, {
       lifetime: "SINGLETON",
     }),

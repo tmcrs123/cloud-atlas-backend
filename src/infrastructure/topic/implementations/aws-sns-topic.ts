@@ -1,23 +1,23 @@
 import { PublishCommand, SNSClient } from "@aws-sdk/client-sns";
+import { AppConfig } from "../../../shared/configs/index.js";
 import { TopicInjectableDependencies } from "../config/index.js";
 import { Topic } from "../interfaces/index.js";
-import { SendMessageCommand } from "@aws-sdk/client-sqs";
 
 export class AwsSnsTopic implements Topic {
   private readonly snsClient: SNSClient;
+  private appConfig: AppConfig;
   private readonly topicURL: string;
 
   constructor({ appConfig }: TopicInjectableDependencies) {
+    this.appConfig = appConfig;
     this.snsClient = new SNSClient({
-      region: "us-east-1",
-      credentials: {
-        accessKeyId: "test",
-        secretAccessKey: "test",
-      },
-      endpoint: "http://localhost:4566",
+      region: this.appConfig.awsConfiguration.region,
+      ...(this.appConfig.isLocalEnv() && {
+        endpoint: this.appConfig.configurations.infrastructureEndpoint,
+      }),
     });
 
-    this.topicURL = appConfig.configurations.baseUrl;
+    this.topicURL = this.appConfig.awsConfiguration.topicURL;
   }
 
   async pushMessageToTopic(

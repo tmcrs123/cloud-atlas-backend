@@ -91,7 +91,7 @@ export async function getApp(): Promise<FastifyInstance> {
       },
       servers: [
         {
-          url: "http://localhost:3000",
+          url: appConfig.getURL(),
         },
       ],
       components: {

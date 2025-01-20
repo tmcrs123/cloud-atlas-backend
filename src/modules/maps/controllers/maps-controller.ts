@@ -7,16 +7,21 @@ import {
   UpdateMapRequestParams,
 } from "../schemas/index.js";
 import { MapsService } from "../services/index.js";
+import { AppConfig } from "../../../shared/configs/index.js";
 
 export const createMap = async (
   request: FastifyRequest<{ Body: CreateMapRequestBody }>,
   reply: FastifyReply
 ): Promise<void> => {
   const mapsService = request.diScope.resolve<MapsService>("mapsService");
+  const appConfig = request.diScope.resolve<AppConfig>("appConfig");
 
   let map = await mapsService.createMap({ ...request.body }, request.user.sub);
 
-  return reply.status(201).header("Location", `/maps/${map.id}`).send(map);
+  return reply
+    .status(201)
+    .header("Location", `${appConfig.getURL()}/maps/${map.id}`)
+    .send(map);
 };
 
 export const getMap = async (

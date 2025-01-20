@@ -26,16 +26,13 @@ export class AwsSNSProcessImageQueue implements Queue {
     this.imagesService = imagesService;
 
     this.sqsClient = new SQSClient({
-      region: "us-east-1",
-      credentials: {
-        accessKeyId: "test",
-        secretAccessKey: "test",
-      },
-      endpoint: "http://localhost:4566",
+      region: this.appConfig.awsConfiguration.region,
+      ...(this.appConfig.isLocalEnv() && {
+        endpoint: this.appConfig.configurations.infrastructureEndpoint,
+      }),
     });
 
-    this.queueUrl =
-      "http://sqs.us-east-1.localstack:4566/000000000000/snappin-queue";
+    this.queueUrl = this.appConfig.awsConfiguration.queueURL;
   }
 
   async send(messageBody: string): Promise<void> {
@@ -49,8 +46,8 @@ export class AwsSNSProcessImageQueue implements Queue {
   async receive(): Promise<void> {
     const input: ReceiveMessageCommandInput = {
       QueueUrl: this.queueUrl,
-      MaxNumberOfMessages: 10,
-      WaitTimeSeconds: 10,
+      MaxNumberOfMessages: this.appConfig.awsConfiguration.queueMaxMessages,
+      WaitTimeSeconds: this.appConfig.awsConfiguration.queueWaitTimeSeconds,
     };
 
     const output = await this.sqsClient.send(new ReceiveMessageCommand(input));
@@ -84,6 +81,6 @@ export class AwsSNSProcessImageQueue implements Queue {
   startPolling(): void {
     setInterval(() => {
       this.receive();
-    }, 10000);
+    }, this.appConfig.awsConfiguration.queuePollingInterval);
   }
 }

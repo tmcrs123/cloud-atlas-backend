@@ -11,8 +11,10 @@ import {
 } from "../../markers/repositories/index.js";
 import { Topic } from "../../../infrastructure/topic/interfaces/index.js";
 import { AwsSnsTopic } from "../../../infrastructure/topic/implementations/aws-sns-topic.js";
+import { AppConfig } from "../../../shared/configs/index.js";
 
 export type ImagesModuleDependencies = {
+  appConfig: AppConfig;
   imagesService: ImagesService;
   imagesRepository: ImagesRepository;
   markersRepository: MarkersRepository;
@@ -25,6 +27,7 @@ export type ImagesInjectableDependencies = ImagesModuleDependencies;
 
 export function resolveImagesDiConfig(): ImagesDiConfig {
   return {
+    appConfig: asClass(AppConfig, { lifetime: "SINGLETON" }),
     imagesService: asClass(ImagesService, {
       lifetime: "SINGLETON",
     }),
