@@ -52,7 +52,7 @@ export class DynamoDbMarkersRepository implements MarkersRepository {
     });
     const createMarkersBatchWriteCommandInput = {
       RequestItems: {
-        markers: newMarkers,
+        [this.appConfig.configurations.markersTableName]: newMarkers,
       },
     };
 

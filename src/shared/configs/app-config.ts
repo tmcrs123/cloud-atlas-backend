@@ -120,7 +120,7 @@ export class AppConfig {
       "maps"
     ),
     markersTableName: valueOrFallback<Configurations["markersTableName"]>(
-      process.env["MARKERs_TABLE_NAME"],
+      process.env["MARKERS_TABLE_NAME"],
       "markers"
     ),
     imagesTableName: valueOrFallback<Configurations["imagesTableName"]>(
