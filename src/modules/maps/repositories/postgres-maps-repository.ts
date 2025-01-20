@@ -6,7 +6,7 @@ export class PostgresMapsRepository implements MapsRepository {
     return new Promise((resolve) =>
       resolve({
         createdAt: "",
-        id: "123",
+        mapId: "123",
         markersCount: 12,
         title: "Postgres repo maps",
         claims: ["EDIT"],

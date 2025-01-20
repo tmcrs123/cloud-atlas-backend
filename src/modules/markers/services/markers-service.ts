@@ -24,7 +24,7 @@ export class MarkersService {
       imageCount: 0,
       coordinates: request.coordinates,
       mapId,
-      id: randomUUID(),
+      markerId: randomUUID(),
     };
     await this.markersRepository.createMarker(dto);
 
@@ -39,7 +39,7 @@ export class MarkersService {
       ...marker,
       mapId,
       imageCount: 0,
-      id: randomUUID(),
+      markerId: randomUUID(),
       createdAt: new Date().toUTCString(),
     }));
 
@@ -65,13 +65,12 @@ export class MarkersService {
   }
 
   async updateMarker(
-    id: string,
+    markerId: string,
     mapId: string,
     updatedData: UpdateMarkerRequestBody
   ): Promise<Partial<Marker> | null> {
-    return await this.markersRepository.updateMarker(id, mapId, {
+    return await this.markersRepository.updateMarker(markerId, mapId, {
       ...updatedData,
-      id,
       updatedAt: new Date().toUTCString(),
     });
   }

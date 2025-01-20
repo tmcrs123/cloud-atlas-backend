@@ -30,7 +30,7 @@ export const getMapsRoutes = (): { routes: Routes } => {
       },
       {
         method: "GET",
-        url: "/maps/:id",
+        url: "/maps/:mapId",
         handler: getMap,
         schema: {
           params: GET_MAP_REQUEST_PARAMS_SCHEMA,
@@ -38,7 +38,7 @@ export const getMapsRoutes = (): { routes: Routes } => {
       },
       {
         method: "DELETE",
-        url: "/maps/:id",
+        url: "/maps/:mapId",
         handler: deleteMap,
         schema: {
           params: DELETE_MAP_REQUEST_PARAMS_SCHEMA,
@@ -46,7 +46,7 @@ export const getMapsRoutes = (): { routes: Routes } => {
       },
       {
         method: "PUT",
-        url: "/maps/:id",
+        url: "/maps/:mapId",
         handler: updateMap,
         schema: {
           body: UPDATE_MAP_REQUEST_BODY_SCHEMA,

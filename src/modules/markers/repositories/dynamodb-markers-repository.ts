@@ -65,11 +65,11 @@ export class DynamoDbMarkersRepository implements MarkersRepository {
     return;
   }
 
-  async getMarker(id: string): Promise<Partial<Marker> | null> {
+  async getMarker(markerId: string): Promise<Partial<Marker> | null> {
     const command = new GetItemCommand({
       TableName: this.appConfig.configurations.markersTableName,
       Key: {
-        id: { ...marshall(id) },
+        markerId: { ...marshall(markerId) },
       },
     });
 
@@ -103,11 +103,11 @@ export class DynamoDbMarkersRepository implements MarkersRepository {
     return commandResponse.Items.map((item) => unmarshall(item) as Marker);
   }
 
-  async deleteMarker(id: string, mapId: string): Promise<void> {
+  async deleteMarker(markerId: string, mapId: string): Promise<void> {
     const command = new DeleteItemCommand({
       TableName: this.appConfig.configurations.markersTableName,
       Key: {
-        id: { ...marshall(id) },
+        markerId: { ...marshall(markerId) },
         mapId: { ...marshall(mapId) },
       },
     });
@@ -117,7 +117,7 @@ export class DynamoDbMarkersRepository implements MarkersRepository {
   }
 
   async updateMarker(
-    id: string,
+    markerId: string,
     mapId: string,
     updatedData: UpdateMarkerDTO
   ): Promise<Partial<Marker> | null> {
@@ -142,13 +142,14 @@ export class DynamoDbMarkersRepository implements MarkersRepository {
     const command = new UpdateItemCommand({
       TableName: this.appConfig.configurations.markersTableName,
       Key: {
-        id: { ...marshall(id) },
+        markerId: { ...marshall(markerId) },
         mapId: { ...marshall(mapId) },
       },
       UpdateExpression: `SET ${updateExpression.join(", ")}`,
       ExpressionAttributeValues: expressionAttributeValues,
       ReturnValues: "ALL_NEW",
-      ConditionExpression: "attribute_exists(id) AND attribute_exists(mapId)",
+      ConditionExpression:
+        "attribute_exists(markerId) AND attribute_exists(mapId)",
     });
 
     const commandResponse = await sendCommand(() =>
@@ -164,7 +165,7 @@ export class DynamoDbMarkersRepository implements MarkersRepository {
     const command = new UpdateItemCommand({
       TableName: this.appConfig.configurations.markersTableName,
       Key: {
-        id: { ...marshall(markerId) },
+        markerId: { ...marshall(markerId) },
         mapId: { ...marshall(mapId) },
       },
       UpdateExpression: "ADD imageCount :imageCount",

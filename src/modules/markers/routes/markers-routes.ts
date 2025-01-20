@@ -50,7 +50,7 @@ export const getMarkersRoutes = (): { routes: Routes } => {
       },
       {
         method: "GET",
-        url: "/markerss/:id",
+        url: "/markerss/:markerId",
         handler: getMarker,
         schema: {
           params: GET_MARKER_REQUEST_PARAMS_SCHEMA,
@@ -58,7 +58,7 @@ export const getMarkersRoutes = (): { routes: Routes } => {
       },
       {
         method: "DELETE",
-        url: "/markers/:mapId/:id",
+        url: "/markers/:mapId/:markerId",
         handler: deleteMarker,
         schema: {
           params: DELETE_MARKER_REQUEST_PARAMS_SCHEMA,
@@ -66,7 +66,7 @@ export const getMarkersRoutes = (): { routes: Routes } => {
       },
       {
         method: "PUT",
-        url: "/markers/:mapId/:id",
+        url: "/markers/:mapId/:markerId",
         handler: updateMarker,
         schema: {
           body: UPDATE_MARKER_REQUEST_BODY_SCHEMA,

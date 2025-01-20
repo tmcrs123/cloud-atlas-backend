@@ -3,7 +3,7 @@ import z from "zod";
 const CLAIMS = ["OWN", "VIEW", "EDIT"] as const;
 
 export const MAP_SCHEMA = z.object({
-  id: z.string().uuid(),
+  mapId: z.string().uuid(),
   owner: z.optional(z.string().uuid()),
   coverPhoto: z.optional(z.string()),
   createdAt: z.string().length(29),
@@ -24,7 +24,7 @@ export type CreateMapRequestBody = z.infer<
 >;
 
 export const CREATE_MAP_DTO_SCHEMA = z.object({
-  id: z.string().uuid(),
+  mapId: z.string().uuid(),
   owner: z.string().uuid(),
   coverPhoto: z.optional(z.string()),
   createdAt: z.string().length(29),
@@ -37,7 +37,7 @@ export type CreateMapDTO = z.infer<typeof CREATE_MAP_DTO_SCHEMA>;
 
 export const GET_MAP_REQUEST_PARAMS_SCHEMA = z
   .object({
-    id: z.string().uuid(),
+    mapId: z.string().uuid(),
   })
   .strict();
 
@@ -45,7 +45,7 @@ export type GetMapRequestParams = z.infer<typeof GET_MAP_REQUEST_PARAMS_SCHEMA>;
 
 export const DELETE_MAP_REQUEST_PARAMS_SCHEMA = z
   .object({
-    id: z.string().uuid(),
+    mapId: z.string().uuid(),
   })
   .strict();
 
@@ -76,7 +76,7 @@ export type UpdateMapRequestBody = z.infer<
 
 export const UPDATE_MAP_REQUEST_PARAMS_SCHEMA = z
   .object({
-    id: z.string().uuid(),
+    mapId: z.string().uuid(),
   })
   .strict();
 

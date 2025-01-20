@@ -1,7 +1,7 @@
 import z from "zod";
 
 export const MARKER_SCHEMA = z.object({
-  id: z.string().uuid(),
+  markerId: z.string().uuid(),
   mapId: z.string().uuid(),
   startDate: z.optional(z.string().length(29)),
   endDate: z.optional(z.string().length(29)),
@@ -67,7 +67,7 @@ export type CreateMarkerRequestParams = z.infer<
 
 export const CREATE_MARKER_DTO_SCHEMA = z
   .object({
-    id: z.string().uuid(),
+    markerId: z.string().uuid(),
     mapId: z.string().uuid(),
     createdAt: z.string().length(29),
     coordinates: z.object({
@@ -98,7 +98,7 @@ export const UPDATE_MARKER_REQUEST_BODY_SCHEMA = z
 export const UPDATE_MARKER_REQUEST_PARAMS_SCHEMA = z
   .object({
     mapId: z.string().uuid(),
-    id: z.string().uuid(),
+    markerId: z.string().uuid(),
   })
   .strict();
 
@@ -112,7 +112,6 @@ export type UpdateMarkerRequestParams = z.infer<
 
 export const UPDATE_MARKER_DTO_SCHEMA = z
   .object({
-    id: z.string().uuid(),
     coordinates: z.optional(
       z.object({
         lng: z.number(),
@@ -131,7 +130,7 @@ export type UpdateMarkerDTO = z.infer<typeof UPDATE_MARKER_DTO_SCHEMA>;
 
 export const GET_MARKER_REQUEST_PARAMS_SCHEMA = z
   .object({
-    id: z.string().uuid(),
+    markerId: z.string().uuid(),
   })
   .strict();
 export type GetMarkerRequestParams = z.infer<
@@ -149,7 +148,7 @@ export type GetManyMarkerRequestParams = z.infer<
 
 export const DELETE_MARKER_REQUEST_PARAMS_SCHEMA = z
   .object({
-    id: z.string().uuid(),
+    markerId: z.string().uuid(),
     mapId: z.string().uuid(),
   })
   .strict();

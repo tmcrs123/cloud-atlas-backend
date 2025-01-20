@@ -22,7 +22,7 @@ export class MapsService {
     const map = await this.mapsRepository.createMap({
       claims: ["EDIT"],
       title: request.title,
-      id: randomUUID(),
+      mapId: randomUUID(),
       createdAt: new Date().toUTCString(),
       markersCount: 0,
       owner,

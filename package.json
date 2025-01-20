@@ -33,6 +33,7 @@
     "@aws-sdk/s3-presigned-post": "^3.726.1",
     "@aws-sdk/util-dynamodb": "^3.726.1",
     "@fastify/awilix": "^7.0.0",
+    "@fastify/cors": "^10.0.2",
     "@fastify/jwt": "^9.0.3",
     "@fastify/swagger": "^9.4.0",
     "@scalar/fastify-api-reference": "^1.25.101",

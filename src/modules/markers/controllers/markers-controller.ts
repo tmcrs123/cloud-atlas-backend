@@ -34,7 +34,7 @@ export const createMarker = async (
     .status(201)
     .header(
       "Location",
-      `${appConfig.getURL()}/maps/${mapId}/markers/${marker.id}`
+      `${appConfig.getURL()}/maps/${mapId}/markers/${marker.markerId}`
     )
     .send(marker);
 };
@@ -71,7 +71,7 @@ export const getMarker = async (
   const markersService =
     request.diScope.resolve<MarkersService>("markersService");
 
-  let marker = await markersService.getMarker(request.params.id);
+  let marker = await markersService.getMarker(request.params.markerId);
 
   if (!marker) return reply.status(404).send();
   return reply.status(200).send(marker);
@@ -96,7 +96,10 @@ export const deleteMarker = async (
   const markersService =
     request.diScope.resolve<MarkersService>("markersService");
 
-  await markersService.deleteMarker(request.params.id, request.params.mapId);
+  await markersService.deleteMarker(
+    request.params.markerId,
+    request.params.mapId
+  );
 
   return reply.status(204).send();
 };
@@ -112,7 +115,7 @@ export const updateMarker = async (
     request.diScope.resolve<MarkersService>("markersService");
 
   const response = await markersService.updateMarker(
-    request.params.id,
+    request.params.markerId,
     request.params.mapId,
     request.body
   );

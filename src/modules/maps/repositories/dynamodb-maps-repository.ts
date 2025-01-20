@@ -44,7 +44,7 @@ export class DynamoDbMapsRepository implements MapsRepository {
     const command = new GetItemCommand({
       TableName: this.appConfig.configurations.mapsTableName,
       Key: {
-        id: { ...marshall(id) },
+        mapId: { ...marshall(id) },
       },
     });
 
@@ -61,7 +61,7 @@ export class DynamoDbMapsRepository implements MapsRepository {
     const command = new DeleteItemCommand({
       TableName: this.appConfig.configurations.mapsTableName,
       Key: {
-        id: { ...marshall(id) },
+        mapId: { ...marshall(id) },
       },
     });
     await sendCommand(() => this.dynamoClient.send(command));
@@ -93,12 +93,12 @@ export class DynamoDbMapsRepository implements MapsRepository {
     const command = new UpdateItemCommand({
       TableName: this.appConfig.configurations.mapsTableName,
       Key: {
-        id: { ...marshall(id) },
+        mapId: { ...marshall(id) },
       },
       UpdateExpression: `SET ${updateExpression.join(", ")}`,
       ExpressionAttributeValues: expressionAttributeValues,
       ReturnValues: "ALL_NEW",
-      ConditionExpression: "attribute_exists(id)",
+      ConditionExpression: "attribute_exists(mapId)",
     });
 
     const commandResponse = await sendCommand(() =>

@@ -34,6 +34,7 @@ import {
   resolveTopicDiConfig,
 } from "./infrastructure/queue/config/index.js";
 import { Queue } from "./infrastructure/queue/interfaces/index.js";
+import fastifyCors from "@fastify/cors";
 
 export async function getApp(): Promise<FastifyInstance> {
   const appConfig = new AppConfig();
@@ -151,6 +152,24 @@ export async function getApp(): Promise<FastifyInstance> {
     ]),
   });
 
+  await app.register(fastifyCors, {
+    origin: "*",
+    credentials: true,
+    methods: ["GET", "PUT", "PATCH", "POST", "DELETE", "OPTIONS"],
+    allowedHeaders: [
+      "Origin",
+      "X-Requested-With",
+      "Accept",
+      "Content-Type",
+      "Authorization",
+    ],
+    exposedHeaders: [
+      "Access-Control-Allow-Origin",
+      "Access-Control-Allow-Methods",
+      "Access-Control-Allow-Headers",
+    ],
+  });
+
   // Add schema validator and serializer - this is what enables ZOD to do type checking on requests
   app.setValidatorCompiler(validatorCompiler);
   app.setSerializerCompiler(serializerCompiler);
@@ -169,6 +188,8 @@ export async function getApp(): Promise<FastifyInstance> {
 
   if (!appConfig.isLocalEnv())
     (diContainer.cradle.queue as Queue).startPolling();
+
+  console.log("ENV------------------------ ", process.env);
 
   return app;
 }

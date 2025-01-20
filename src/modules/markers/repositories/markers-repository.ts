@@ -7,11 +7,11 @@ import {
 export interface MarkersRepository {
   createManyMarkers(createMarkerDTOs: CreateMarkerDTO[]): Promise<void>;
   createMarker(createMarkerDTO: CreateMarkerDTO): Promise<void>;
-  getMarker(id: string): Promise<Partial<Marker> | null>;
+  getMarker(markerId: string): Promise<Partial<Marker> | null>;
   getMarkersForMap(mapId: string): Promise<Marker[] | null>;
   deleteMarker(markerId: string, mapId: string): Promise<void>;
   updateMarker(
-    id: string,
+    markerId: string,
     mapId: string,
     updatedData: UpdateMarkerDTO
   ): Promise<Partial<Marker> | null>;

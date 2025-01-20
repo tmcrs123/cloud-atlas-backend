@@ -20,7 +20,7 @@ export const createMap = async (
 
   return reply
     .status(201)
-    .header("Location", `${appConfig.getURL()}/maps/${map.id}`)
+    .header("Location", `${appConfig.getURL()}/maps/${map.mapId}`)
     .send(map);
 };
 
@@ -29,9 +29,9 @@ export const getMap = async (
   reply: FastifyReply
 ): Promise<void> => {
   const mapsService = request.diScope.resolve<MapsService>("mapsService");
-  const { id } = request.params;
+  const { mapId } = request.params;
 
-  let map = await mapsService.getMap(id);
+  let map = await mapsService.getMap(mapId);
   if (!map) reply.status(404).send();
 
   return reply.status(200).send(map);
@@ -42,9 +42,9 @@ export const deleteMap = async (
   reply: FastifyReply
 ): Promise<void> => {
   const mapsService = request.diScope.resolve<MapsService>("mapsService");
-  const { id } = request.params;
+  const { mapId } = request.params;
 
-  await mapsService.deleteMap(id);
+  await mapsService.deleteMap(mapId);
 
   return reply.status(204).send();
 };
@@ -58,7 +58,10 @@ export const updateMap = async (
 ): Promise<void> => {
   const mapsService = request.diScope.resolve<MapsService>("mapsService");
 
-  const response = await mapsService.updateMap(request.body, request.params.id);
+  const response = await mapsService.updateMap(
+    request.body,
+    request.params.mapId
+  );
 
   if (!response) return reply.status(204).send();
   return reply.status(200).send(response);
