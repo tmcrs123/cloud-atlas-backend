@@ -14,7 +14,7 @@ import { ImagesService } from "../../../modules/images/services/index.js";
 import { QueueInjectableDependencies } from "../config/index.js";
 import { Message } from "../../../shared/types/index.js";
 
-export class AwsSNSProcessImageQueue implements Queue {
+export class AwsSQSProcessImageQueue implements Queue {
   private appConfig: AppConfig;
   private queueUrl: string;
 

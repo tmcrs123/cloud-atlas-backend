@@ -2,7 +2,7 @@ import { asClass, Resolver } from "awilix";
 import { AppConfig } from "../../../shared/configs/index.js";
 import { ImagesService } from "../../../modules/images/services/index.js";
 import { Queue } from "../interfaces/queue.js";
-import { AwsSNSProcessImageQueue } from "../implementations/index.js";
+import { AwsSQSProcessImageQueue } from "../implementations/index.js";
 
 export type QueueInfrastructureDependencies = {
   appConfig: AppConfig;
@@ -22,6 +22,6 @@ export function resolveQueueDiConfig(): QueueDiConfig {
       lifetime: "SINGLETON",
     }),
     imagesService: asClass(ImagesService, { lifetime: "SINGLETON" }),
-    queue: asClass(AwsSNSProcessImageQueue, { lifetime: "SINGLETON" }),
+    queue: asClass(AwsSQSProcessImageQueue, { lifetime: "SINGLETON" }),
   };
 }
