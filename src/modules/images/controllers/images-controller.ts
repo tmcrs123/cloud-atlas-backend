@@ -25,3 +25,20 @@ export const getPresignedURL = async (
 
   return reply.status(200).send(url);
 };
+
+export const deleteImageFromMarker = async (
+  request: FastifyRequest<{
+    Params: { mapId: string; markerId: string; imageId: string };
+  }>,
+  reply: FastifyReply
+): Promise<void> => {
+  const imagesService = request.diScope.resolve<ImagesService>("imagesService");
+
+  await imagesService.deleteImageForMarker(
+    request.params.mapId,
+    request.params.markerId,
+    request.params.imageId
+  );
+
+  return reply.status(204).send();
+};

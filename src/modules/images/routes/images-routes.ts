@@ -1,5 +1,9 @@
 import { Routes } from "../../../shared/types/index.js";
-import { getImagesForMarker, getPresignedURL } from "../controllers/index.js";
+import {
+  deleteImageFromMarker,
+  getImagesForMarker,
+  getPresignedURL,
+} from "../controllers/index.js";
 
 export const getImagesRoutes = (): { routes: Routes } => {
   return {
@@ -13,6 +17,11 @@ export const getImagesRoutes = (): { routes: Routes } => {
         method: "GET",
         url: "/images/:mapId/:markerId",
         handler: getPresignedURL,
+      },
+      {
+        method: "DELETE",
+        url: "/images/:mapId/:markerId/:imageId",
+        handler: deleteImageFromMarker,
       },
     ],
   };

@@ -40,10 +40,13 @@ export class ImagesService {
     }
   }
 
-  async deleteImageForMarker(markerId: string, imageId: string): Promise<void> {
-    await this.imagesRepository.deleteImageFromMarker(markerId, imageId);
+  async deleteImageForMarker(
+    mapId: string,
+    markerId: string,
+    imageId: string
+  ): Promise<void> {
+    await this.imagesRepository.deleteImageFromMarker(mapId, markerId, imageId);
 
-    //post message to SNS
-    return;
+    await this.topic.pushMessageToTopic(mapId, markerId, imageId);
   }
 }

@@ -3,6 +3,15 @@ import { AppConfig } from "../../../shared/configs/index.js";
 import { TopicInjectableDependencies } from "../config/index.js";
 import { Topic } from "../interfaces/index.js";
 
+type snsS3Message = {
+  awsRegion: string;
+  eventName: string;
+  s3: {
+    bucket: { name: string };
+    object: { key: string };
+  };
+};
+
 export class AwsSnsTopic implements Topic {
   private readonly snsClient: SNSClient;
   private appConfig: AppConfig;
@@ -25,13 +34,18 @@ export class AwsSnsTopic implements Topic {
     markerId: string,
     imageId: string
   ): Promise<void> {
+    const msg: snsS3Message = {
+      awsRegion: this.appConfig.awsConfiguration.region,
+      eventName: "ObjectRemoved:Delete",
+      s3: {
+        bucket: { name: this.appConfig.awsConfiguration.s3OptimizedBucketName },
+        object: {
+          key: `${mapId}/${markerId}/${imageId}`,
+        },
+      },
+    };
     const command = new PublishCommand({
-      Message: JSON.stringify({
-        action: "REMOVE_OPTIMIZED",
-        mapId,
-        markerId,
-        imageId,
-      }),
+      Message: JSON.stringify(msg),
     });
 
     await this.snsClient.send(command);

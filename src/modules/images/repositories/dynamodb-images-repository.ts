@@ -23,14 +23,15 @@ export class DynamoDbImagesRepository implements ImagesRepository {
   }
 
   async deleteImageFromMarker(
+    mapId: string,
     markerId: string,
     imageId: string
   ): Promise<void> {
     const command = new DeleteItemCommand({
       TableName: this.appConfig.configurations.mapsTableName,
       Key: {
+        mapId: { ...marshall(mapId) },
         imageId: { ...marshall(imageId) },
-        markerId: { ...marshall(markerId) },
       },
     });
     await sendCommand(() => this.dynamoClient.send(command));

@@ -1,1 +1,1 @@
-export * from "./aws-sns-process-image-queue.js";
+export * from "./aws-sqs-process-image-queue.js";
