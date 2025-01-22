@@ -36,8 +36,9 @@ export class DynamoDbMapsRepository implements MapsRepository {
     });
 
     await sendCommand(() => this.dynamoClient.send(command));
-
-    return { ...createMapDto };
+    return {
+      ...createMapDto,
+    };
   }
 
   async getMap(id: string): Promise<Partial<Map> | null> {

@@ -5,6 +5,7 @@ import { MarkersRepository } from "../../markers/repositories/markers-repository
 import { ImagesInjectableDependencies } from "../config/index.js";
 import { ImagesRepository } from "../repositories/images-repository.js";
 import { ImagesURLsService } from "./index.js";
+import { Image } from "../schemas/index.js";
 
 export class ImagesService {
   private readonly imagesRepository: ImagesRepository;
@@ -24,8 +25,15 @@ export class ImagesService {
     this.topic = topic;
   }
 
-  async getImagesForMarker(mapId: string, markerId: string): Promise<any> {
+  async getImagesForMarker(
+    mapId: string,
+    markerId: string
+  ): Promise<Image[] | null> {
     return await this.imagesRepository.getImagesForMarker(mapId, markerId);
+  }
+
+  async getImagesForMap(mapId: string): Promise<Image[] | null> {
+    return await this.imagesRepository.getImagesForMap(mapId);
   }
 
   async getPresignedUrl(mapId: string, markerId: string): Promise<any> {
@@ -50,10 +58,6 @@ export class ImagesService {
     );
   }
 
-  async getImagesForMap(mapId: string): Promise<any[]> {
-    return await this.imagesRepository.getImagesForMap(mapId);
-  }
-
   async deleteImageForMarker(
     mapId: string,
     markerId: string,
@@ -75,5 +79,14 @@ export class ImagesService {
     imageDetails.forEach((img) => {
       // this.topic.pushMessageToTopic(mapId, img.markerId, img.imageId);
     });
+  }
+
+  async deleteAllImagesForMarker(
+    markerId: string,
+    mapId: string
+  ): Promise<void> {
+    await this.imagesRepository.deleteAllImagesForMarker(markerId, mapId);
+
+    // this.topic.pushMessageToTopic(mapId, img.markerId, img.imageId);
   }
 }

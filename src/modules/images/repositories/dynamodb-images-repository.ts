@@ -13,6 +13,7 @@ import { marshall, unmarshall } from "@aws-sdk/util-dynamodb";
 import { sendCommand } from "../../../db/utils/sendCommand.js";
 import { AppConfig } from "../../../shared/configs/index.js";
 import { ImagesInjectableDependencies } from "../config/index.js";
+import { Image } from "../schemas/images-schema.js";
 
 export class DynamoDbImagesRepository implements ImagesRepository {
   private dynamoClient: DynamoDBClient;
@@ -25,6 +26,9 @@ export class DynamoDbImagesRepository implements ImagesRepository {
         endpoint: this.appConfig.configurations.databaseEndpoint,
       }),
     });
+  }
+  deleteAllImagesForMarker(markerId: string, mapId: string): Promise<void> {
+    throw new Error("Method not implemented.");
   }
 
   async deleteImageFromMarker(
@@ -68,9 +72,13 @@ export class DynamoDbImagesRepository implements ImagesRepository {
     });
 
     await sendCommand(() => this.dynamoClient.send(command));
+    return;
   }
 
-  async getImagesForMarker(mapId: string, markerId: string): Promise<any[]> {
+  async getImagesForMarker(
+    mapId: string,
+    markerId: string
+  ): Promise<Image[] | null> {
     const ExpressionAttributeValues: Record<string, AttributeValue> = {
       ":mapId": marshall(mapId),
       ":markerId": marshall(markerId),
@@ -81,20 +89,20 @@ export class DynamoDbImagesRepository implements ImagesRepository {
       TableName: this.appConfig.configurations.imagesTableName,
       ExpressionAttributeValues,
       KeyConditionExpression,
-      IndexName: "snappin-local-images-table-LSI",
+      IndexName: this.appConfig.awsConfiguration.imagesTableLSI,
     });
 
     const commandResponse: QueryCommandOutput = await sendCommand(() =>
       this.dynamoClient.send(command)
     );
 
-    if (!commandResponse.Items) return [];
-    if (commandResponse.Count === 0) return [];
+    if (!commandResponse.Items) return null;
+    if (commandResponse.Count === 0) return null;
 
-    return commandResponse.Items.map((item) => unmarshall(item));
+    return commandResponse.Items.map((item) => unmarshall(item) as Image);
   }
 
-  async getImagesForMap(mapId: string): Promise<any[]> {
+  async getImagesForMap(mapId: string): Promise<Image[]> {
     const ExpressionAttributeValues: Record<string, AttributeValue> = {
       ":mapId": marshall(mapId),
     };
@@ -113,7 +121,7 @@ export class DynamoDbImagesRepository implements ImagesRepository {
     if (!commandResponse.Items) return [];
     if (commandResponse.Count === 0) return [];
 
-    return commandResponse.Items.map((item) => unmarshall(item));
+    return commandResponse.Items.map((item) => unmarshall(item) as Image);
   }
 
   async saveImagesDetails(

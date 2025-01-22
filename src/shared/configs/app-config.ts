@@ -17,11 +17,12 @@ export type Configurations = {
   protocol: string;
   infrastructureEndpoint: string;
   mapsTableName: string;
-  imagesTableName: string;
   markersTableName: string;
+  imagesTableName: string;
 };
 
 export type AWSConfiguration = {
+  imagesTableLSI: string;
   region: string;
   queueURL: string;
   queueMaxMessages: number;
@@ -67,6 +68,10 @@ export class AppConfig {
     s3PresignedUrlExpirationInSeconds: valueOrFallback<
       AWSConfiguration["s3PresignedUrlExpirationInSeconds"]
     >(process.env["S3_PRESIGNED_URL_EXPIRATION_IN_SECONDS"], 300),
+    imagesTableLSI: valueOrFallback<AWSConfiguration["imagesTableLSI"]>(
+      process.env["IMAGES_TABLE_NAME_LSI"],
+      "snappin-local-images-table-LSI"
+    ),
   };
 
   configurations: Configurations = {

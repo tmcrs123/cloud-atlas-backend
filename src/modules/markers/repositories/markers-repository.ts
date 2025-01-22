@@ -5,10 +5,10 @@ import {
 } from "../schemas/markers-schema.js";
 
 export interface MarkersRepository {
-  createManyMarkers(createMarkerDTOs: CreateMarkerDTO[]): Promise<void>;
-  createMarker(createMarkerDTO: CreateMarkerDTO): Promise<void>;
+  createManyMarkers(createMarkerDTOs: CreateMarkerDTO[]): Promise<Marker[]>;
+  createMarker(createMarkerDTO: CreateMarkerDTO): Promise<Marker>;
   getMarker(markerId: string): Promise<Partial<Marker> | null>;
-  getMarkersForMap(mapId: string): Promise<Marker[] | null>;
+  getMarkers(mapId: string): Promise<Marker[] | null>;
   deleteMarker(markerId: string, mapId: string): Promise<void>;
   deleteManyMarkers(markerIds: string[], mapId: string): Promise<void>;
   updateMarker(

@@ -1,6 +1,7 @@
 import z from "zod";
 
 export const IMAGE_SCHEMA = z.object({
-  url: z.string(),
+  url: z.optional(z.string()),
+  imageId: z.string().uuid(),
 });
-export type Marker = z.infer<typeof IMAGE_SCHEMA>;
+export type Image = z.infer<typeof IMAGE_SCHEMA>;

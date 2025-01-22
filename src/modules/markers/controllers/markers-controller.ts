@@ -86,7 +86,7 @@ export const getMarkersForMap = async (
   const markersService =
     request.diScope.resolve<MarkersService>("markersService");
 
-  let markers = await markersService.getMarkersForMap(request.params.mapId);
+  let markers = await markersService.getMarkers(request.params.mapId);
 
   return reply.status(200).send(markers);
 };

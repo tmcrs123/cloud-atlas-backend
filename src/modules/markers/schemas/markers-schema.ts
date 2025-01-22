@@ -1,4 +1,5 @@
 import z from "zod";
+import { RequiredNonOptional } from "../../../shared/types/common-types.js";
 
 export const MARKER_SCHEMA = z.object({
   markerId: z.string().uuid(),
@@ -8,12 +9,14 @@ export const MARKER_SCHEMA = z.object({
   createdAt: z.string().length(29),
   updateAt: z.optional(z.string().length(29)),
   imageCount: z.number().int().gte(0),
-  title: z.string().min(3),
+  title: z.optional(z.string().min(3)),
   journal: z.optional(z.string()),
-  coordinates: z.object({
-    lng: z.number(),
-    lat: z.number(),
-  }),
+  coordinates: z
+    .object({
+      lng: z.number(),
+      lat: z.number(),
+    })
+    .strict(),
 });
 export type Marker = z.infer<typeof MARKER_SCHEMA>;
 

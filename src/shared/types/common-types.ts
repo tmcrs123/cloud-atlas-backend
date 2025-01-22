@@ -2,6 +2,16 @@ import { FastifyBaseLogger, FastifySchema, RouteOptions } from "fastify";
 import { ZodTypeProvider } from "fastify-type-provider-zod";
 import type http from "node:http";
 
+// Utils
+export type RequiredNonOptional<T> = Required<
+  Pick<
+    T,
+    {
+      [K in keyof T]: T extends Record<K, T[K]> ? K : never;
+    }[keyof T]
+  >
+>;
+
 // Routes
 export type Routes = Array<
   RouteOptions<

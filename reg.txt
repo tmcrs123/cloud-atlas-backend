@@ -1,0 +1,6 @@
+Responsibilities of Each Layer
+Layer	Responsibility	Example Naming
+Controller	Handles HTTP requests, input validation	OrderController.ts
+Business Logic	Encapsulates business rules & validation	CreateOrderUseCase.ts
+Service	Handles data transformation, calls repository	OrderService.ts
+Repository	Handles direct database interaction	OrderRepository.ts
