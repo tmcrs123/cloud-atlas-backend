@@ -30,7 +30,7 @@ export type AWSConfiguration = {
   s3DumpBucketName: string;
   s3OptimizedBucketName: string;
   s3PresignedUrlExpirationInSeconds: number;
-  topicURL: string;
+  topicARN: string;
 };
 
 export class AppConfig {
@@ -60,9 +60,9 @@ export class AppConfig {
     s3OptimizedBucketName: valueOrFallback<
       AWSConfiguration["s3OptimizedBucketName"]
     >(process.env["S3_OPTIMIZED_BUCKET_NAME"], "optimized"),
-    topicURL: valueOrFallback<AWSConfiguration["topicURL"]>(
-      process.env["TOPIC_URL"],
-      "http://sns.us-east-1.localstack:4566/000000000000/snappin-topic"
+    topicARN: valueOrFallback<AWSConfiguration["topicARN"]>(
+      process.env["TOPIC_ARN"],
+      "arn:aws:sns:us-east-1:891376964515:snappin-test-bucket-events-topic"
     ),
     s3PresignedUrlExpirationInSeconds: valueOrFallback<
       AWSConfiguration["s3PresignedUrlExpirationInSeconds"]

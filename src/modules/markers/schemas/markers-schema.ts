@@ -156,3 +156,23 @@ export const DELETE_MARKER_REQUEST_PARAMS_SCHEMA = z
 export type DeleteMarkerRequestParams = z.infer<
   typeof DELETE_MARKER_REQUEST_PARAMS_SCHEMA
 >;
+
+export const DELETE_MANY_MARKERS_REQUEST_BODY_SCHEMA = z
+  .object({
+    markerIds: z.array(z.string().uuid()),
+  })
+  .strict();
+
+export const DELETE_MANY_MARKERS_REQUEST_PARAMS_SCHEMA = z
+  .object({
+    mapId: z.string().uuid(),
+  })
+  .strict();
+
+export type DeleteManyMarkersRequestParams = z.infer<
+  typeof DELETE_MANY_MARKERS_REQUEST_PARAMS_SCHEMA
+>;
+
+export type DeleteManyMarkersRequestBody = z.infer<
+  typeof DELETE_MANY_MARKERS_REQUEST_BODY_SCHEMA
+>;

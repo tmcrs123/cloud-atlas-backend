@@ -2,6 +2,8 @@ import { FastifyReply, FastifyRequest } from "fastify";
 import {
   CreateMarkerRequestBody,
   CreateMarkerRequestParams,
+  DeleteManyMarkersRequestBody,
+  DeleteManyMarkersRequestParams,
   DeleteMarkerRequestParams,
   GetMarkerRequestParams,
   Marker,
@@ -98,6 +100,24 @@ export const deleteMarker = async (
 
   await markersService.deleteMarker(
     request.params.markerId,
+    request.params.mapId
+  );
+
+  return reply.status(204).send();
+};
+
+export const deleteManyMarkers = async (
+  request: FastifyRequest<{
+    Params: DeleteManyMarkersRequestParams;
+    Body: DeleteManyMarkersRequestBody;
+  }>,
+  reply: FastifyReply
+): Promise<void> => {
+  const markersService =
+    request.diScope.resolve<MarkersService>("markersService");
+
+  await markersService.deleteManyMarkers(
+    request.body.markerIds,
     request.params.mapId
   );
 

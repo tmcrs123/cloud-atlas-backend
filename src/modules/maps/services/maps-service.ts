@@ -7,12 +7,22 @@ import {
   Map,
   UpdateMapRequestBody,
 } from "../schemas/index.js";
+import { MarkersService } from "../../markers/services/markers-service.js";
+import { ImagesService } from "../../images/services/images-service.js";
 
 export class MapsService {
   private readonly mapsRepository: MapsRepository;
+  private readonly markersService: MarkersService;
+  private readonly imagesService: ImagesService;
 
-  constructor({ mapsRepository }: MapsInjectableDependencies) {
+  constructor({
+    mapsRepository,
+    markersService,
+    imagesService,
+  }: MapsInjectableDependencies) {
     this.mapsRepository = mapsRepository;
+    this.markersService = markersService;
+    this.imagesService = imagesService;
   }
 
   async createMap(
@@ -37,8 +47,20 @@ export class MapsService {
     return stripProperties<Partial<Map>>(response, ["owner"]);
   }
 
-  async deleteMap(id: string): Promise<void> {
-    return await this.mapsRepository.deleteMap(id);
+  async deleteMap(mapId: string): Promise<void> {
+    await this.mapsRepository.deleteMap(mapId);
+
+    //delete markers
+    const markers = await this.markersService.getMarkersForMap(mapId);
+    const images = await this.imagesService.getImagesForMap(mapId);
+
+    const markerIds = markers?.map((marker) => marker.markerId);
+
+    if (!markerIds) return;
+
+    await this.markersService.deleteManyMarkers(markerIds, mapId);
+
+    this.imagesService.deleteAllImagesForMap(images, mapId);
   }
 
   async updateMap(

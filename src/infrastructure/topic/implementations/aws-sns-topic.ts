@@ -3,19 +3,21 @@ import { AppConfig } from "../../../shared/configs/index.js";
 import { TopicInjectableDependencies } from "../config/index.js";
 import { Topic } from "../interfaces/index.js";
 
+// match the format of a vanilla SNS event
 type snsS3Message = {
-  awsRegion: string;
-  eventName: string;
-  s3: {
-    bucket: { name: string };
-    object: { key: string };
-  };
+  Records: {
+    awsRegion: string;
+    eventName: string;
+    s3: {
+      bucket: { name: string };
+      object: { key: string };
+    };
+  }[];
 };
 
 export class AwsSnsTopic implements Topic {
   private readonly snsClient: SNSClient;
   private appConfig: AppConfig;
-  private readonly topicURL: string;
 
   constructor({ appConfig }: TopicInjectableDependencies) {
     this.appConfig = appConfig;
@@ -25,8 +27,6 @@ export class AwsSnsTopic implements Topic {
         endpoint: this.appConfig.configurations.infrastructureEndpoint,
       }),
     });
-
-    this.topicURL = this.appConfig.awsConfiguration.topicURL;
   }
 
   async pushMessageToTopic(
@@ -35,16 +35,23 @@ export class AwsSnsTopic implements Topic {
     imageId: string
   ): Promise<void> {
     const msg: snsS3Message = {
-      awsRegion: this.appConfig.awsConfiguration.region,
-      eventName: "ObjectRemoved:Delete",
-      s3: {
-        bucket: { name: this.appConfig.awsConfiguration.s3OptimizedBucketName },
-        object: {
-          key: `${mapId}/${markerId}/${imageId}`,
+      Records: [
+        {
+          awsRegion: this.appConfig.awsConfiguration.region,
+          eventName: "ObjectRemoved:Delete",
+          s3: {
+            bucket: {
+              name: this.appConfig.awsConfiguration.s3OptimizedBucketName,
+            },
+            object: {
+              key: `${mapId}/${markerId}/${imageId}`,
+            },
+          },
         },
-      },
+      ],
     };
     const command = new PublishCommand({
+      TopicArn: this.appConfig.awsConfiguration.topicARN,
       Message: JSON.stringify(msg),
     });
 

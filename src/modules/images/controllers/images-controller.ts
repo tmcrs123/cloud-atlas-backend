@@ -2,12 +2,26 @@ import { FastifyRequest, FastifyReply } from "fastify";
 import { ImagesService } from "../services/index.js";
 
 export const getImagesForMarker = async (
-  request: FastifyRequest<{ Params: { id: string } }>,
+  request: FastifyRequest<{ Params: { mapId: string; markerId: string } }>,
   reply: FastifyReply
 ): Promise<void> => {
   const imagesService = request.diScope.resolve<ImagesService>("imagesService");
 
-  let images = await imagesService.getImagesForMarker(request.params.id);
+  let images = await imagesService.getImagesForMarker(
+    request.params.mapId,
+    request.params.markerId
+  );
+
+  return reply.status(200).send(images);
+};
+
+export const getImagesForMap = async (
+  request: FastifyRequest<{ Params: { mapId: string } }>,
+  reply: FastifyReply
+): Promise<void> => {
+  const imagesService = request.diScope.resolve<ImagesService>("imagesService");
+
+  let images = await imagesService.getImagesForMap(request.params.mapId);
 
   return reply.status(200).send(images);
 };
@@ -41,4 +55,20 @@ export const deleteImageFromMarker = async (
   );
 
   return reply.status(204).send();
+};
+
+export const saveImageDetails = async (
+  request: FastifyRequest<{
+    Params: { mapId: string; markerId: string };
+  }>,
+  reply: FastifyReply
+): Promise<void> => {
+  const imagesService = request.diScope.resolve<ImagesService>("imagesService");
+
+  await imagesService.saveImageDetails(
+    request.params.mapId,
+    request.params.markerId
+  );
+
+  return reply.status(201).send();
 };

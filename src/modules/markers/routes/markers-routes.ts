@@ -2,6 +2,7 @@ import { Routes } from "../../../shared/types/index.js";
 import {
   createManyMarkers,
   createMarker,
+  deleteManyMarkers,
   deleteMarker,
   getMarker,
   getMarkersForMap,
@@ -12,6 +13,8 @@ import {
   CREATE_MANY_MARKER_REQUEST_PARAMS_SCHEMA,
   CREATE_MARKER_REQUEST_BODY_SCHEMA,
   CREATE_MARKER_REQUEST_PARAMS_SCHEMA,
+  DELETE_MANY_MARKERS_REQUEST_BODY_SCHEMA,
+  DELETE_MANY_MARKERS_REQUEST_PARAMS_SCHEMA,
   DELETE_MARKER_REQUEST_PARAMS_SCHEMA,
   GET_MANY_MARKER_REQUEST_PARAMS_SCHEMA,
   GET_MARKER_REQUEST_PARAMS_SCHEMA,
@@ -58,10 +61,19 @@ export const getMarkersRoutes = (): { routes: Routes } => {
       },
       {
         method: "DELETE",
-        url: "/markers/:mapId/:markerId",
+        url: "/marker/:mapId/:markerId",
         handler: deleteMarker,
         schema: {
           params: DELETE_MARKER_REQUEST_PARAMS_SCHEMA,
+        },
+      },
+      {
+        method: "DELETE",
+        url: "/markers/:mapId/:markerId",
+        handler: deleteManyMarkers,
+        schema: {
+          params: DELETE_MANY_MARKERS_REQUEST_PARAMS_SCHEMA,
+          body: DELETE_MANY_MARKERS_REQUEST_BODY_SCHEMA,
         },
       },
       {

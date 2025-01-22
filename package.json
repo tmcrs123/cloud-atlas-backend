@@ -23,7 +23,8 @@
     "acr-stuff": "npm run acr-login & npm run acr-tag & npm run acr-push",
     "s3-mb": "aws --endpoint-url=http://localhost:4566 s3 mb s3://my-bucket",
     "s3-lb": "aws --endpoint-url=http://localhost:4566 s3 ls",
-    "s3-ls": "aws --endpoint-url=http://localhost:4566 s3 ls --recursive"
+    "s3-ls": "aws --endpoint-url=http://localhost:4566 s3 ls --recursive",
+    "send-to-aws": "tsc && npm run docker-build && npm run acr-stuff"
   },
   "dependencies": {
     "@aws-sdk/client-dynamodb": "^3.721.0",

@@ -1,3 +1,4 @@
+import { randomUUID } from "crypto";
 import { Topic } from "../../../infrastructure/topic/interfaces/index.js";
 import { Message } from "../../../shared/types/index.js";
 import { MarkersRepository } from "../../markers/repositories/markers-repository.js";
@@ -23,8 +24,8 @@ export class ImagesService {
     this.topic = topic;
   }
 
-  async getImagesForMarker(id: string): Promise<void> {
-    return;
+  async getImagesForMarker(mapId: string, markerId: string): Promise<any> {
+    return await this.imagesRepository.getImagesForMarker(mapId, markerId);
   }
 
   async getPresignedUrl(mapId: string, markerId: string): Promise<any> {
@@ -40,6 +41,19 @@ export class ImagesService {
     }
   }
 
+  // this is just a helper method, not to be invoked by the clients
+  async saveImageDetails(mapId: string, markerId: string): Promise<void> {
+    await this.imagesRepository.saveImagesDetails(
+      mapId,
+      markerId,
+      randomUUID()
+    );
+  }
+
+  async getImagesForMap(mapId: string): Promise<any[]> {
+    return await this.imagesRepository.getImagesForMap(mapId);
+  }
+
   async deleteImageForMarker(
     mapId: string,
     markerId: string,
@@ -47,6 +61,19 @@ export class ImagesService {
   ): Promise<void> {
     await this.imagesRepository.deleteImageFromMarker(mapId, markerId, imageId);
 
-    await this.topic.pushMessageToTopic(mapId, markerId, imageId);
+    // await this.topic.pushMessageToTopic(mapId, markerId, imageId);
+  }
+
+  async deleteAllImagesForMap(
+    imageDetails: any[],
+    mapId: string
+  ): Promise<void> {
+    const imageIds = imageDetails.map((img) => img.imageId);
+
+    await this.imagesRepository.deleteAllImagesForMap(imageIds, mapId);
+
+    imageDetails.forEach((img) => {
+      // this.topic.pushMessageToTopic(mapId, img.markerId, img.imageId);
+    });
   }
 }

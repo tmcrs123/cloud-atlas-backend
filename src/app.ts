@@ -189,8 +189,6 @@ export async function getApp(): Promise<FastifyInstance> {
   if (!appConfig.isLocalEnv())
     (diContainer.cradle.queue as Queue).startPolling();
 
-  console.log("ENV------------------------ ", process.env);
-
   return app;
 }
 

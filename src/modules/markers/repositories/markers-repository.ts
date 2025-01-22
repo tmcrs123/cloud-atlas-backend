@@ -10,6 +10,7 @@ export interface MarkersRepository {
   getMarker(markerId: string): Promise<Partial<Marker> | null>;
   getMarkersForMap(mapId: string): Promise<Marker[] | null>;
   deleteMarker(markerId: string, mapId: string): Promise<void>;
+  deleteManyMarkers(markerIds: string[], mapId: string): Promise<void>;
   updateMarker(
     markerId: string,
     mapId: string,

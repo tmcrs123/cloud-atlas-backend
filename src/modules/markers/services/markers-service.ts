@@ -64,6 +64,10 @@ export class MarkersService {
     return await this.markersRepository.deleteMarker(id, mapId);
   }
 
+  async deleteManyMarkers(markerIds: string[], mapId: string): Promise<void> {
+    return await this.markersRepository.deleteManyMarkers(markerIds, mapId);
+  }
+
   async updateMarker(
     markerId: string,
     mapId: string,

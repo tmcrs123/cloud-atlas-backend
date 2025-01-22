@@ -6,19 +6,19 @@ import {
   GetItemCommand,
   PutItemCommand,
   QueryCommand,
-  QueryCommandInput,
   UpdateItemCommand,
+  WriteRequest,
 } from "@aws-sdk/client-dynamodb";
 import { marshall, unmarshall } from "@aws-sdk/util-dynamodb";
 import { sendCommand } from "../../../db/utils/index.js";
+import { AppConfig } from "../../../shared/configs/index.js";
+import { MarkersInjectableDependencies } from "../config/index.js";
 import {
   CreateMarkerDTO,
   Marker,
   UpdateMarkerDTO,
 } from "../schemas/markers-schema.js";
 import { MarkersRepository } from "./index.js";
-import { AppConfig } from "../../../shared/configs/index.js";
-import { MarkersInjectableDependencies } from "../config/index.js";
 
 export class DynamoDbMarkersRepository implements MarkersRepository {
   private dynamoClient: DynamoDBClient;
@@ -114,6 +114,29 @@ export class DynamoDbMarkersRepository implements MarkersRepository {
     await sendCommand(() => this.dynamoClient.send(command));
 
     return;
+  }
+
+  async deleteManyMarkers(markerIds: string[], mapId: string): Promise<void> {
+    const deleteMarkersRequests: WriteRequest[] = [];
+
+    markerIds.forEach((markerId) => {
+      deleteMarkersRequests.push({
+        DeleteRequest: {
+          Key: {
+            mapId: marshall(mapId),
+            markerId: marshall(markerId),
+          },
+        },
+      });
+    });
+
+    const command = new BatchWriteItemCommand({
+      RequestItems: {
+        [this.appConfig.configurations.markersTableName]: deleteMarkersRequests,
+      },
+    });
+
+    await sendCommand(() => this.dynamoClient.send(command));
   }
 
   async updateMarker(

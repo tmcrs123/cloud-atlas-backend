@@ -5,11 +5,15 @@ import {
   MapsRepository,
 } from "../repositories/index.js";
 import { MapsService } from "../services/index.js";
+import { MarkersService } from "../../markers/services/markers-service.js";
+import { ImagesService } from "../../images/services/images-service.js";
 
 export type MapsModuleDependencies = {
   appConfig: AppConfig;
   mapsRepository: MapsRepository;
   mapsService: MapsService;
+  markersService: MarkersService;
+  imagesService: ImagesService;
 };
 
 type MapsDiConfig = Record<keyof MapsModuleDependencies, Resolver<any>>;
@@ -24,6 +28,8 @@ export function resolveMapsDiConfig({ engine }: DatabaseConfig): MapsDiConfig {
       lifetime: "SINGLETON",
     }),
     mapsService: asClass(MapsService, { lifetime: "SINGLETON" }),
+    markersService: asClass(MarkersService, { lifetime: "SINGLETON" }),
+    imagesService: asClass(ImagesService, { lifetime: "SINGLETON" }),
     // mapsRepository: asFunction(() => {
     //   return {
     //     createMap: () => {
