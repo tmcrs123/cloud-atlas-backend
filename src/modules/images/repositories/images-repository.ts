@@ -1,13 +1,14 @@
-import { Image } from "../schemas/index.js";
+import { CreateImageDTO, Image, UpdateImageDTO } from "../schemas/index.js";
 
 export interface ImagesRepository {
   getImagesForMarker(mapId: string, markerId: string): Promise<Image[] | null>;
   getImagesForMap(mapId: string): Promise<Image[] | null>;
-  saveImagesDetails(
+  createImage(createImageDTO: CreateImageDTO): Promise<Image>;
+  updateImage(
+    updatedData: UpdateImageDTO,
     mapId: string,
-    markerId: string,
     imageId: string
-  ): Promise<void>;
+  ): Promise<Image>;
   deleteImageFromMarker(
     mapId: string,
     markerId: string,

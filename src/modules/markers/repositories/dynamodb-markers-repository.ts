@@ -33,19 +33,7 @@ export class DynamoDbMarkersRepository implements MarkersRepository {
     });
   }
 
-  async createMarker(createMarkerDTO: CreateMarkerDTO): Promise<Marker> {
-    const command = new PutItemCommand({
-      TableName: this.appConfig.configurations.markersTableName,
-      Item: marshall(createMarkerDTO),
-    });
-
-    sendCommand(() => this.dynamoClient.send(command));
-    return { ...createMarkerDTO };
-  }
-
-  async createManyMarkers(
-    createMarkerDTOs: CreateMarkerDTO[]
-  ): Promise<Marker[]> {
+  async createMarkers(createMarkerDTOs: CreateMarkerDTO[]): Promise<Marker[]> {
     const newMarkers = createMarkerDTOs.map((dto: CreateMarkerDTO) => {
       return {
         PutRequest: {
@@ -65,13 +53,14 @@ export class DynamoDbMarkersRepository implements MarkersRepository {
 
     await sendCommand(() => this.dynamoClient.send(command));
 
-    return createMarkerDTOs.map((dto) => ({ ...dto }));
+    return createMarkerDTOs.map((dto) => ({ ...dto } as Marker));
   }
 
-  async getMarker(markerId: string): Promise<Partial<Marker> | null> {
+  async getMarker(mapId: string, markerId: string): Promise<Marker | null> {
     const command = new GetItemCommand({
       TableName: this.appConfig.configurations.markersTableName,
       Key: {
+        mapId: { ...marshall(mapId) },
         markerId: { ...marshall(markerId) },
       },
     });
@@ -81,7 +70,7 @@ export class DynamoDbMarkersRepository implements MarkersRepository {
     );
 
     if (!commandResponse.Item) return null;
-    return unmarshall(commandResponse.Item);
+    return unmarshall(commandResponse.Item) as Marker;
   }
 
   async getMarkers(mapId: string): Promise<Marker[] | null> {
@@ -119,7 +108,7 @@ export class DynamoDbMarkersRepository implements MarkersRepository {
     return;
   }
 
-  async deleteManyMarkers(markerIds: string[], mapId: string): Promise<void> {
+  async deleteMarkers(markerIds: string[], mapId: string): Promise<void> {
     const deleteMarkersRequests: WriteRequest[] = [];
 
     markerIds.forEach((markerId) => {
@@ -140,13 +129,15 @@ export class DynamoDbMarkersRepository implements MarkersRepository {
     });
 
     await sendCommand(() => this.dynamoClient.send(command));
+
+    return;
   }
 
   async updateMarker(
     markerId: string,
     mapId: string,
     updatedData: UpdateMarkerDTO
-  ): Promise<Partial<Marker> | null> {
+  ): Promise<Marker> {
     let updateExpression: string[] = [];
     let expressionAttributeValues: Record<string, AttributeValue> = {};
 
@@ -182,9 +173,7 @@ export class DynamoDbMarkersRepository implements MarkersRepository {
       this.dynamoClient.send(command)
     );
 
-    if (!commandResponse.Attributes) return null;
-
-    return unmarshall(commandResponse.Attributes);
+    return unmarshall(commandResponse.Attributes!) as Marker;
   }
 
   async updateImageCount(markerId: string, mapId: string): Promise<void> {

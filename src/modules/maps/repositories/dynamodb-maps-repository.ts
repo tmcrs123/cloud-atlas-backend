@@ -29,10 +29,7 @@ export class DynamoDbMapsRepository implements MapsRepository {
   async createMap(createMapDto: CreateMapDTO): Promise<Partial<Map>> {
     const command = new PutItemCommand({
       TableName: this.appConfig.configurations.mapsTableName,
-      Item: marshall(createMapDto, {
-        removeUndefinedValues: false,
-        convertEmptyValues: false,
-      }),
+      Item: marshall(createMapDto),
     });
 
     await sendCommand(() => this.dynamoClient.send(command));
@@ -58,11 +55,11 @@ export class DynamoDbMapsRepository implements MapsRepository {
     return unmarshall(commandResponse.Item);
   }
 
-  async deleteMap(id: string): Promise<void> {
+  async deleteMap(mapId: string): Promise<void> {
     const command = new DeleteItemCommand({
       TableName: this.appConfig.configurations.mapsTableName,
       Key: {
-        mapId: { ...marshall(id) },
+        mapId: { ...marshall(mapId) },
       },
     });
     await sendCommand(() => this.dynamoClient.send(command));

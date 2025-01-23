@@ -13,6 +13,8 @@ export const MAP_SCHEMA = z.object({
   claims: z.array(z.enum(CLAIMS)),
 });
 
+export type Map = z.infer<typeof MAP_SCHEMA>;
+
 export const CREATE_MAP_REQUEST_BODY_SCHEMA = z
   .object({
     title: z.string().min(3),
@@ -83,5 +85,3 @@ export const UPDATE_MAP_REQUEST_PARAMS_SCHEMA = z
 export type UpdateMapRequestParams = z.infer<
   typeof UPDATE_MAP_REQUEST_PARAMS_SCHEMA
 >;
-
-export type Map = z.infer<typeof MAP_SCHEMA>;

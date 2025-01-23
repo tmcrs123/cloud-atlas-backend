@@ -6,6 +6,7 @@ import {
   PutItemCommand,
   QueryCommand,
   QueryCommandOutput,
+  UpdateItemCommand,
   WriteRequest,
 } from "@aws-sdk/client-dynamodb";
 import { ImagesRepository } from "./index.js";
@@ -13,7 +14,11 @@ import { marshall, unmarshall } from "@aws-sdk/util-dynamodb";
 import { sendCommand } from "../../../db/utils/sendCommand.js";
 import { AppConfig } from "../../../shared/configs/index.js";
 import { ImagesInjectableDependencies } from "../config/index.js";
-import { Image } from "../schemas/images-schema.js";
+import {
+  CreateImageDTO,
+  Image,
+  UpdateImageDTO,
+} from "../schemas/images-schema.js";
 
 export class DynamoDbImagesRepository implements ImagesRepository {
   private dynamoClient: DynamoDBClient;
@@ -27,6 +32,18 @@ export class DynamoDbImagesRepository implements ImagesRepository {
       }),
     });
   }
+  async createImage(createImageDto: CreateImageDTO): Promise<Image> {
+    const command = new PutItemCommand({
+      TableName: this.appConfig.configurations.imagesTableName,
+      Item: marshall(createImageDto),
+    });
+
+    await sendCommand(() => this.dynamoClient.send(command));
+    return {
+      ...createImageDto,
+    };
+  }
+
   deleteAllImagesForMarker(markerId: string, mapId: string): Promise<void> {
     throw new Error("Method not implemented.");
   }
@@ -102,7 +119,7 @@ export class DynamoDbImagesRepository implements ImagesRepository {
     return commandResponse.Items.map((item) => unmarshall(item) as Image);
   }
 
-  async getImagesForMap(mapId: string): Promise<Image[]> {
+  async getImagesForMap(mapId: string): Promise<Image[] | null> {
     const ExpressionAttributeValues: Record<string, AttributeValue> = {
       ":mapId": marshall(mapId),
     };
@@ -118,22 +135,38 @@ export class DynamoDbImagesRepository implements ImagesRepository {
       this.dynamoClient.send(command)
     );
 
-    if (!commandResponse.Items) return [];
-    if (commandResponse.Count === 0) return [];
+    if (!commandResponse.Items) return null;
+    if (commandResponse.Count === 0) return null;
 
     return commandResponse.Items.map((item) => unmarshall(item) as Image);
   }
 
-  async saveImagesDetails(
+  async updateImage(
+    updatedData: UpdateImageDTO,
     mapId: string,
-    markerId: string,
     imageId: string
-  ): Promise<void> {
-    const command = new PutItemCommand({
+  ): Promise<Image> {
+    let updateExpression = [];
+    updateExpression.push("legend=:legend");
+
+    let expressionAttributeValues: Record<string, AttributeValue> = {};
+    expressionAttributeValues[":legend"] = marshall(updatedData.legend);
+
+    const command = new UpdateItemCommand({
       TableName: this.appConfig.configurations.imagesTableName,
-      Item: marshall({ mapId, imageId, markerId }),
+      Key: {
+        mapId: { ...marshall(mapId) },
+        imageId: { ...marshall(imageId) },
+      },
+      UpdateExpression: `SET ${updateExpression.join(", ")}`,
+      ExpressionAttributeValues: expressionAttributeValues,
+      ReturnValues: "ALL_NEW",
+      ConditionExpression: "attribute_exists(imageId)",
     });
 
-    await sendCommand(() => this.dynamoClient.send(command));
+    const commandResponse = await sendCommand(() =>
+      this.dynamoClient.send(command)
+    );
+    return unmarshall(commandResponse.Attributes!) as Image;
   }
 }

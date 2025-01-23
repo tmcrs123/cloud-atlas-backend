@@ -12,6 +12,7 @@ import {
 import { Topic } from "../../../infrastructure/topic/interfaces/index.js";
 import { AwsSnsTopic } from "../../../infrastructure/topic/implementations/aws-sns-topic.js";
 import { AppConfig } from "../../../shared/configs/index.js";
+import { DomainService } from "../../domain/services/domain-service.js";
 
 export type ImagesModuleDependencies = {
   appConfig: AppConfig;
@@ -20,6 +21,7 @@ export type ImagesModuleDependencies = {
   markersRepository: MarkersRepository;
   imagesURLsService: ImagesURLsService;
   topic: Topic;
+  domainService: DomainService;
 };
 
 type ImagesDiConfig = Record<keyof ImagesModuleDependencies, Resolver<any>>;
@@ -29,6 +31,9 @@ export function resolveImagesDiConfig(): ImagesDiConfig {
   return {
     appConfig: asClass(AppConfig, { lifetime: "SINGLETON" }),
     imagesService: asClass(ImagesService, {
+      lifetime: "SINGLETON",
+    }),
+    domainService: asClass(DomainService, {
       lifetime: "SINGLETON",
     }),
     imagesRepository: asClass(DynamoDbImagesRepository, {

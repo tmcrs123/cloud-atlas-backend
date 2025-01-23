@@ -1,0 +1,1 @@
+organize the methods in this file. methods that deal with maps should be first, markers should be second and images should be last. Also, within each category, "get" or "create" methods should be first, "update" should be second and "delete" should be last

@@ -1,22 +1,20 @@
 import { Routes } from "../../../shared/types/index.js";
 import {
-  createManyMarkers,
-  createMarker,
-  deleteManyMarkers,
+  createMarkers,
+  deleteMarkers,
   deleteMarker,
   getMarker,
-  getMarkersForMap,
+  getMarkers,
   updateMarker,
 } from "../controllers/index.js";
 import {
-  CREATE_MANY_MARKER_REQUEST_BODY_SCHEMA,
-  CREATE_MANY_MARKER_REQUEST_PARAMS_SCHEMA,
-  CREATE_MARKER_REQUEST_BODY_SCHEMA,
-  CREATE_MARKER_REQUEST_PARAMS_SCHEMA,
-  DELETE_MANY_MARKERS_REQUEST_BODY_SCHEMA,
-  DELETE_MANY_MARKERS_REQUEST_PARAMS_SCHEMA,
+  CREATE_MARKERS_REQUEST_BODY_SCHEMA,
+  CREATE_MARKERS_REQUEST_PARAMS_SCHEMA,
+  DELETE_MARKERS_QUERYSTRING_SCHEMA,
+  DELETE_MARKERS_REQUEST_BODY_SCHEMA,
+  DELETE_MARKERS_REQUEST_PARAMS_SCHEMA,
   DELETE_MARKER_REQUEST_PARAMS_SCHEMA,
-  GET_MANY_MARKER_REQUEST_PARAMS_SCHEMA,
+  GET_MARKERS_REQUEST_PARAMS_SCHEMA,
   GET_MARKER_REQUEST_PARAMS_SCHEMA,
   UPDATE_MARKER_REQUEST_BODY_SCHEMA,
   UPDATE_MARKER_REQUEST_PARAMS_SCHEMA,
@@ -27,33 +25,24 @@ export const getMarkersRoutes = (): { routes: Routes } => {
     routes: [
       {
         method: "POST",
-        url: "/marker",
-        handler: createMarker,
-        schema: {
-          body: CREATE_MARKER_REQUEST_BODY_SCHEMA,
-          params: CREATE_MARKER_REQUEST_PARAMS_SCHEMA,
-        },
-      },
-      {
-        method: "POST",
         url: "/markers/:mapId",
-        handler: createManyMarkers,
+        handler: createMarkers,
         schema: {
-          body: CREATE_MANY_MARKER_REQUEST_BODY_SCHEMA,
-          params: CREATE_MANY_MARKER_REQUEST_PARAMS_SCHEMA,
+          body: CREATE_MARKERS_REQUEST_BODY_SCHEMA,
+          params: CREATE_MARKERS_REQUEST_PARAMS_SCHEMA,
         },
       },
       {
         method: "GET",
         url: "/markers/:mapId",
-        handler: getMarkersForMap,
+        handler: getMarkers,
         schema: {
-          params: GET_MANY_MARKER_REQUEST_PARAMS_SCHEMA,
+          params: GET_MARKERS_REQUEST_PARAMS_SCHEMA,
         },
       },
       {
         method: "GET",
-        url: "/markerss/:markerId",
+        url: "/markers/:mapId/:markerId",
         handler: getMarker,
         schema: {
           params: GET_MARKER_REQUEST_PARAMS_SCHEMA,
@@ -69,11 +58,12 @@ export const getMarkersRoutes = (): { routes: Routes } => {
       },
       {
         method: "DELETE",
-        url: "/markers/:mapId/:markerId",
-        handler: deleteManyMarkers,
+        url: "/markers/:mapId",
+        handler: deleteMarkers,
         schema: {
-          params: DELETE_MANY_MARKERS_REQUEST_PARAMS_SCHEMA,
-          body: DELETE_MANY_MARKERS_REQUEST_BODY_SCHEMA,
+          params: DELETE_MARKERS_REQUEST_PARAMS_SCHEMA,
+          body: DELETE_MARKERS_REQUEST_BODY_SCHEMA,
+          querystring: DELETE_MARKERS_QUERYSTRING_SCHEMA,
         },
       },
       {

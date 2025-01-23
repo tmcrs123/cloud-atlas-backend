@@ -16,7 +16,7 @@ export const createMap = async (
   const domainService = request.diScope.resolve<DomainService>("domainService");
   const appConfig = request.diScope.resolve<AppConfig>("appConfig");
 
-  let map = await domainService.createMap(
+  let map = await domainService.userCreatesMap(
     { ...request.body },
     request.user.sub
   );
@@ -32,7 +32,7 @@ export const getMap = async (
 ): Promise<void> => {
   const domainService = request.diScope.resolve<DomainService>("domainService");
 
-  let map = await domainService.getMap(request.params.mapId);
+  let map = await domainService.userRetrievesMap(request.params.mapId);
   if (!map) reply.status(404).send();
 
   return reply.status(200).send(map);
@@ -43,7 +43,7 @@ export const deleteMap = async (
   reply: FastifyReply
 ): Promise<void> => {
   const domainService = request.diScope.resolve<DomainService>("domainService");
-  await domainService.deleteMap(request.params.mapId);
+  await domainService.userDeletesMap(request.params.mapId);
 
   return reply.status(204).send();
 };
@@ -56,7 +56,7 @@ export const updateMap = async (
   reply: FastifyReply
 ): Promise<void> => {
   const domainService = request.diScope.resolve<DomainService>("domainService");
-  const updatedMap = await domainService.updateMap(
+  const updatedMap = await domainService.userUpdatesMap(
     request.body,
     request.params.mapId
   );

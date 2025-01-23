@@ -1,11 +1,10 @@
-import { randomUUID } from "crypto";
 import { Topic } from "../../../infrastructure/topic/interfaces/index.js";
 import { Message } from "../../../shared/types/index.js";
 import { MarkersRepository } from "../../markers/repositories/markers-repository.js";
 import { ImagesInjectableDependencies } from "../config/index.js";
 import { ImagesRepository } from "../repositories/images-repository.js";
+import { CreateImageDTO, Image } from "../schemas/index.js";
 import { ImagesURLsService } from "./index.js";
-import { Image } from "../schemas/index.js";
 
 export class ImagesService {
   private readonly imagesRepository: ImagesRepository;
@@ -29,11 +28,38 @@ export class ImagesService {
     mapId: string,
     markerId: string
   ): Promise<Image[] | null> {
-    return await this.imagesRepository.getImagesForMarker(mapId, markerId);
+    const images = await this.imagesRepository.getImagesForMarker(
+      mapId,
+      markerId
+    );
+
+    if (!images) return null;
+
+    for await (const image of images) {
+      image.url = await this.imagesURLsService.getUrlForExistingImage(
+        image.mapId,
+        image.markerId,
+        image.imageId
+      );
+    }
+
+    return images;
   }
 
   async getImagesForMap(mapId: string): Promise<Image[] | null> {
-    return await this.imagesRepository.getImagesForMap(mapId);
+    const images = await this.imagesRepository.getImagesForMap(mapId);
+
+    if (!images) return null;
+
+    for await (const image of images) {
+      image.url = await this.imagesURLsService.getUrlForExistingImage(
+        image.mapId,
+        image.markerId,
+        image.imageId
+      );
+    }
+
+    return images;
   }
 
   async getPresignedUrl(mapId: string, markerId: string): Promise<any> {
@@ -42,20 +68,11 @@ export class ImagesService {
 
   async processImageUploadedMessages(messages: Message[]): Promise<void> {
     for (const message of messages) {
-      const { mapId, markerId, imageId } = JSON.parse(message.body!) as any;
+      const dto = JSON.parse(message.body!) as CreateImageDTO;
 
-      await this.imagesRepository.saveImagesDetails(mapId, markerId, imageId);
-      await this.markersRepository.updateImageCount(markerId, mapId);
+      await this.imagesRepository.createImage(dto);
+      await this.markersRepository.updateImageCount(dto.mapId, dto.markerId);
     }
-  }
-
-  // this is just a helper method, not to be invoked by the clients
-  async saveImageDetails(mapId: string, markerId: string): Promise<void> {
-    await this.imagesRepository.saveImagesDetails(
-      mapId,
-      markerId,
-      randomUUID()
-    );
   }
 
   async deleteImageForMarker(
@@ -88,5 +105,16 @@ export class ImagesService {
     await this.imagesRepository.deleteAllImagesForMarker(markerId, mapId);
 
     // this.topic.pushMessageToTopic(mapId, img.markerId, img.imageId);
+  }
+  async updateImage(
+    updatedData: Partial<Image>,
+    mapId: string,
+    imageId: string
+  ): Promise<Image> {
+    return await this.imagesRepository.updateImage(
+      { legend: updatedData.legend! },
+      mapId,
+      imageId
+    );
   }
 }

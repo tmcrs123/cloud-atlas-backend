@@ -3,9 +3,8 @@ import { MarkersInjectableDependencies } from "../config/index.js";
 import { MarkersRepository } from "../repositories/index.js";
 import {
   CreateMarkerDTO,
-  CreateMarkerRequestBody,
+  CreateMarkersRequestBody,
   Marker,
-  UpdateMarkerRequestBody,
 } from "../schemas/markers-schema.js";
 
 export class MarkersService {
@@ -15,24 +14,8 @@ export class MarkersService {
     this.markersRepository = markersRepository;
   }
 
-  async createMarker(
-    request: CreateMarkerRequestBody,
-    mapId: string
-  ): Promise<Marker> {
-    const dto = {
-      createdAt: new Date().toUTCString(),
-      imageCount: 0,
-      coordinates: request.coordinates,
-      mapId,
-      markerId: randomUUID(),
-    };
-    await this.markersRepository.createMarker(dto);
-
-    return dto;
-  }
-
-  async createManyMarkers(
-    request: CreateMarkerRequestBody[],
+  async createMarkers(
+    request: Partial<Marker>[],
     mapId: string
   ): Promise<Marker[]> {
     const dtos: CreateMarkerDTO[] = request.map((marker) => ({
@@ -41,14 +24,14 @@ export class MarkersService {
       imageCount: 0,
       markerId: randomUUID(),
       createdAt: new Date().toUTCString(),
-      coordinates: marker.coordinates,
+      coordinates: marker.coordinates!,
     }));
 
-    return await this.markersRepository.createManyMarkers(dtos);
+    return await this.markersRepository.createMarkers(dtos);
   }
 
-  async getMarker(id: string): Promise<Partial<Marker> | null> {
-    const marker = await this.markersRepository.getMarker(id);
+  async getMarker(mapId: string, markerId: string): Promise<Marker | null> {
+    const marker = await this.markersRepository.getMarker(mapId, markerId);
     if (!marker) return null;
     return marker;
   }
@@ -63,15 +46,27 @@ export class MarkersService {
     return await this.markersRepository.deleteMarker(markerId, mapId);
   }
 
-  async deleteManyMarkers(markerIds: string[], mapId: string): Promise<void> {
-    return await this.markersRepository.deleteManyMarkers(markerIds, mapId);
+  async deleteMarkers(
+    markerIds: string[],
+    mapId: string,
+    deleteAll = false
+  ): Promise<void> {
+    let markerIdsToDelete = markerIds;
+
+    if (deleteAll) {
+      const allMarkers = await this.getMarkers(mapId);
+      if (!allMarkers) return;
+      markerIdsToDelete = allMarkers.map((m) => m.markerId);
+    }
+
+    return await this.markersRepository.deleteMarkers(markerIdsToDelete, mapId);
   }
 
   async updateMarker(
     markerId: string,
     mapId: string,
     updatedData: Partial<Marker>
-  ): Promise<Partial<Marker> | null> {
+  ): Promise<Marker> {
     return await this.markersRepository.updateMarker(markerId, mapId, {
       ...updatedData,
       updatedAt: new Date().toUTCString(),

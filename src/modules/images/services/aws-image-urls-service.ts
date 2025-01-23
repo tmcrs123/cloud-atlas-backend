@@ -18,8 +18,19 @@ export class AwsImagesURLsService implements ImagesURLsService {
       }),
     });
   }
+  getUrlForExistingImage(
+    mapId: string,
+    markerId: string,
+    imageId: string
+  ): Promise<string> {
+    // placeholder
+    return Promise.resolve("bananas");
+  }
 
-  async getPreSignedUrl(mapId: string, markerId: string): Promise<any> {
+  async getPreSignedUrl(
+    mapId: string,
+    markerId: string
+  ): Promise<{ url: string; fields: Record<string, string> }> {
     const { url, fields } = await createPresignedPost(this.s3Client, {
       Bucket: this.appConfig.awsConfiguration.s3DumpBucketName,
       Key: `${mapId}/${markerId}/${randomUUID()}`,
