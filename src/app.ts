@@ -33,7 +33,7 @@ import {
   resolveQueueDiConfig,
   resolveTopicDiConfig,
 } from "./infrastructure/queue/config/index.js";
-import { Queue } from "./infrastructure/queue/interfaces/index.js";
+import { QueueService } from "./infrastructure/queue/interfaces/index.js";
 import fastifyCors from "@fastify/cors";
 
 export async function getApp(): Promise<FastifyInstance> {
@@ -67,10 +67,10 @@ export async function getApp(): Promise<FastifyInstance> {
     ...resolveDatabaseDiConfig({ engine: "dynamoDb" }),
   });
   diContainer.register({
-    ...resolveMapsDiConfig(diContainer.cradle.databaseConfig),
+    ...resolveMapsDiConfig(),
   });
   diContainer.register({
-    ...resolveMarkersDiConfig(diContainer.cradle.databaseConfig),
+    ...resolveMarkersDiConfig(),
   });
   diContainer.register({
     ...resolveImagesDiConfig(),
@@ -187,7 +187,7 @@ export async function getApp(): Promise<FastifyInstance> {
   });
 
   if (!appConfig.isLocalEnv())
-    (diContainer.cradle.queue as Queue).startPolling();
+    (diContainer.cradle.queue as QueueService).startPolling();
 
   return app;
 }

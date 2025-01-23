@@ -15,7 +15,7 @@ services:
       - "4566:4566"
       - 4510-4559:4510-4559
     environment:
-      SERVICES: sqs,s3
+      SERVICES: sqs,s3,secretsManager
       DEBUG: 1
       DATA_DIR: ${DATA_DIR-}
       DOCKER_HOST: unix:///var/run/docker.sock

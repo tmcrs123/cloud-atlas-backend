@@ -1,13 +1,13 @@
 import { asClass, Resolver } from "awilix";
 import { AppConfig } from "../../../shared/configs/index.js";
 import { ImagesService } from "../../../modules/images/services/index.js";
-import { Queue } from "../interfaces/queue.js";
+import { QueueService } from "../interfaces/queue.js";
 import { AwsSQSProcessImageQueue } from "../implementations/index.js";
 
 export type QueueInfrastructureDependencies = {
   appConfig: AppConfig;
   imagesService: ImagesService;
-  queue: Queue;
+  queue: QueueService;
 };
 
 type QueueDiConfig = Record<

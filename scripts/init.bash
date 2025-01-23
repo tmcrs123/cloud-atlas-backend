@@ -71,3 +71,34 @@ else
 
     echo "Table $IMAGES_TABLE_NAME created successfully."
 fi
+
+#SECRETS MANAGER
+
+# Configuration
+SECRET_NAME="snappin-local-cloudfront-private-key"
+SECRET_VALUE="bananas"
+AWS_REGION="us-east-1"
+LOCALSTACK_ENDPOINT="http://localhost:4566"
+
+# Check if the secret already exists
+SECRET_EXISTS=$(aws secretsmanager list-secrets --endpoint-url "$LOCALSTACK_ENDPOINT" --region "$AWS_REGION" --query "SecretList[?Name=='$SECRET_NAME'].Name" --output text)
+
+if [ "$SECRET_EXISTS" == "$SECRET_NAME" ]; then
+    echo "Secret $SECRET_NAME already exists. Updating value..."
+
+    aws secretsmanager put-secret-value \
+        --secret-id "$SECRET_NAME" \
+        --secret-string "$SECRET_VALUE" \
+        --region "$AWS_REGION"
+
+    echo "Secret updated successfully."
+else
+    echo "Secret $SECRET_NAME does not exist. Creating new secret..."
+
+    aws secretsmanager create-secret \
+        --name "$SECRET_NAME" \
+        --secret-string "$SECRET_VALUE" \
+        --region "$AWS_REGION"
+
+    echo "Secret created successfully."
+fi

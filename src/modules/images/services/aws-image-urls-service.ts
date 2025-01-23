@@ -4,13 +4,18 @@ import { randomUUID } from "node:crypto";
 import { ImagesURLsService } from "./index.js";
 import { AppConfig } from "../../../shared/configs/index.js";
 import { ImagesInjectableDependencies } from "../config/index.js";
+import { getSignedUrl } from "@aws-sdk/cloudfront-signer";
+import { SecretsService } from "../../../infrastructure/secrets/interfaces/secrets-service.js";
 
 export class AwsImagesURLsService implements ImagesURLsService {
   private readonly s3Client: S3Client;
-  private appConfig: AppConfig;
+  private readonly appConfig: AppConfig;
+  private readonly secretsService: SecretsService;
 
-  constructor({ appConfig }: ImagesInjectableDependencies) {
+  constructor({ appConfig, secretsService }: ImagesInjectableDependencies) {
     this.appConfig = appConfig;
+    this.secretsService = secretsService;
+
     this.s3Client = new S3Client({
       region: this.appConfig.awsConfiguration.region,
       ...(this.appConfig.isLocalEnv() && {
@@ -18,13 +23,28 @@ export class AwsImagesURLsService implements ImagesURLsService {
       }),
     });
   }
-  getUrlForExistingImage(
+
+  async getUrlForExistingImage(
     mapId: string,
     markerId: string,
     imageId: string
   ): Promise<string> {
-    // placeholder
-    return Promise.resolve("bananas");
+    const privateKey = await this.secretsService.getSecret(
+      this.appConfig.configurations.optimizedPhotosPrivateKeyName
+    );
+
+    if (!privateKey) {
+      throw new Error("Secret not found");
+    }
+
+    const signedUrl = getSignedUrl({
+      keyPairId: this.appConfig.configurations.optimizedPhotosKeypairId,
+      privateKey,
+      url: `https://${this.appConfig.configurations.optimizedPhotoDistributionUrl}/${mapId}/${markerId}/${imageId}`,
+      dateLessThan: new Date(Date.now() + 1000 * 60).toISOString(),
+    });
+
+    return Promise.resolve(signedUrl);
   }
 
   async getPreSignedUrl(

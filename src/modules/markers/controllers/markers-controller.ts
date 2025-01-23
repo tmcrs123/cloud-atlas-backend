@@ -4,7 +4,6 @@ import { DomainService } from "../../domain/services/index.js";
 import {
   CreateMarkersRequestBody,
   CreateMarkersRequestParams,
-  DeleteMarkerRequestParams,
   DeleteMarkersRequestBody,
   DeleteMarkersRequestParams,
   DeleteMarkersRequestQueryString,
@@ -61,20 +60,6 @@ export const getMarkers = async (
   let markers = await domainService.getMarkers(request.params.mapId);
 
   return reply.status(200).send({ markers });
-};
-
-export const deleteMarker = async (
-  request: FastifyRequest<{ Params: DeleteMarkerRequestParams }>,
-  reply: FastifyReply
-) => {
-  const domainService = request.diScope.resolve<DomainService>("domainService");
-
-  await domainService.deleteMarker(
-    request.params.markerId,
-    request.params.mapId
-  );
-
-  return reply.status(204).send();
 };
 
 export const deleteMarkers = async (

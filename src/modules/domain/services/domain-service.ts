@@ -1,3 +1,5 @@
+import { TopicService } from "../../../infrastructure/topic/interfaces/topic.js";
+import { AppConfig } from "../../../shared/configs/app-config.js";
 import { stripProperties } from "../../../utils/index.js";
 import {
   Image,
@@ -11,7 +13,6 @@ import {
 import { MapsService } from "../../maps/services/maps-service.js";
 import {
   CreateMarkersRequestBody,
-  Marker,
   UpdateMarkerRequestBody,
 } from "../../markers/schemas/index.js";
 import { MarkersService } from "../../markers/services/markers-service.js";
@@ -21,30 +22,35 @@ export class DomainService {
   private readonly mapsService: MapsService;
   private readonly markersService: MarkersService;
   private readonly imagesService: ImagesService;
+  private readonly appConfig: AppConfig;
+  private readonly topicService: TopicService;
 
   constructor({
     mapsService,
     markersService,
     imagesService,
+    appConfig,
+    topicService,
   }: DomainInjectableDependencies) {
     this.mapsService = mapsService;
     this.markersService = markersService;
     this.imagesService = imagesService;
+    (this.appConfig = appConfig), (this.topicService = topicService);
   }
 
-  async userCreatesMap(request: CreateMapRequestBody, owner: string) {
+  async createMap(request: CreateMapRequestBody, owner: string) {
     return await this.mapsService.createMap(request.title, owner);
   }
 
-  async userRetrievesMap(mapId: string) {
+  async getMap(mapId: string) {
     return this.mapsService.getMap(mapId);
   }
 
-  async userUpdatesMap(updatedData: UpdateMapRequestBody, mapId: string) {
+  async updateMap(updatedData: UpdateMapRequestBody, mapId: string) {
     return await this.mapsService.updateMap({ ...updatedData }, mapId);
   }
 
-  async userDeletesMap(mapId: string) {
+  async deleteMap(mapId: string) {
     await this.mapsService.deleteMap(mapId);
 
     const markers = await this.markersService.getMarkers(mapId);
@@ -61,16 +67,24 @@ export class DomainService {
 
     const imageIds = images.map((img) => img.imageId);
 
-    this.imagesService.deleteAllImagesForMap(imageIds, mapId);
+    this.imagesService.deleteImages(mapId, imageIds);
+
+    if (this.appConfig.configurations.topicEnabled) {
+      for await (const image of images) {
+        this.topicService.pushMessageToTopic(
+          mapId,
+          image.markerId,
+          image.imageId
+        );
+      }
+    }
   }
 
   //#region markers
-  //x
   async createMarkers(request: CreateMarkersRequestBody, mapId: string) {
     return await this.markersService.createMarkers([...request.markers], mapId);
   }
 
-  //X
   async updateMarker(
     request: UpdateMarkerRequestBody,
     markerId: string,
@@ -81,31 +95,43 @@ export class DomainService {
     });
   }
 
-  //x
-  async deleteMarker(markerId: string, mapId: string) {
-    await this.markersService.deleteMarker(markerId, mapId);
-    // await this.imagesService.deleteAllImagesForMarker(markerId, mapId);
-  }
-
-  //x
   async deleteMarkers(markerIds: string[], mapId: string, deleteAll = false) {
     await this.markersService.deleteMarkers(markerIds, mapId, deleteAll);
-    // await this.imagesService.deleteAllImagesForMarker(markerId, mapId);
+
+    for await (const markerId of markerIds) {
+      const images = await this.imagesService.getImagesForMarker(
+        mapId,
+        markerId
+      );
+      if (!images) continue;
+
+      await this.imagesService.deleteImages(
+        mapId,
+        images.map((img) => img.imageId)
+      );
+
+      if (this.appConfig.configurations.topicEnabled) {
+        for await (const image of images) {
+          this.topicService.pushMessageToTopic(
+            mapId,
+            image.markerId,
+            image.imageId
+          );
+        }
+      }
+    }
   }
 
-  //x
   async getMarker(mapId: string, markerId: string) {
     return await this.markersService.getMarker(mapId, markerId);
   }
 
-  //x
   async getMarkers(mapId: string) {
     return await this.markersService.getMarkers(mapId);
   }
   //#endregion
 
   //#region IMAGES
-  //x
   async getImagesForMap(mapId: string) {
     const images = await this.imagesService.getImagesForMap(mapId);
 
@@ -122,7 +148,6 @@ export class DomainService {
     return urls;
   }
 
-  //x
   async getImagesForMarker(mapId: string, markerId: string) {
     const images = await this.imagesService.getImagesForMarker(mapId, markerId);
 
@@ -139,13 +164,11 @@ export class DomainService {
     return urls;
   }
 
-  //x
   async deleteImageForMarker(mapId: string, markerId: string, imageId: string) {
-    await this.imagesService.deleteImageForMarker(mapId, markerId, imageId);
+    await this.imagesService.deleteImages(mapId, [imageId]);
     return;
   }
 
-  //x
   async updateImage(
     requestBody: UpdateImageDetailsRequestBody,
     mapId: string,
@@ -154,7 +177,6 @@ export class DomainService {
     this.imagesService.updateImage(requestBody, mapId, imageId);
   }
 
-  // x
   async uploadImage(mapId: string, markerId: string) {
     return await this.imagesService.getPresignedUrl(mapId, markerId);
   }

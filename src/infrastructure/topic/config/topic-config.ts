@@ -1,11 +1,11 @@
 import { asClass, Resolver } from "awilix";
 import { AppConfig } from "../../../shared/configs/index.js";
-import { AwsSnsTopic } from "../implementations/aws-sns-topic.js";
-import { Topic } from "../interfaces/topic.js";
+import { AwsSnsTopicService } from "../implementations/aws-sns-topic.js";
+import { TopicService } from "../interfaces/topic.js";
 
 export type TopicInfrastructureDependencies = {
   appConfig: AppConfig;
-  topic: Topic;
+  topicService: TopicService;
 };
 
 type TopicDiConfig = Record<
@@ -19,6 +19,6 @@ export function resolveTopicDiConfig(): TopicDiConfig {
     appConfig: asClass(AppConfig, {
       lifetime: "SINGLETON",
     }),
-    topic: asClass(AwsSnsTopic, { lifetime: "SINGLETON" }),
+    topicService: asClass(AwsSnsTopicService, { lifetime: "SINGLETON" }),
   };
 }

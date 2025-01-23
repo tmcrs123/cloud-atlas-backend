@@ -48,27 +48,7 @@ export class DynamoDbImagesRepository implements ImagesRepository {
     throw new Error("Method not implemented.");
   }
 
-  async deleteImageFromMarker(
-    mapId: string,
-    markerId: string,
-    imageId: string
-  ): Promise<void> {
-    const command = new DeleteItemCommand({
-      TableName: this.appConfig.configurations.imagesTableName,
-      Key: {
-        mapId: { ...marshall(mapId) },
-        imageId: { ...marshall(imageId) },
-      },
-    });
-    await sendCommand(() => this.dynamoClient.send(command));
-
-    return;
-  }
-
-  async deleteAllImagesForMap(
-    imageIds: string[],
-    mapId: string
-  ): Promise<void> {
+  async deleteImages(mapId: string, imageIds: string[]): Promise<void> {
     const deleteImagesRequests: WriteRequest[] = [];
 
     imageIds.forEach((imageId) => {
@@ -89,6 +69,7 @@ export class DynamoDbImagesRepository implements ImagesRepository {
     });
 
     await sendCommand(() => this.dynamoClient.send(command));
+
     return;
   }
 

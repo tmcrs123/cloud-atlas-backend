@@ -1,5 +1,5 @@
-import { FastifyRequest, FastifyReply } from "fastify";
-import { ImagesService } from "../services/index.js";
+import { FastifyReply, FastifyRequest } from "fastify";
+import { DomainService } from "../../domain/services/index.js";
 import {
   DeleteImageFromMarkerRequestParams,
   GetImagesForMapRequestParams,
@@ -8,7 +8,6 @@ import {
   UpdateImageDetailsRequestBody,
   UpdateImageDetailsRequestParams,
 } from "../schemas/images-schema.js";
-import { DomainService } from "../../domain/services/index.js";
 
 export const getImagesForMap = async (
   request: FastifyRequest<{ Params: GetImagesForMapRequestParams }>,

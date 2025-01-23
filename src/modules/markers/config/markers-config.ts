@@ -15,9 +15,7 @@ export type MarkersModuleDependencies = {
 type MarkersDiConfig = Record<keyof MarkersModuleDependencies, Resolver<any>>;
 export type MarkersInjectableDependencies = MarkersModuleDependencies;
 
-export function resolveMarkersDiConfig({
-  engine,
-}: DatabaseConfig): MarkersDiConfig {
+export function resolveMarkersDiConfig(): MarkersDiConfig {
   return {
     appConfig: asClass(AppConfig, {
       lifetime: "SINGLETON",
@@ -26,12 +24,5 @@ export function resolveMarkersDiConfig({
       lifetime: "SINGLETON",
     }),
     markersService: asClass(MarkersService, { lifetime: "SINGLETON" }),
-    // mapsRepository: asFunction(() => {
-    //   return {
-    //     createMap: () => {
-    //       console.log('fake create map')
-    //     }
-    //   }
-    // }, {lifetime: "SINGLETON"})
   };
 }

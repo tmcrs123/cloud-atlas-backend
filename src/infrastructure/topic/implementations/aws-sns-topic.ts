@@ -1,7 +1,7 @@
 import { PublishCommand, SNSClient } from "@aws-sdk/client-sns";
 import { AppConfig } from "../../../shared/configs/index.js";
 import { TopicInjectableDependencies } from "../config/index.js";
-import { Topic } from "../interfaces/index.js";
+import { TopicService } from "../interfaces/index.js";
 
 // match the format of a vanilla SNS event
 type snsS3Message = {
@@ -15,7 +15,7 @@ type snsS3Message = {
   }[];
 };
 
-export class AwsSnsTopic implements Topic {
+export class AwsSnsTopicService implements TopicService {
   private readonly snsClient: SNSClient;
   private appConfig: AppConfig;
 

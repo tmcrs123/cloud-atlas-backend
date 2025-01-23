@@ -8,13 +8,13 @@ import {
   SendMessageCommandInput,
   SQSClient,
 } from "@aws-sdk/client-sqs";
-import { Queue } from "../interfaces/index.js";
+import { QueueService } from "../interfaces/index.js";
 import { AppConfig } from "../../../shared/configs/index.js";
 import { ImagesService } from "../../../modules/images/services/index.js";
 import { QueueInjectableDependencies } from "../config/index.js";
 import { Message } from "../../../shared/types/index.js";
 
-export class AwsSQSProcessImageQueue implements Queue {
+export class AwsSQSProcessImageQueue implements QueueService {
   private appConfig: AppConfig;
   private queueUrl: string;
 

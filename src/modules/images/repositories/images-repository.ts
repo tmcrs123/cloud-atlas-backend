@@ -9,11 +9,5 @@ export interface ImagesRepository {
     mapId: string,
     imageId: string
   ): Promise<Image>;
-  deleteImageFromMarker(
-    mapId: string,
-    markerId: string,
-    imageId: string
-  ): Promise<void>;
-  deleteAllImagesForMap(imageIds: string[], mapId: string): Promise<void>;
-  deleteAllImagesForMarker(markerId: string, mapId: string): Promise<void>;
+  deleteImages(mapId: string, imageIds: string[]): Promise<void>;
 }

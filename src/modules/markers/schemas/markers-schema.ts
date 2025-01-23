@@ -1,5 +1,4 @@
 import z from "zod";
-import { RequiredNonOptional } from "../../../shared/types/common-types.js";
 
 export const MARKER_SCHEMA = z.object({
   markerId: z.string().uuid(),
@@ -123,17 +122,6 @@ export const GET_MARKERS_REQUEST_PARAMS_SCHEMA = z
   .strict();
 export type GetMarkersRequestParams = z.infer<
   typeof GET_MARKERS_REQUEST_PARAMS_SCHEMA
->;
-
-export const DELETE_MARKER_REQUEST_PARAMS_SCHEMA = z
-  .object({
-    markerId: z.string().uuid(),
-    mapId: z.string().uuid(),
-  })
-  .strict();
-
-export type DeleteMarkerRequestParams = z.infer<
-  typeof DELETE_MARKER_REQUEST_PARAMS_SCHEMA
 >;
 
 export const DELETE_MARKERS_REQUEST_BODY_SCHEMA = z

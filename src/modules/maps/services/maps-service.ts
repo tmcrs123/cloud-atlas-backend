@@ -2,28 +2,13 @@ import { randomUUID } from "crypto";
 import { stripProperties } from "../../../utils/index.js";
 import { MapsInjectableDependencies } from "../config/index.js";
 import { MapsRepository } from "../repositories/index.js";
-import {
-  CreateMapRequestBody,
-  Map,
-  UpdateMapRequestBody,
-} from "../schemas/index.js";
-import { MarkersService } from "../../markers/services/markers-service.js";
-import { ImagesService } from "../../images/services/images-service.js";
-import { sendCommand } from "../../../db/utils/index.js";
+import { Map } from "../schemas/index.js";
 
 export class MapsService {
   private readonly mapsRepository: MapsRepository;
-  private readonly markersService: MarkersService;
-  private readonly imagesService: ImagesService;
 
-  constructor({
-    mapsRepository,
-    markersService,
-    imagesService,
-  }: MapsInjectableDependencies) {
+  constructor({ mapsRepository }: MapsInjectableDependencies) {
     this.mapsRepository = mapsRepository;
-    this.markersService = markersService;
-    this.imagesService = imagesService;
   }
 
   async createMap(title: string, owner: string): Promise<Partial<Map>> {

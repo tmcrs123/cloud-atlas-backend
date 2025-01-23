@@ -1,18 +1,17 @@
 import { asClass, Resolver } from "awilix";
 import {
-  DynamoDbImagesRepository,
-  ImagesRepository,
-} from "../repositories/index.js";
-import { ImagesService, ImagesURLsService } from "../services/index.js";
-import { AwsImagesURLsService } from "../services/aws-image-urls-service.js";
-import {
   DynamoDbMarkersRepository,
   MarkersRepository,
 } from "../../markers/repositories/index.js";
-import { Topic } from "../../../infrastructure/topic/interfaces/index.js";
-import { AwsSnsTopic } from "../../../infrastructure/topic/implementations/aws-sns-topic.js";
-import { AppConfig } from "../../../shared/configs/index.js";
-import { DomainService } from "../../domain/services/domain-service.js";
+import {
+  DynamoDbImagesRepository,
+  ImagesRepository,
+} from "../repositories/index.js";
+import { AwsImagesURLsService } from "../services/aws-image-urls-service.js";
+import { ImagesService, ImagesURLsService } from "../services/index.js";
+import { AppConfig } from "../../../shared/configs/app-config.js";
+import { SecretsService } from "../../../infrastructure/secrets/interfaces/index.js";
+import { AwsSecretsService } from "../../../infrastructure/secrets/implementations/aws-secrets-service.js";
 
 export type ImagesModuleDependencies = {
   appConfig: AppConfig;
@@ -20,8 +19,7 @@ export type ImagesModuleDependencies = {
   imagesRepository: ImagesRepository;
   markersRepository: MarkersRepository;
   imagesURLsService: ImagesURLsService;
-  topic: Topic;
-  domainService: DomainService;
+  secretsService: SecretsService;
 };
 
 type ImagesDiConfig = Record<keyof ImagesModuleDependencies, Resolver<any>>;
@@ -29,11 +27,10 @@ export type ImagesInjectableDependencies = ImagesModuleDependencies;
 
 export function resolveImagesDiConfig(): ImagesDiConfig {
   return {
-    appConfig: asClass(AppConfig, { lifetime: "SINGLETON" }),
-    imagesService: asClass(ImagesService, {
+    appConfig: asClass(AppConfig, {
       lifetime: "SINGLETON",
     }),
-    domainService: asClass(DomainService, {
+    imagesService: asClass(ImagesService, {
       lifetime: "SINGLETON",
     }),
     imagesRepository: asClass(DynamoDbImagesRepository, {
@@ -43,6 +40,6 @@ export function resolveImagesDiConfig(): ImagesDiConfig {
       lifetime: "SINGLETON",
     }),
     imagesURLsService: asClass(AwsImagesURLsService, { lifetime: "SINGLETON" }),
-    topic: asClass(AwsSnsTopic, { lifetime: "SINGLETON" }),
+    secretsService: asClass(AwsSecretsService, { lifetime: "SINGLETON" }),
   };
 }

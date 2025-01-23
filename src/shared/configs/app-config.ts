@@ -1,33 +1,38 @@
-import { asClass, asFunction, Resolver } from "awilix";
+import { asClass, Resolver } from "awilix";
 import { LogLevel } from "fastify";
 import { valueOrFallback } from "../../utils/index.js";
 
 export type Configurations = {
   appVersion: string;
   awsConfig: AWSConfiguration;
-  domain: string;
-  databaseEndpoint: string;
-  subdomain: string;
   bindAddress: string;
+  databaseEndpoint: string;
+  domain: string;
   environment: "production" | "local" | "test";
+  imagesTableName: string;
+  infrastructureEndpoint: string;
   jwtPublicKey: string;
   logLevel: LogLevel;
-  port: number;
-  publicKeyURI: string;
-  protocol: string;
-  infrastructureEndpoint: string;
   mapsTableName: string;
   markersTableName: string;
-  imagesTableName: string;
+  optimizedPhotoDistributionUrl: string;
+  optimizedPhotosKeypairId: string;
+  optimizedPhotosPrivateKeyName: string;
+  port: number;
+  protocol: string;
+  publicKeyURI: string;
+  queueEnabled: boolean;
+  subdomain: string;
+  topicEnabled: boolean;
 };
 
 export type AWSConfiguration = {
   imagesTableLSI: string;
-  region: string;
-  queueURL: string;
   queueMaxMessages: number;
-  queueWaitTimeSeconds: number;
   queuePollingInterval: number;
+  queueURL: string;
+  queueWaitTimeSeconds: number;
+  region: string;
   s3DumpBucketName: string;
   s3OptimizedBucketName: string;
   s3PresignedUrlExpirationInSeconds: number;
@@ -132,6 +137,26 @@ export class AppConfig {
       process.env["IMAGES_TABLE_NAME"],
       "images"
     ),
+    queueEnabled: valueOrFallback<Configurations["queueEnabled"]>(
+      process.env["QUEUE_ENABLED"],
+      false
+    ),
+    topicEnabled: valueOrFallback<Configurations["topicEnabled"]>(
+      process.env["TOPIC_ENABLED"],
+      false
+    ),
+    optimizedPhotoDistributionUrl: valueOrFallback<
+      Configurations["optimizedPhotoDistributionUrl"]
+    >(
+      process.env["OPTIMIZED_PHOTOS_DISTRIBUTION_URL"],
+      "http://localhost:4200"
+    ),
+    optimizedPhotosPrivateKeyName: valueOrFallback<
+      Configurations["optimizedPhotosPrivateKeyName"]
+    >(process.env["OPTIMIZED_PHOTOS_PRIVATE_KEY_NAME"], "default-private-key"),
+    optimizedPhotosKeypairId: valueOrFallback<
+      Configurations["optimizedPhotosKeypairId"]
+    >(process.env["OPTIMIZED_PHOTOS_KEYPAIR_ID"], "default-keypair-id"),
   };
 
   isLocalEnv = () => this.configurations.environment === "local";

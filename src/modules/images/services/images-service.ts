@@ -1,4 +1,4 @@
-import { Topic } from "../../../infrastructure/topic/interfaces/index.js";
+import { TopicService } from "../../../infrastructure/topic/interfaces/index.js";
 import { Message } from "../../../shared/types/index.js";
 import { MarkersRepository } from "../../markers/repositories/markers-repository.js";
 import { ImagesInjectableDependencies } from "../config/index.js";
@@ -10,18 +10,15 @@ export class ImagesService {
   private readonly imagesRepository: ImagesRepository;
   private readonly markersRepository: MarkersRepository;
   private readonly imagesURLsService: ImagesURLsService;
-  private readonly topic: Topic;
 
   constructor({
     imagesRepository,
     markersRepository,
     imagesURLsService,
-    topic,
   }: ImagesInjectableDependencies) {
     this.imagesRepository = imagesRepository;
     this.markersRepository = markersRepository;
     this.imagesURLsService = imagesURLsService;
-    this.topic = topic;
   }
 
   async getImagesForMarker(
@@ -75,37 +72,10 @@ export class ImagesService {
     }
   }
 
-  async deleteImageForMarker(
-    mapId: string,
-    markerId: string,
-    imageId: string
-  ): Promise<void> {
-    await this.imagesRepository.deleteImageFromMarker(mapId, markerId, imageId);
-
-    // await this.topic.pushMessageToTopic(mapId, markerId, imageId);
+  async deleteImages(mapId: string, imageIds: string[]) {
+    return await this.imagesRepository.deleteImages(mapId, imageIds);
   }
 
-  async deleteAllImagesForMap(
-    imageDetails: any[],
-    mapId: string
-  ): Promise<void> {
-    const imageIds = imageDetails.map((img) => img.imageId);
-
-    await this.imagesRepository.deleteAllImagesForMap(imageIds, mapId);
-
-    imageDetails.forEach((img) => {
-      // this.topic.pushMessageToTopic(mapId, img.markerId, img.imageId);
-    });
-  }
-
-  async deleteAllImagesForMarker(
-    markerId: string,
-    mapId: string
-  ): Promise<void> {
-    await this.imagesRepository.deleteAllImagesForMarker(markerId, mapId);
-
-    // this.topic.pushMessageToTopic(mapId, img.markerId, img.imageId);
-  }
   async updateImage(
     updatedData: Partial<Image>,
     mapId: string,
