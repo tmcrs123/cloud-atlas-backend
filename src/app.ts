@@ -35,6 +35,8 @@ import {
 } from "./infrastructure/queue/config/index.js";
 import { QueueService } from "./infrastructure/queue/interfaces/index.js";
 import fastifyCors from "@fastify/cors";
+import { resolveSecretsDiConfig } from "./infrastructure/secrets/config/secrets-config.js";
+import { resolveDomainDiConfig } from "./modules/domain/domain-config.js";
 
 export async function getApp(): Promise<FastifyInstance> {
   const appConfig = new AppConfig();
@@ -76,10 +78,16 @@ export async function getApp(): Promise<FastifyInstance> {
     ...resolveImagesDiConfig(),
   });
   diContainer.register({
+    ...resolveDomainDiConfig(),
+  });
+  diContainer.register({
     ...resolveQueueDiConfig(),
   });
   diContainer.register({
     ...resolveTopicDiConfig(),
+  });
+  diContainer.register({
+    ...resolveSecretsDiConfig(),
   });
 
   await app.register(fastifySwagger, {

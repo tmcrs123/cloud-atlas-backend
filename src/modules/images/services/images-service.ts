@@ -1,4 +1,3 @@
-import { TopicService } from "../../../infrastructure/topic/interfaces/index.js";
 import { Message } from "../../../shared/types/index.js";
 import { MarkersRepository } from "../../markers/repositories/markers-repository.js";
 import { ImagesInjectableDependencies } from "../config/index.js";

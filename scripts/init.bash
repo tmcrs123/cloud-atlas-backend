@@ -89,7 +89,8 @@ if [ "$SECRET_EXISTS" == "$SECRET_NAME" ]; then
     aws secretsmanager put-secret-value \
         --secret-id "$SECRET_NAME" \
         --secret-string "$SECRET_VALUE" \
-        --region "$AWS_REGION"
+        --region "$AWS_REGION" \
+        --endpoint-url "$LOCALSTACK_ENDPOINT"
 
     echo "Secret updated successfully."
 else
@@ -98,7 +99,8 @@ else
     aws secretsmanager create-secret \
         --name "$SECRET_NAME" \
         --secret-string "$SECRET_VALUE" \
-        --region "$AWS_REGION"
+        --region "$AWS_REGION" \
+        --endpoint-url "$LOCALSTACK_ENDPOINT"
 
     echo "Secret created successfully."
 fi
