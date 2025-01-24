@@ -143,7 +143,8 @@ export async function getApp(): Promise<FastifyInstance> {
 
   await app.register(fastifyJwt, { ...jwtConfig });
 
-  if (appConfig.isLocalEnv()) await app.register(fakeJwtPlugin);
+  if (appConfig.isLocalEnv())
+    await app.register(fakeJwtPlugin(appConfig.configurations.userId));
 
   await app.register(verifyJwtTokenPlugin, {
     skipList: new Set([

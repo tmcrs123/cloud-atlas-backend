@@ -38,6 +38,18 @@ export const getMap = async (
   return reply.status(200).send(map);
 };
 
+export const getMapsForUser = async (
+  request: FastifyRequest,
+  reply: FastifyReply
+): Promise<void> => {
+  const domainService = request.diScope.resolve<DomainService>("domainService");
+
+  let maps = await domainService.getMapsForUser(request.user.sub);
+  if (!maps) reply.status(404).send();
+
+  return reply.status(200).send(maps);
+};
+
 export const deleteMap = async (
   request: FastifyRequest<{ Params: DeleteMapRequestParams }>,
   reply: FastifyReply

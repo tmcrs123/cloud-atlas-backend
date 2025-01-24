@@ -3,12 +3,18 @@ import { stripProperties } from "../../../utils/index.js";
 import { MapsInjectableDependencies } from "../config/index.js";
 import { MapsRepository } from "../repositories/index.js";
 import { Map } from "../schemas/index.js";
+import { UserMapsRepository } from "../repositories/user-maps-repository.js";
 
 export class MapsService {
   private readonly mapsRepository: MapsRepository;
+  private readonly userMapsRepository: UserMapsRepository;
 
-  constructor({ mapsRepository }: MapsInjectableDependencies) {
+  constructor({
+    mapsRepository,
+    userMapsRepository,
+  }: MapsInjectableDependencies) {
     this.mapsRepository = mapsRepository;
+    this.userMapsRepository = userMapsRepository;
   }
 
   async createMap(title: string, owner: string): Promise<Partial<Map>> {
@@ -29,6 +35,13 @@ export class MapsService {
     if (!response) return null;
 
     return stripProperties<Partial<Map>>(response, ["owner"]);
+  }
+
+  async getMapsByOwner(owner: string): Promise<Map[] | null> {
+    const response = await this.userMapsRepository.getMapsByUserId(owner);
+    if (!response) return null;
+
+    return response;
   }
 
   async deleteMap(mapId: string): Promise<void> {

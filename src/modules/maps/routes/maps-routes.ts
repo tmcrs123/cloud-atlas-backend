@@ -3,6 +3,7 @@ import {
   createMap,
   deleteMap,
   getMap,
+  getMapsForUser,
   updateMap,
 } from "../controllers/index.js";
 import {
@@ -34,6 +35,11 @@ export const getMapsRoutes = (): { routes: Routes } => {
         schema: {
           params: GET_MAP_REQUEST_PARAMS_SCHEMA,
         },
+      },
+      {
+        method: "GET",
+        url: "/maps",
+        handler: getMapsForUser,
       },
       {
         method: "DELETE",

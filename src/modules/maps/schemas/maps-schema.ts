@@ -65,12 +65,10 @@ export const UPDATE_MAP_DTO_SCHEMA = z.object({
 
 export type UpdateMapDTO = z.infer<typeof UPDATE_MAP_DTO_SCHEMA>;
 
-export const UPDATE_MAP_REQUEST_BODY_SCHEMA = z
-  .object({
-    title: z.string().min(3),
-    coverPhoto: z.optional(z.string()),
-  })
-  .strict();
+export const UPDATE_MAP_REQUEST_BODY_SCHEMA = z.object({
+  title: z.string().min(3),
+  coverPhoto: z.optional(z.string()),
+});
 
 export type UpdateMapRequestBody = z.infer<
   typeof UPDATE_MAP_REQUEST_BODY_SCHEMA

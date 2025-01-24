@@ -4,3 +4,18 @@ Controller	Handles HTTP requests, input validation	OrderController.ts
 Business Logic	Encapsulates business rules & validation	CreateOrderUseCase.ts
 Service	Handles data transformation, calls repository	OrderService.ts
 Repository	Handles direct database interaction	OrderRepository.ts
+
+
+Todo:
+- organize
+- a way not to have the PK in cleartext
+- fastify cors
+- fastify graceful shutdown
+- swagger all pretty
+- index.js
+- tests!
+- lambdas clean up and tests
+- auto IP thing
+- strip only in domain
+- review routes paths
+- controller has a void 

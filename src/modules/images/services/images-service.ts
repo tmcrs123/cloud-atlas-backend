@@ -42,10 +42,15 @@ export class ImagesService {
     return images;
   }
 
-  async getImagesForMap(mapId: string): Promise<Image[] | null> {
+  async getImagesForMap(
+    mapId: string,
+    generateUrls = false
+  ): Promise<Image[] | null> {
     const images = await this.imagesRepository.getImagesForMap(mapId);
 
     if (!images) return null;
+
+    if (!generateUrls) return images;
 
     for await (const image of images) {
       image.url = await this.imagesURLsService.getUrlForExistingImage(

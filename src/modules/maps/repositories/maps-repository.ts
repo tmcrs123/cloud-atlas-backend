@@ -1,6 +1,4 @@
-import { Map, CreateMapDTO, UpdateMapDTO } from "../schemas/index.js";
-import { DynamoDbMapsRepository } from "./dynamodb-maps-repository.js";
-import { PostgresMapsRepository } from "./postgres-maps-repository.js";
+import { CreateMapDTO, Map, UpdateMapDTO } from "../schemas/index.js";
 
 export interface MapsRepository {
   createMap(createMapDto: CreateMapDTO): Promise<Partial<Map>>;

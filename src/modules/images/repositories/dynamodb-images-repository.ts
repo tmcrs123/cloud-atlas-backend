@@ -1,7 +1,6 @@
 import {
   AttributeValue,
   BatchWriteItemCommand,
-  DeleteItemCommand,
   DynamoDBClient,
   PutItemCommand,
   QueryCommand,
@@ -9,7 +8,6 @@ import {
   UpdateItemCommand,
   WriteRequest,
 } from "@aws-sdk/client-dynamodb";
-import { ImagesRepository } from "./index.js";
 import { marshall, unmarshall } from "@aws-sdk/util-dynamodb";
 import { sendCommand } from "../../../db/utils/sendCommand.js";
 import { AppConfig } from "../../../shared/configs/index.js";
@@ -19,6 +17,7 @@ import {
   Image,
   UpdateImageDTO,
 } from "../schemas/images-schema.js";
+import { ImagesRepository } from "./index.js";
 
 export class DynamoDbImagesRepository implements ImagesRepository {
   private dynamoClient: DynamoDBClient;
@@ -42,10 +41,6 @@ export class DynamoDbImagesRepository implements ImagesRepository {
     return {
       ...createImageDto,
     };
-  }
-
-  deleteAllImagesForMarker(markerId: string, mapId: string): Promise<void> {
-    throw new Error("Method not implemented.");
   }
 
   async deleteImages(mapId: string, imageIds: string[]): Promise<void> {

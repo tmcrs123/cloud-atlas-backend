@@ -15,15 +15,24 @@ async function populateDb() {
   });
 
   const randomMaps = [];
-  const commands = [];
+  const mapsCommands = [];
+  const ownerCommands = [];
+
+  let owner = "6666-6666-6666-6666";
 
   for (let index = 0; index < 10; index++) {
-    let map = generateRandomMap();
+    let map = generateRandomMap(owner);
     randomMaps.push(map);
-    commands.push(
+    mapsCommands.push(
       new PutItemCommand({
         TableName: "snappin-maps",
         Item: marshall(map),
+      })
+    );
+    ownerCommands.push(
+      new PutItemCommand({
+        TableName: "snappin-owners",
+        Item: marshall({ userId: owner, mapId: map.mapId }),
       })
     );
   }
@@ -60,7 +69,11 @@ async function populateDb() {
   });
 
   try {
-    for await (const command of commands) {
+    for await (const command of mapsCommands) {
+      dynamoClient.send(command);
+    }
+
+    for await (const command of ownerCommands) {
       dynamoClient.send(command);
     }
 
@@ -76,13 +89,13 @@ async function populateDb() {
   }
 }
 
-function generateRandomMap(): Map {
+function generateRandomMap(uuid?: string): Map {
   return {
     mapId: randomUUID(),
     title: `Map-${Math.floor(Math.random() * 1000)}`,
     claims: ["EDIT"],
     markersCount: 0,
-    owner: randomUUID(),
+    owner: uuid || randomUUID(),
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
   };

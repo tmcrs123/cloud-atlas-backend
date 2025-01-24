@@ -4,6 +4,8 @@ import {
   DynamoDBClient,
   GetItemCommand,
   PutItemCommand,
+  QueryCommand,
+  QueryCommandOutput,
   UpdateItemCommand,
 } from "@aws-sdk/client-dynamodb";
 import { marshall, unmarshall } from "@aws-sdk/util-dynamodb";

@@ -5,6 +5,7 @@
 MAPS_TABLE_NAME="snappin-maps"
 MARKERS_TABLE_NAME="snappin-markers"
 IMAGES_TABLE_NAME="snappin-images"
+OWNERS_TABLE_NAME="snappin-owners"
 AWS_PROFILE="default"
 DYNAMODB_ENDPOINT="http://localhost:8000"
 
@@ -70,6 +71,35 @@ else
         --profile "$AWS_PROFILE"
 
     echo "Table $IMAGES_TABLE_NAME created successfully."
+fi
+
+if aws dynamodb describe-table --table-name "$OWNERS_TABLE_NAME" --endpoint-url "$DYNAMODB_ENDPOINT" --profile "$AWS_PROFILE" >/dev/null 2>&1; then
+    echo "Table $OWNERS_TABLE_NAME already exists. Skipping creation."
+else
+    echo "Creating table: $OWNERS_TABLE_NAME"
+
+    aws dynamodb create-table \
+        --table-name $OWNERS_TABLE_NAME \
+        --attribute-definitions AttributeName=userId,AttributeType=S AttributeName=mapId,AttributeType=S \
+        --key-schema AttributeName=userId,KeyType=HASH AttributeName=mapId,KeyType=RANGE \
+        --provisioned-throughput ReadCapacityUnits=2,WriteCapacityUnits=2 \
+        --local-secondary-indexes '[
+        {
+            "IndexName": "snappin-local-owners-table-LSI",
+            "KeySchema": [
+                {"AttributeName": "userId", "KeyType": "HASH"},
+                {"AttributeName": "mapId", "KeyType": "RANGE"}
+            ],
+            "Projection": {
+                "ProjectionType": "INCLUDE",
+                "NonKeyAttributes": ["mapId", "userId"]
+            }
+        }
+    ]' \
+        --endpoint-url "$DYNAMODB_ENDPOINT" \
+        --profile "$AWS_PROFILE"
+
+    echo "Table $OWNERS_TABLE_NAME created successfully."
 fi
 
 #SECRETS MANAGER

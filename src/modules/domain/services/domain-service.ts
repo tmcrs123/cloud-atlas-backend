@@ -8,6 +8,7 @@ import {
 import { ImagesService } from "../../images/services/images-service.js";
 import {
   CreateMapRequestBody,
+  Map,
   UpdateMapRequestBody,
 } from "../../maps/schemas/index.js";
 import { MapsService } from "../../maps/services/maps-service.js";
@@ -44,6 +45,13 @@ export class DomainService {
 
   async getMap(mapId: string) {
     return this.mapsService.getMap(mapId);
+  }
+
+  async getMapsForUser(owner: string) {
+    const maps = await this.mapsService.getMapsByOwner(owner);
+    return maps?.map((map) => {
+      return stripProperties<Map>(map, ["userId"]);
+    });
   }
 
   async updateMap(updatedData: UpdateMapRequestBody, mapId: string) {

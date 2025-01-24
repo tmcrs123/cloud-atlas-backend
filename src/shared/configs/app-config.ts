@@ -14,6 +14,7 @@ export type Configurations = {
   jwtPublicKey: string;
   logLevel: LogLevel;
   mapsTableName: string;
+  ownersTableName: string;
   markersTableName: string;
   optimizedPhotoDistributionUrl: string;
   optimizedPhotosKeypairId: string;
@@ -24,6 +25,7 @@ export type Configurations = {
   queueEnabled: boolean;
   subdomain: string;
   topicEnabled: boolean;
+  userId: string;
 };
 
 export type AWSConfiguration = {
@@ -129,6 +131,10 @@ export class AppConfig {
       process.env["MAPS_TABLE_NAME"],
       "maps"
     ),
+    ownersTableName: valueOrFallback<Configurations["ownersTableName"]>(
+      process.env["OWNERS_TABLE_NAME"],
+      "owners"
+    ),
     markersTableName: valueOrFallback<Configurations["markersTableName"]>(
       process.env["MARKERS_TABLE_NAME"],
       "markers"
@@ -157,6 +163,10 @@ export class AppConfig {
     optimizedPhotosKeypairId: valueOrFallback<
       Configurations["optimizedPhotosKeypairId"]
     >(process.env["OPTIMIZED_PHOTOS_KEYPAIR_ID"], "default-keypair-id"),
+    userId: valueOrFallback<Configurations["userId"]>(
+      process.env["USER_ID"],
+      "6666-6666-6666-6666"
+    ),
   };
 
   isLocalEnv = () => this.configurations.environment === "local";
