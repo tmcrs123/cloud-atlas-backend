@@ -15,7 +15,7 @@ export class PostgresMapsRepository implements MapsRepository {
     );
   }
 
-  async getMap(): Promise<Map> {
+  async getMapsDetails(): Promise<Map> {
     return new Promise((resolve) => resolve({} as Map));
   }
 

@@ -29,6 +29,8 @@ export class AwsImagesURLsService implements ImagesURLsService {
     markerId: string,
     imageId: string
   ): Promise<string> {
+    if (this.appConfig.isLocalEnv()) return "";
+
     const privateKey = await this.secretsService.getSecret(
       this.appConfig.configurations.optimizedPhotosPrivateKeyName
     );

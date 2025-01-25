@@ -40,26 +40,35 @@ export class DomainService {
   }
 
   async createMap(request: CreateMapRequestBody, owner: string) {
-    return await this.mapsService.createMap(request.title, owner);
-  }
-
-  async getMap(mapId: string) {
-    return this.mapsService.getMap(mapId);
+    const map = await this.mapsService.createMap(request.title, owner);
+    return stripProperties<Partial<Map>>({ ...map }, ["owner"]);
   }
 
   async getMapsForUser(owner: string) {
     const maps = await this.mapsService.getMapsByOwner(owner);
     return maps?.map((map) => {
-      return stripProperties<Map>(map, ["userId"]);
+      return stripProperties<Map>(map, ["owner", "claims"]);
+    });
+  }
+
+  async getMapsDetails(mapIds: string[]) {
+    const maps = await this.mapsService.getMapsDetails(mapIds);
+    return maps?.map((map) => {
+      return stripProperties<Map>(map, ["owner", "claims"]);
     });
   }
 
   async updateMap(updatedData: UpdateMapRequestBody, mapId: string) {
-    return await this.mapsService.updateMap({ ...updatedData }, mapId);
+    const updatedMap = await this.mapsService.updateMap(
+      { ...updatedData },
+      mapId
+    );
+    if (!updatedMap) return null;
+    return stripProperties<Partial<Map>>(updatedMap, ["owner", "claims"]);
   }
 
-  async deleteMap(mapId: string) {
-    await this.mapsService.deleteMap(mapId);
+  async deleteMap(owner: string, mapId: string) {
+    await this.mapsService.deleteMap(owner, mapId);
 
     const markers = await this.markersService.getMarkers(mapId);
 
@@ -145,6 +154,8 @@ export class DomainService {
 
     if (!images) return null;
 
+    await this.imagesService.generateUrlsForExistingImages(images);
+
     const urls = images.map((image) => {
       return stripProperties<Partial<Image>>(image, [
         "mapId",
@@ -161,15 +172,13 @@ export class DomainService {
 
     if (!images) return null;
 
-    const urls = images.map((image) => {
+    return images.map((image) => {
       return stripProperties<Partial<Image>>(image, [
         "mapId",
         "markerId",
         "imageId",
-      ]).url;
+      ]);
     });
-
-    return urls;
   }
 
   async deleteImageForMarker(mapId: string, markerId: string, imageId: string) {

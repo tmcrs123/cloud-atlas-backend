@@ -18,4 +18,5 @@ Todo:
 - auto IP thing
 - strip only in domain
 - review routes paths
-- controller has a void 
+- controller has a void
+- solve stuff like if(localEnv) via DI and not env logic ins code

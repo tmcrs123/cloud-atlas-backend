@@ -4,7 +4,7 @@ import { DomainService } from "../../domain/services/index.js";
 import {
   CreateMapRequestBody,
   DeleteMapRequestParams,
-  GetMapRequestParams,
+  GetMapsRequestParams,
   UpdateMapRequestBody,
   UpdateMapRequestParams,
 } from "../schemas/index.js";
@@ -26,18 +26,6 @@ export const createMap = async (
     .send(map);
 };
 
-export const getMap = async (
-  request: FastifyRequest<{ Params: GetMapRequestParams }>,
-  reply: FastifyReply
-): Promise<void> => {
-  const domainService = request.diScope.resolve<DomainService>("domainService");
-
-  let map = await domainService.getMap(request.params.mapId);
-  if (!map) reply.status(404).send();
-
-  return reply.status(200).send(map);
-};
-
 export const getMapsForUser = async (
   request: FastifyRequest,
   reply: FastifyReply
@@ -45,8 +33,16 @@ export const getMapsForUser = async (
   const domainService = request.diScope.resolve<DomainService>("domainService");
 
   let maps = await domainService.getMapsForUser(request.user.sub);
-  if (!maps) reply.status(404).send();
+  return reply.status(200).send(maps);
+};
 
+export const getMapsDetails = async (
+  request: FastifyRequest<{ Params: GetMapsRequestParams }>,
+  reply: FastifyReply
+): Promise<void> => {
+  const domainService = request.diScope.resolve<DomainService>("domainService");
+  const ids = request.params.mapIds.split(",");
+  let maps = await domainService.getMapsDetails(ids);
   return reply.status(200).send(maps);
 };
 
@@ -55,7 +51,7 @@ export const deleteMap = async (
   reply: FastifyReply
 ): Promise<void> => {
   const domainService = request.diScope.resolve<DomainService>("domainService");
-  await domainService.deleteMap(request.params.mapId);
+  await domainService.deleteMap(request.user.sub, request.params.mapId);
 
   return reply.status(204).send();
 };

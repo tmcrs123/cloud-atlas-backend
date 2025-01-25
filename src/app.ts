@@ -75,7 +75,7 @@ export async function getApp(): Promise<FastifyInstance> {
     ...resolveMarkersDiConfig(),
   });
   diContainer.register({
-    ...resolveImagesDiConfig(),
+    ...resolveImagesDiConfig(appConfig.isLocalEnv()),
   });
   diContainer.register({
     ...resolveDomainDiConfig(),

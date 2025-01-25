@@ -13,7 +13,13 @@ export const MAP_SCHEMA = z.object({
   claims: z.array(z.enum(CLAIMS)),
 });
 
+export const MAP_OWNERSHIP_SCHEMA = z.object({
+  userId: z.string().uuid(),
+  mapId: z.string().uuid(),
+});
+
 export type Map = z.infer<typeof MAP_SCHEMA>;
+export type MapOwnership = z.infer<typeof MAP_OWNERSHIP_SCHEMA>;
 
 export const CREATE_MAP_REQUEST_BODY_SCHEMA = z
   .object({
@@ -37,13 +43,15 @@ export const CREATE_MAP_DTO_SCHEMA = z.object({
 
 export type CreateMapDTO = z.infer<typeof CREATE_MAP_DTO_SCHEMA>;
 
-export const GET_MAP_REQUEST_PARAMS_SCHEMA = z
+export const GET_MAPS_REQUEST_PARAMS_SCHEMA = z
   .object({
-    mapId: z.string().uuid(),
+    mapIds: z.string(),
   })
   .strict();
 
-export type GetMapRequestParams = z.infer<typeof GET_MAP_REQUEST_PARAMS_SCHEMA>;
+export type GetMapsRequestParams = z.infer<
+  typeof GET_MAPS_REQUEST_PARAMS_SCHEMA
+>;
 
 export const DELETE_MAP_REQUEST_PARAMS_SCHEMA = z
   .object({

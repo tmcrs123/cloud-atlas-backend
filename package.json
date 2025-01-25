@@ -12,6 +12,7 @@
   "scripts": {
     "test": "test",
     "build": "tsc",
+    "local-infra": "bash scripts/init.bash && npx tsx scripts/populate-db.ts",
     "start:dev": "cross-env tsx watch --env-file=.env src/server.ts",
     "docker-start-local-ddb": "docker run -p 8000:8000 -d amazon/dynamodb-local -jar DynamoDBLocal.jar -sharedDb -dbPath .",
     "docker-build": "docker build -t snappin-api .",

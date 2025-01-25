@@ -18,34 +18,42 @@ export class MapsService {
   }
 
   async createMap(title: string, owner: string): Promise<Partial<Map>> {
+    const mapId = randomUUID();
     const map = await this.mapsRepository.createMap({
       claims: ["EDIT"],
       title,
-      mapId: randomUUID(),
+      mapId,
       createdAt: new Date().toUTCString(),
       markersCount: 0,
       owner,
     });
 
-    return stripProperties<Partial<Map>>({ ...map }, ["owner"]);
-  }
+    await this.userMapsRepository.createMapOwnership(owner, mapId);
 
-  async getMap(mapId: string): Promise<Partial<Map> | null> {
-    const response = await this.mapsRepository.getMap(mapId);
-    if (!response) return null;
-
-    return stripProperties<Partial<Map>>(response, ["owner"]);
+    return map;
   }
 
   async getMapsByOwner(owner: string): Promise<Map[] | null> {
-    const response = await this.userMapsRepository.getMapsByUserId(owner);
-    if (!response) return null;
+    const availableMaps = await this.userMapsRepository.getMapsByUserId(owner);
+    if (!availableMaps || availableMaps?.length === 0) return null;
 
+    return await this.populateMapsDetails(availableMaps.map((m) => m.mapId));
+  }
+
+  async getMapsDetails(mapIds: string[]): Promise<Map[] | null> {
+    const response = await this.populateMapsDetails(mapIds);
     return response;
   }
 
-  async deleteMap(mapId: string): Promise<void> {
+  private async populateMapsDetails(mapIds: string[]): Promise<Map[] | null> {
+    const response = await this.mapsRepository.getMapsDetails(mapIds);
+    if (!response) return null;
+    return response;
+  }
+
+  async deleteMap(userId: string, mapId: string): Promise<void> {
     await this.mapsRepository.deleteMap(mapId);
+    await this.userMapsRepository.deleteMapOwnership(userId, mapId);
   }
 
   async updateMap(
@@ -58,6 +66,6 @@ export class MapsService {
     );
     if (!updatedMap) return null;
 
-    return stripProperties<Partial<Map>>(updatedMap, ["owner"]);
+    return updatedMap;
   }
 }

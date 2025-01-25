@@ -1,5 +1,6 @@
 import {
   AttributeValue,
+  BatchGetItemCommand,
   DeleteItemCommand,
   DynamoDBClient,
   GetItemCommand,
@@ -40,11 +41,12 @@ export class DynamoDbMapsRepository implements MapsRepository {
     };
   }
 
-  async getMap(id: string): Promise<Partial<Map> | null> {
-    const command = new GetItemCommand({
-      TableName: this.appConfig.configurations.mapsTableName,
-      Key: {
-        mapId: { ...marshall(id) },
+  async getMapsDetails(mapIds: string[]): Promise<Map[] | null> {
+    const command = new BatchGetItemCommand({
+      RequestItems: {
+        [this.appConfig.configurations.mapsTableName]: {
+          Keys: mapIds.map((id) => ({ mapId: { S: id } })),
+        },
       },
     });
 
@@ -52,9 +54,11 @@ export class DynamoDbMapsRepository implements MapsRepository {
       this.dynamoClient.send(command)
     );
 
-    if (!commandResponse.Item) return null;
+    if (!commandResponse.Responses) return null;
 
-    return unmarshall(commandResponse.Item);
+    return commandResponse.Responses[
+      this.appConfig.configurations.mapsTableName
+    ].map((item) => unmarshall(item) as Map);
   }
 
   async deleteMap(mapId: string): Promise<void> {

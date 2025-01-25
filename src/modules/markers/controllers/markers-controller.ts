@@ -33,7 +33,7 @@ export const createMarkers = async (
   return reply
     .status(201)
     .header("Location", `${appConfig.getURL()}/markers/${mapId}`)
-    .send({ markers });
+    .send(markers);
 };
 
 export const getMarker = async (
@@ -59,7 +59,7 @@ export const getMarkers = async (
 
   let markers = await domainService.getMarkers(request.params.mapId);
 
-  return reply.status(200).send({ markers });
+  return reply.status(200).send(markers);
 };
 
 export const deleteMarkers = async (

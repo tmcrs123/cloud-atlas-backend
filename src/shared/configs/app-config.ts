@@ -1,6 +1,6 @@
 import { asClass, Resolver } from "awilix";
 import { LogLevel } from "fastify";
-import { valueOrFallback } from "../../utils/index.js";
+import { parseBoolean, valueOrFallback } from "../../utils/index.js";
 
 export type Configurations = {
   appVersion: string;
@@ -144,11 +144,13 @@ export class AppConfig {
       "images"
     ),
     queueEnabled: valueOrFallback<Configurations["queueEnabled"]>(
-      process.env["QUEUE_ENABLED"],
+      process.env["QUEUE_ENABLED"] &&
+        parseBoolean(process.env["QUEUE_ENABLED"]),
       false
     ),
     topicEnabled: valueOrFallback<Configurations["topicEnabled"]>(
-      process.env["TOPIC_ENABLED"],
+      process.env["TOPIC_ENABLED"] &&
+        parseBoolean(process.env["TOPIC_ENABLED"]),
       false
     ),
     optimizedPhotoDistributionUrl: valueOrFallback<

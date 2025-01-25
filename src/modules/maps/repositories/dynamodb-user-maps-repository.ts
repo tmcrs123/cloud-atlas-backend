@@ -1,12 +1,14 @@
 import {
   AttributeValue,
+  DeleteItemCommand,
   DynamoDBClient,
+  PutItemCommand,
   QueryCommand,
   QueryCommandOutput,
 } from "@aws-sdk/client-dynamodb";
 import { AppConfig } from "../../../shared/configs/index.js";
 import { MapsInjectableDependencies } from "../config/maps-config.js";
-import { Map } from "../schemas/index.js";
+import { Map, MapOwnership } from "../schemas/index.js";
 import { UserMapsRepository } from "./user-maps-repository.js";
 import { marshall, unmarshall } from "@aws-sdk/util-dynamodb";
 import { sendCommand } from "../../../db/utils/sendCommand.js";
@@ -43,5 +45,32 @@ export class DynamoDbUserMapsRepository implements UserMapsRepository {
     if (commandResponse.Count === 0) return null;
 
     return commandResponse.Items.map((item) => unmarshall(item) as Map);
+  }
+
+  async createMapOwnership(
+    owner: string,
+    mapId: string
+  ): Promise<MapOwnership> {
+    const command = new PutItemCommand({
+      TableName: this.appConfig.configurations.ownersTableName,
+      Item: marshall({ userId: owner, mapId: mapId }),
+    });
+
+    await sendCommand(() => this.dynamoClient.send(command));
+
+    return { userId: owner, mapId };
+  }
+
+  async deleteMapOwnership(userId: string, mapId: string): Promise<void> {
+    const command = new DeleteItemCommand({
+      TableName: this.appConfig.configurations.ownersTableName,
+      Key: {
+        userId: { ...marshall(userId) },
+        mapId: { ...marshall(mapId) },
+      },
+    });
+    await sendCommand(() => this.dynamoClient.send(command));
+
+    return;
   }
 }

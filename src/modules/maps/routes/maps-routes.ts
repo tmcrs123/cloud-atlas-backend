@@ -2,14 +2,14 @@ import { Routes } from "../../../shared/types/index.js";
 import {
   createMap,
   deleteMap,
-  getMap,
+  getMapsForUser as getMapsDetails,
   getMapsForUser,
   updateMap,
 } from "../controllers/index.js";
 import {
   CREATE_MAP_REQUEST_BODY_SCHEMA,
   DELETE_MAP_REQUEST_PARAMS_SCHEMA,
-  GET_MAP_REQUEST_PARAMS_SCHEMA,
+  GET_MAPS_REQUEST_PARAMS_SCHEMA,
   UPDATE_MAP_REQUEST_BODY_SCHEMA,
   UPDATE_MAP_REQUEST_PARAMS_SCHEMA,
 } from "../schemas/index.js";
@@ -30,10 +30,10 @@ export const getMapsRoutes = (): { routes: Routes } => {
       },
       {
         method: "GET",
-        url: "/maps/:mapId",
-        handler: getMap,
+        url: "/maps/:mapIds",
+        handler: getMapsDetails,
         schema: {
-          params: GET_MAP_REQUEST_PARAMS_SCHEMA,
+          params: GET_MAPS_REQUEST_PARAMS_SCHEMA,
         },
       },
       {
