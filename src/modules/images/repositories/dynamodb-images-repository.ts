@@ -68,10 +68,7 @@ export class DynamoDbImagesRepository implements ImagesRepository {
     return;
   }
 
-  async getImagesForMarker(
-    mapId: string,
-    markerId: string
-  ): Promise<Image[] | null> {
+  async getImagesForMarker(mapId: string, markerId: string): Promise<Image[]> {
     const ExpressionAttributeValues: Record<string, AttributeValue> = {
       ":mapId": marshall(mapId),
       ":markerId": marshall(markerId),
@@ -89,13 +86,12 @@ export class DynamoDbImagesRepository implements ImagesRepository {
       this.dynamoClient.send(command)
     );
 
-    if (!commandResponse.Items) return null;
-    if (commandResponse.Count === 0) return null;
+    if (!commandResponse.Items) return [];
 
     return commandResponse.Items.map((item) => unmarshall(item) as Image);
   }
 
-  async getImagesForMap(mapId: string): Promise<Image[] | null> {
+  async getImagesForMap(mapId: string): Promise<Image[]> {
     const ExpressionAttributeValues: Record<string, AttributeValue> = {
       ":mapId": marshall(mapId),
     };
@@ -111,8 +107,7 @@ export class DynamoDbImagesRepository implements ImagesRepository {
       this.dynamoClient.send(command)
     );
 
-    if (!commandResponse.Items) return null;
-    if (commandResponse.Count === 0) return null;
+    if (!commandResponse.Items) return [];
 
     return commandResponse.Items.map((item) => unmarshall(item) as Image);
   }

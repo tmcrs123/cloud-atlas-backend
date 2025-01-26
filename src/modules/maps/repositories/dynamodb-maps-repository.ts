@@ -3,18 +3,15 @@ import {
   BatchGetItemCommand,
   DeleteItemCommand,
   DynamoDBClient,
-  GetItemCommand,
   PutItemCommand,
-  QueryCommand,
-  QueryCommandOutput,
   UpdateItemCommand,
 } from "@aws-sdk/client-dynamodb";
 import { marshall, unmarshall } from "@aws-sdk/util-dynamodb";
 import { sendCommand } from "../../../db/utils/index.js";
-import { CreateMapDTO, Map, UpdateMapDTO } from "../schemas/index.js";
-import { MapsRepository } from "./maps-repository.js";
 import { AppConfig } from "../../../shared/configs/index.js";
 import { MapsInjectableDependencies } from "../config/maps-config.js";
+import { CreateMapDTO, Map, UpdateMapDTO } from "../schemas/index.js";
+import { MapsRepository } from "./maps-repository.js";
 
 export class DynamoDbMapsRepository implements MapsRepository {
   private dynamoClient: DynamoDBClient;
@@ -41,7 +38,7 @@ export class DynamoDbMapsRepository implements MapsRepository {
     };
   }
 
-  async getMapsDetails(mapIds: string[]): Promise<Map[] | null> {
+  async getMapsDetails(mapIds: string[]): Promise<Map[]> {
     const command = new BatchGetItemCommand({
       RequestItems: {
         [this.appConfig.configurations.mapsTableName]: {
@@ -54,7 +51,7 @@ export class DynamoDbMapsRepository implements MapsRepository {
       this.dynamoClient.send(command)
     );
 
-    if (!commandResponse.Responses) return null;
+    if (!commandResponse.Responses) return [];
 
     return commandResponse.Responses[
       this.appConfig.configurations.mapsTableName
@@ -76,7 +73,7 @@ export class DynamoDbMapsRepository implements MapsRepository {
   async updateMap(
     updatedData: UpdateMapDTO,
     id: string
-  ): Promise<Partial<Map> | null> {
+  ): Promise<Partial<Map>> {
     let updateExpression = [];
     updateExpression.push("updatedAt=:updatedAt");
     updateExpression.push("title=:title");
@@ -109,8 +106,6 @@ export class DynamoDbMapsRepository implements MapsRepository {
       this.dynamoClient.send(command)
     );
 
-    if (!commandResponse.Attributes) return null;
-
-    return unmarshall(commandResponse.Attributes);
+    return unmarshall(commandResponse.Attributes!);
   }
 }

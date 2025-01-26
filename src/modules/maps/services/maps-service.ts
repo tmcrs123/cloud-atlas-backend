@@ -1,9 +1,8 @@
 import { randomUUID } from "crypto";
-import { stripProperties } from "../../../utils/index.js";
 import { MapsInjectableDependencies } from "../config/index.js";
 import { MapsRepository } from "../repositories/index.js";
-import { Map } from "../schemas/index.js";
 import { UserMapsRepository } from "../repositories/user-maps-repository.js";
+import { Map } from "../schemas/index.js";
 
 export class MapsService {
   private readonly mapsRepository: MapsRepository;
@@ -33,21 +32,18 @@ export class MapsService {
     return map;
   }
 
-  async getMapsByOwner(owner: string): Promise<Map[] | null> {
+  async getMapsByOwner(owner: string): Promise<Map[]> {
     const availableMaps = await this.userMapsRepository.getMapsByUserId(owner);
-    if (!availableMaps || availableMaps?.length === 0) return null;
-
     return await this.populateMapsDetails(availableMaps.map((m) => m.mapId));
   }
 
-  async getMapsDetails(mapIds: string[]): Promise<Map[] | null> {
+  async getMapsDetails(mapIds: string[]): Promise<Map[]> {
     const response = await this.populateMapsDetails(mapIds);
     return response;
   }
 
-  private async populateMapsDetails(mapIds: string[]): Promise<Map[] | null> {
+  private async populateMapsDetails(mapIds: string[]): Promise<Map[]> {
     const response = await this.mapsRepository.getMapsDetails(mapIds);
-    if (!response) return null;
     return response;
   }
 
@@ -59,12 +55,11 @@ export class MapsService {
   async updateMap(
     updatedData: Partial<Map>,
     mapId: string
-  ): Promise<Partial<Map> | null> {
+  ): Promise<Partial<Map>> {
     const updatedMap = await this.mapsRepository.updateMap(
       { ...updatedData, updatedAt: new Date().toUTCString() },
       mapId
     );
-    if (!updatedMap) return null;
 
     return updatedMap;
   }

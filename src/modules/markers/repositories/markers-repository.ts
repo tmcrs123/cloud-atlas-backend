@@ -6,8 +6,8 @@ import {
 
 export interface MarkersRepository {
   createMarkers(createMarkerDTOs: CreateMarkerDTO[]): Promise<Marker[]>;
-  getMarker(mapId: string, markerId: string): Promise<Marker | null>;
-  getMarkers(mapId: string): Promise<Marker[] | null>;
+  getMarker(mapId: string, markerId: string): Promise<Marker>;
+  getMarkers(mapId: string): Promise<Marker[]>;
   deleteMarker(markerId: string, mapId: string): Promise<void>;
   deleteMarkers(markerIds: string[], mapId: string): Promise<void>;
   updateMarker(

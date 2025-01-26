@@ -20,16 +20,11 @@ export class ImagesService {
     this.imagesURLsService = imagesURLsService;
   }
 
-  async getImagesForMarker(
-    mapId: string,
-    markerId: string
-  ): Promise<Image[] | null> {
+  async getImagesForMarker(mapId: string, markerId: string): Promise<Image[]> {
     const images = await this.imagesRepository.getImagesForMarker(
       mapId,
       markerId
     );
-
-    if (!images) return null;
 
     for await (const image of images) {
       image.url = await this.imagesURLsService.getUrlForExistingImage(
@@ -42,11 +37,8 @@ export class ImagesService {
     return images;
   }
 
-  async getImagesForMap(mapId: string): Promise<Image[] | null> {
+  async getImagesForMap(mapId: string): Promise<Image[]> {
     const images = await this.imagesRepository.getImagesForMap(mapId);
-
-    if (!images) return null;
-
     return images;
   }
 

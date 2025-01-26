@@ -30,15 +30,13 @@ export class MarkersService {
     return await this.markersRepository.createMarkers(dtos);
   }
 
-  async getMarker(mapId: string, markerId: string): Promise<Marker | null> {
+  async getMarker(mapId: string, markerId: string): Promise<Marker> {
     const marker = await this.markersRepository.getMarker(mapId, markerId);
-    if (!marker) return null;
     return marker;
   }
 
-  async getMarkers(mapId: string): Promise<Marker[] | null> {
+  async getMarkers(mapId: string): Promise<Marker[]> {
     const markers = this.markersRepository.getMarkers(mapId);
-    if (!markers) return null;
     return markers;
   }
 

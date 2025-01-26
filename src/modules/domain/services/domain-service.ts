@@ -183,6 +183,7 @@ export class DomainService {
 
   async deleteImageForMarker(mapId: string, markerId: string, imageId: string) {
     await this.imagesService.deleteImages(mapId, [imageId]);
+    //need to delete from Optimized bucket here
     return;
   }
 

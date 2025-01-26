@@ -25,7 +25,7 @@ export class DynamoDbUserMapsRepository implements UserMapsRepository {
       }),
     });
   }
-  async getMapsByUserId(userId: string): Promise<Map[] | null> {
+  async getMapsByUserId(userId: string): Promise<Map[]> {
     const ExpressionAttributeValues: Record<string, AttributeValue> = {
       ":userId": marshall(userId),
     };
@@ -41,8 +41,7 @@ export class DynamoDbUserMapsRepository implements UserMapsRepository {
       this.dynamoClient.send(command)
     );
 
-    if (!commandResponse.Items) return null;
-    if (commandResponse.Count === 0) return null;
+    if (!commandResponse.Items) return [];
 
     return commandResponse.Items.map((item) => unmarshall(item) as Map);
   }
