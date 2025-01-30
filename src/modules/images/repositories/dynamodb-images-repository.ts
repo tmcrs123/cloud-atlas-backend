@@ -86,7 +86,7 @@ export class DynamoDbImagesRepository implements ImagesRepository {
       this.dynamoClient.send(command)
     );
 
-    if (!commandResponse.Items) return [];
+    if (!commandResponse.Items || commandResponse.Items.length === 0) return [];
 
     return commandResponse.Items.map((item) => unmarshall(item) as Image);
   }
@@ -107,7 +107,7 @@ export class DynamoDbImagesRepository implements ImagesRepository {
       this.dynamoClient.send(command)
     );
 
-    if (!commandResponse.Items) return [];
+    if (!commandResponse.Items || commandResponse.Items.length === 0) return [];
 
     return commandResponse.Items.map((item) => unmarshall(item) as Image);
   }

@@ -39,6 +39,8 @@ export class DynamoDbMapsRepository implements MapsRepository {
   }
 
   async getMapsDetails(mapIds: string[]): Promise<Map[]> {
+    if (!mapIds || mapIds.length === 0) return [];
+
     const command = new BatchGetItemCommand({
       RequestItems: {
         [this.appConfig.configurations.mapsTableName]: {

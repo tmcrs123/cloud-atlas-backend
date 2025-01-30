@@ -25,6 +25,7 @@ export const CREATE_MARKERS_REQUEST_BODY_SCHEMA = z
           lng: z.number(),
           lat: z.number(),
         }),
+        title: z.string().min(3),
       })
     ),
   })

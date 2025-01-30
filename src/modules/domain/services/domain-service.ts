@@ -72,7 +72,7 @@ export class DomainService {
 
     const markers = await this.markersService.getMarkers(mapId);
 
-    if (!markers) return;
+    if (!markers || markers.length === 0) return;
 
     const markerIds = markers.map((marker) => marker.markerId);
 
@@ -80,7 +80,7 @@ export class DomainService {
 
     const images = await this.imagesService.getImagesForMap(mapId);
 
-    if (!images) return;
+    if (!images || images.length === 0) return;
 
     const imageIds = images.map((img) => img.imageId);
 
