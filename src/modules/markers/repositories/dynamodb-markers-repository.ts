@@ -140,7 +140,7 @@ export class DynamoDbMarkersRepository implements MarkersRepository {
     let expressionAttributeValues: Record<string, AttributeValue> = {};
 
     Object.entries(updatedData).forEach(([key, value]) => {
-      if (value) {
+      if (value !== null || value !== undefined) {
         updateExpression.push(`${key}=:${key}`);
         expressionAttributeValues[`:${key}`] = marshall(value);
       }
@@ -150,9 +150,11 @@ export class DynamoDbMarkersRepository implements MarkersRepository {
     //for example, for the coordinates you need to pass the object as {coordinates: {lat, lng}} and not just {lat,lng}
     //therefore the following line deals with this problem explicitly for coordinates
 
-    expressionAttributeValues[":coordinates"] = {
-      M: marshall(updatedData.coordinates),
-    };
+    if (updatedData.coordinates) {
+      expressionAttributeValues[":coordinates"] = {
+        M: marshall(updatedData.coordinates),
+      };
+    }
 
     const command = new UpdateItemCommand({
       TableName: this.appConfig.configurations.markersTableName,

@@ -173,11 +173,7 @@ export class DomainService {
     if (!images) return null;
 
     return images.map((image) => {
-      return stripProperties<Partial<Image>>(image, [
-        "mapId",
-        "markerId",
-        "imageId",
-      ]);
+      return stripProperties<Partial<Image>>(image, ["markerId", "mapId"]);
     });
   }
 
@@ -192,7 +188,7 @@ export class DomainService {
     mapId: string,
     imageId: string
   ) {
-    this.imagesService.updateImage(requestBody, mapId, imageId);
+    return await this.imagesService.updateImage(requestBody, mapId, imageId);
   }
 
   async uploadImage(mapId: string, markerId: string) {
