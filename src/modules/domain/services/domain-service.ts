@@ -167,6 +167,10 @@ export class DomainService {
     return urls;
   }
 
+  async createImageInDb(mapId: string, markerId: string, imageId: string) {
+    return await this.imagesService.createImageInDb(mapId, markerId, imageId);
+  }
+
   async getImagesForMarker(mapId: string, markerId: string) {
     const images = await this.imagesService.getImagesForMarker(mapId, markerId);
 

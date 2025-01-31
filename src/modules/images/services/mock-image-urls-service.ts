@@ -1,15 +1,25 @@
+import { randomUUID } from "node:crypto";
 import { ImagesURLsService } from "./images-urls-service.js";
+import { ImagesInjectableDependencies } from "../config/index.js";
+import { AppConfig } from "../../../shared/configs/app-config.js";
 
 export class MockImageUrlsService implements ImagesURLsService {
+  private readonly appConfig: AppConfig;
+
+  constructor({ appConfig, secretsService }: ImagesInjectableDependencies) {
+    this.appConfig = appConfig;
+  }
   getPreSignedUrl(
     mapId: string,
     markerId: string
   ): Promise<{ url: string; fields: Record<string, string> }> {
+    const key = randomUUID();
+
     return new Promise((resolve) => {
       resolve({
-        url: `https://example.com/upload/${mapId}/${markerId}`,
+        url: `${this.appConfig.configurations.protocol}://${this.appConfig.configurations.domain}:${this.appConfig.configurations.port}/upload/${mapId}/${markerId}/${key}`,
         fields: {
-          key: `${mapId}/${markerId}`,
+          key: `${mapId}/${markerId}/${key}`,
           AWSAccessKeyId: "mock-access-key-id",
           policy: "mock-policy",
           signature: "mock-signature",

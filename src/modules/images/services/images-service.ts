@@ -20,6 +20,18 @@ export class ImagesService {
     this.imagesURLsService = imagesURLsService;
   }
 
+  async createImageInDb(
+    mapId: string,
+    markerId: string,
+    imageId: string
+  ): Promise<Image> {
+    return await this.imagesRepository.createImage({
+      mapId,
+      markerId,
+      imageId,
+    });
+  }
+
   async getImagesForMarker(mapId: string, markerId: string): Promise<Image[]> {
     const images = await this.imagesRepository.getImagesForMarker(
       mapId,

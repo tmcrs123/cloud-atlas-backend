@@ -17,6 +17,15 @@ export type GetImagesForMarkerRequestParams = z.infer<
   typeof GET_IMAGES_FOR_MARKER_SCHEMA
 >;
 
+export const CREATE_IMAGE_IN_DB_SCHEMA = z.object({
+  mapId: z.string().uuid(),
+  markerId: z.string().uuid(),
+  imageId: z.string().uuid(),
+});
+export type CreateImageInDbRequestParams = z.infer<
+  typeof CREATE_IMAGE_IN_DB_SCHEMA
+>;
+
 export const GET_IMAGES_FOR_MAP_SCHEMA = z.object({
   mapId: z.string().uuid(),
 });

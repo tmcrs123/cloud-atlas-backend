@@ -44,6 +44,8 @@ export class DynamoDbImagesRepository implements ImagesRepository {
   }
 
   async deleteImages(mapId: string, imageIds: string[]): Promise<void> {
+    if (imageIds.length === 0) return;
+
     const deleteImagesRequests: WriteRequest[] = [];
 
     imageIds.forEach((imageId) => {

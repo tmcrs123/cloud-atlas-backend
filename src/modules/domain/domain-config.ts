@@ -2,10 +2,12 @@ import { asClass, Resolver } from "awilix";
 import { AwsSnsTopicService } from "../../infrastructure/topic/implementations/aws-sns-topic.js";
 import { TopicService } from "../../infrastructure/topic/interfaces/topic.js";
 import { AppConfig } from "../../shared/configs/index.js";
-import { ImagesService } from "../images/services/index.js";
+import { ImagesService, ImagesURLsService } from "../images/services/index.js";
 import { MapsService } from "../maps/services/maps-service.js";
 import { MarkersService } from "../markers/services/markers-service.js";
 import { DomainService } from "./services/domain-service.js";
+import { MockImageUrlsService } from "../images/services/mock-image-urls-service.js";
+import { AwsImagesURLsService } from "../images/services/aws-image-urls-service.js";
 
 export type DomainModuleDependencies = {
   appConfig: AppConfig;
@@ -14,12 +16,13 @@ export type DomainModuleDependencies = {
   imagesService: ImagesService;
   markersService: MarkersService;
   topicService: TopicService;
+  imagesURLsService: ImagesURLsService;
 };
 
 type DomainDiConfig = Record<keyof DomainModuleDependencies, Resolver<any>>;
 export type DomainInjectableDependencies = DomainModuleDependencies;
 
-export function resolveDomainDiConfig(): DomainDiConfig {
+export function resolveDomainDiConfig(isLocalEnv: boolean): DomainDiConfig {
   return {
     appConfig: asClass(AppConfig, { lifetime: "SINGLETON" }),
     domainService: asClass(DomainService, { lifetime: "SINGLETON" }),
@@ -35,5 +38,9 @@ export function resolveDomainDiConfig(): DomainDiConfig {
     topicService: asClass(AwsSnsTopicService, {
       lifetime: "SINGLETON",
     }),
+    imagesURLsService: asClass(
+      isLocalEnv ? MockImageUrlsService : AwsImagesURLsService,
+      { lifetime: "SINGLETON" }
+    ),
   };
 }

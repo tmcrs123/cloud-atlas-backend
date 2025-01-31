@@ -78,7 +78,7 @@ export async function getApp(): Promise<FastifyInstance> {
     ...resolveImagesDiConfig(appConfig.isLocalEnv()),
   });
   diContainer.register({
-    ...resolveDomainDiConfig(),
+    ...resolveDomainDiConfig(appConfig.isLocalEnv()),
   });
   diContainer.register({
     ...resolveQueueDiConfig(),
@@ -189,7 +189,7 @@ export async function getApp(): Promise<FastifyInstance> {
   // routes
   // after means after ALL plugins are loaded
   app.after(() => {
-    const { routes } = getRoutes();
+    const { routes } = getRoutes(appConfig.isLocalEnv());
     for (const route of routes) {
       app.withTypeProvider<ZodTypeProvider>().route(route);
     }
@@ -201,12 +201,12 @@ export async function getApp(): Promise<FastifyInstance> {
   return app;
 }
 
-function getRoutes(): {
+function getRoutes(isLocalEnv: boolean): {
   routes: Routes;
 } {
   const { routes: mapsRoutes } = getMapsRoutes();
   const { routes: markersRoutes } = getMarkersRoutes();
-  const { routes: imagesRoutes } = getImagesRoutes();
+  const { routes: imagesRoutes } = getImagesRoutes(isLocalEnv);
 
   return {
     routes: [

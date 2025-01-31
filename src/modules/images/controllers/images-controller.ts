@@ -1,6 +1,7 @@
 import { FastifyReply, FastifyRequest } from "fastify";
 import { DomainService } from "../../domain/services/index.js";
 import {
+  CreateImageInDbRequestParams,
   DeleteImageFromMarkerRequestParams,
   GetImagesForMapRequestParams,
   GetImagesForMarkerRequestParams,
@@ -18,6 +19,21 @@ export const getImagesForMap = async (
   let images = await domainService.getImagesForMap(request.params.mapId);
 
   return reply.status(200).send(images);
+};
+
+export const createImageDetailsInDb = async (
+  request: FastifyRequest<{ Params: CreateImageInDbRequestParams }>,
+  reply: FastifyReply
+): Promise<void> => {
+  const domainService = request.diScope.resolve<DomainService>("domainService");
+
+  let image = await domainService.createImageInDb(
+    request.params.mapId,
+    request.params.markerId,
+    request.params.imageId
+  );
+
+  return reply.status(201).send(image);
 };
 
 export const getImagesForMarker = async (

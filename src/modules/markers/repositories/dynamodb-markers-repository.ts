@@ -4,7 +4,6 @@ import {
   DeleteItemCommand,
   DynamoDBClient,
   GetItemCommand,
-  PutItemCommand,
   QueryCommand,
   UpdateItemCommand,
   WriteRequest,
@@ -176,7 +175,7 @@ export class DynamoDbMarkersRepository implements MarkersRepository {
     return unmarshall(commandResponse.Attributes!) as Marker;
   }
 
-  async updateImageCount(markerId: string, mapId: string): Promise<void> {
+  async updateImageCount(mapId: string, markerId: string): Promise<void> {
     const command = new UpdateItemCommand({
       TableName: this.appConfig.configurations.markersTableName,
       Key: {
