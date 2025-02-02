@@ -37,6 +37,8 @@ import { QueueService } from "./infrastructure/queue/interfaces/index.js";
 import fastifyCors from "@fastify/cors";
 import { resolveSecretsDiConfig } from "./infrastructure/secrets/config/secrets-config.js";
 import { resolveDomainDiConfig } from "./modules/domain/domain-config.js";
+import fastifyGracefulShutdown from "fastify-graceful-shutdown";
+import fastifyHelmet from "@fastify/helmet";
 
 export async function getApp(): Promise<FastifyInstance> {
   const appConfig = new AppConfig();
@@ -94,8 +96,8 @@ export async function getApp(): Promise<FastifyInstance> {
     transform: createJsonSchemaTransform({ skipList: [] }),
     openapi: {
       info: {
-        title: "SampleApi",
-        description: "Sample backend service",
+        title: "CloudAtlasAPi",
+        description: "The API for the Cloud Atlas project",
         version: "1.0.0",
       },
       servers: [
@@ -178,6 +180,22 @@ export async function getApp(): Promise<FastifyInstance> {
       "Access-Control-Allow-Headers",
     ],
   });
+
+  if (!appConfig.isLocalEnv()) {
+    await app.register(fastifyGracefulShutdown, {
+      resetHandlersOnInit: true,
+      timeout: appConfig.configurations.gracefulShutdownTimeoutInMs,
+    });
+  }
+
+  await app.register(
+    fastifyHelmet,
+    appConfig.isLocalEnv()
+      ? {
+          contentSecurityPolicy: false,
+        }
+      : {}
+  );
 
   // Add schema validator and serializer - this is what enables ZOD to do type checking on requests
   app.setValidatorCompiler(validatorCompiler);

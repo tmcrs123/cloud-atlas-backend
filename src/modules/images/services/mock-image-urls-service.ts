@@ -1,15 +1,28 @@
+import { S3Client } from "@aws-sdk/client-s3";
 import { randomUUID } from "node:crypto";
-import { ImagesURLsService } from "./images-urls-service.js";
+import { SecretsService } from "../../../infrastructure/secrets/interfaces/secrets-service.js";
+import { AppConfig } from "../../../shared/configs/index.js";
 import { ImagesInjectableDependencies } from "../config/index.js";
-import { AppConfig } from "../../../shared/configs/app-config.js";
+import { ImagesURLsService } from "./index.js";
 
 export class MockImageUrlsService implements ImagesURLsService {
+  private readonly s3Client: S3Client;
   private readonly appConfig: AppConfig;
+  private readonly secretsService: SecretsService;
 
   constructor({ appConfig, secretsService }: ImagesInjectableDependencies) {
     this.appConfig = appConfig;
+    this.secretsService = secretsService;
+
+    this.s3Client = new S3Client({
+      region: this.appConfig.awsConfiguration.region,
+      ...(this.appConfig.isLocalEnv() && {
+        endpoint: this.appConfig.configurations.infrastructureEndpoint,
+      }),
+    });
   }
-  getPreSignedUrl(
+
+  async getPreSignedUrl(
     mapId: string,
     markerId: string
   ): Promise<{ url: string; fields: Record<string, string> }> {
@@ -27,7 +40,7 @@ export class MockImageUrlsService implements ImagesURLsService {
       });
     });
   }
-  getUrlForExistingImage(
+  async getUrlForExistingImage(
     mapId: string,
     markerId: string,
     imageId: string

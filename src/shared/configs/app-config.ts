@@ -26,6 +26,7 @@ export type Configurations = {
   subdomain: string;
   topicEnabled: boolean;
   userId: string;
+  gracefulShutdownTimeoutInMs: number;
 };
 
 export type AWSConfiguration = {
@@ -169,6 +170,9 @@ export class AppConfig {
       process.env["USER_ID"],
       "6666-6666-6666-6666"
     ),
+    gracefulShutdownTimeoutInMs: valueOrFallback<
+      Configurations["gracefulShutdownTimeoutInMs"]
+    >(process.env["GRACEFUL_SHUTDOWN_TIMEOUT_IN_MSECS"], 10000),
   };
 
   isLocalEnv = () => this.configurations.environment === "local";

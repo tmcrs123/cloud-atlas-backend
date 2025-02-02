@@ -1,4 +1,4 @@
-import { asClass, Resolver } from "awilix";
+import { asClass, asFunction, Resolver } from "awilix";
 import {
   DynamoDbMarkersRepository,
   MarkersRepository,
@@ -40,8 +40,11 @@ export function resolveImagesDiConfig(isLocalEnv: boolean): ImagesDiConfig {
     markersRepository: asClass(DynamoDbMarkersRepository, {
       lifetime: "SINGLETON",
     }),
-    imagesURLsService: asClass(
-      isLocalEnv ? MockImageUrlsService : AwsImagesURLsService,
+    imagesURLsService: asFunction(
+      (deps) =>
+        isLocalEnv
+          ? new MockImageUrlsService(deps)
+          : new AwsImagesURLsService(deps),
       { lifetime: "SINGLETON" }
     ),
     secretsService: asClass(AwsSecretsService, { lifetime: "SINGLETON" }),

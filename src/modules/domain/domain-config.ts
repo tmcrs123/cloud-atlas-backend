@@ -1,4 +1,4 @@
-import { asClass, Resolver } from "awilix";
+import { asClass, asFunction, Resolver } from "awilix";
 import { AwsSnsTopicService } from "../../infrastructure/topic/implementations/aws-sns-topic.js";
 import { TopicService } from "../../infrastructure/topic/interfaces/topic.js";
 import { AppConfig } from "../../shared/configs/index.js";
@@ -38,8 +38,11 @@ export function resolveDomainDiConfig(isLocalEnv: boolean): DomainDiConfig {
     topicService: asClass(AwsSnsTopicService, {
       lifetime: "SINGLETON",
     }),
-    imagesURLsService: asClass(
-      isLocalEnv ? MockImageUrlsService : AwsImagesURLsService,
+    imagesURLsService: asFunction(
+      (deps) =>
+        isLocalEnv
+          ? new MockImageUrlsService(deps)
+          : new AwsImagesURLsService(deps),
       { lifetime: "SINGLETON" }
     ),
   };
