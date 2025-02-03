@@ -8,7 +8,7 @@ export async function sendCommand<T>(sendFn: () => Promise<T>): Promise<T> {
     let error = err as DynamoDbError;
     throw new DatabaseGenericError(
       error.message,
-      error.$metadata.httpStatusCode
+      error.$metadata?.httpStatusCode || 500
     );
   }
 }

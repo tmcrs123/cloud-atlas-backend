@@ -7,6 +7,8 @@ export type Configurations = {
   awsConfig: AWSConfiguration;
   bindAddress: string;
   databaseEndpoint: string;
+  databaseAccessKeyId: string;
+  databaseSecretAccessKey: string;
   domain: string;
   environment: "production" | "local" | "test";
   imagesTableName: string;
@@ -173,6 +175,13 @@ export class AppConfig {
     gracefulShutdownTimeoutInMs: valueOrFallback<
       Configurations["gracefulShutdownTimeoutInMs"]
     >(process.env["GRACEFUL_SHUTDOWN_TIMEOUT_IN_MSECS"], 10000),
+    databaseAccessKeyId: valueOrFallback<Configurations["databaseAccessKeyId"]>(
+      process.env["DATABASE_ACCESS_KEY_ID"],
+      "fakeAccessKeyId"
+    ),
+    databaseSecretAccessKey: valueOrFallback<
+      Configurations["databaseSecretAccessKey"]
+    >(process.env["DATABASE_SECRET_ACCESS_KEY"], "fakeSecretAccessKey"),
   };
 
   isLocalEnv = () => this.configurations.environment === "local";

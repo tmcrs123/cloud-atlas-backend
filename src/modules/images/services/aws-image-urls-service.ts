@@ -43,7 +43,7 @@ export class AwsImagesURLsService implements ImagesURLsService {
       keyPairId: this.appConfig.configurations.optimizedPhotosKeypairId,
       privateKey,
       url: `https://${this.appConfig.configurations.optimizedPhotoDistributionUrl}/${mapId}/${markerId}/${imageId}`,
-      dateLessThan: new Date(Date.now() + 1000 * 60).toISOString(),
+      dateLessThan: new Date(Date.now() + 1000 * 60 * 60).toISOString(),
     });
 
     return Promise.resolve(signedUrl);

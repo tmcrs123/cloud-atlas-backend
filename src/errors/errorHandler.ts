@@ -64,8 +64,6 @@ export function errorHandler(
   }
 
   //OTHER STUFF
-  console.log("HANLDER", error);
-  console.log("type", typeof error);
   JSON.stringify(error);
   return reply.code(500).send(error.message);
 }

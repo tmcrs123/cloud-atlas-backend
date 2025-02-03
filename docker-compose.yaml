@@ -4,7 +4,10 @@ services:
     container_name: dynamodb-local
     ports:
       - "8000:8000"
+    networks:
+      - dev
     command: "-jar DynamoDBLocal.jar -sharedDb -inMemory"
+
     volumes:
       - dynamodb-data:/home/dynamodblocal/data
 
@@ -23,7 +26,19 @@ services:
     volumes:
       - ${TMPDIR:-/tmp}/localstack:/var/log/localstack
       - /var/run/docker.sock:/var/run/docker.sock
-    # restart: on-failure
+  # restart: on-failure
+
+  api:
+    image: snappin-api:latest
+    hostname: snappin-api
+    networks:
+      - dev
+    ports:
+      - 3000:3000
+    env_file: .env
 
 volumes:
   dynamodb-data:
+networks:
+  dev:
+    driver: bridge

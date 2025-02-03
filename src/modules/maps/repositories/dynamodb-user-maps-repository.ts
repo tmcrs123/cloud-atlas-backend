@@ -22,6 +22,12 @@ export class DynamoDbUserMapsRepository implements UserMapsRepository {
     this.dynamoClient = new DynamoDBClient({
       ...(this.appConfig.isLocalEnv() && {
         endpoint: this.appConfig.configurations.databaseEndpoint,
+        region: this.appConfig.awsConfiguration.region,
+        credentials: {
+          accessKeyId: this.appConfig.configurations.databaseAccessKeyId,
+          secretAccessKey:
+            this.appConfig.configurations.databaseSecretAccessKey,
+        },
       }),
     });
   }
