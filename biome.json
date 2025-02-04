@@ -7,7 +7,7 @@
     "formatter": {
       "enabled": true,
       "trailingCommas": "none",
-      "lineWidth": 100,
+      "lineWidth": 200,
       "indentStyle": "space",
       "indentWidth": 2,
       "lineEnding": "lf"
@@ -21,7 +21,7 @@
       "indentWidth": 2,
       "indentStyle": "space",
       "semicolons": "asNeeded",
-      "lineWidth": 170,
+      "lineWidth": 300,
       "quoteStyle": "single",
       "trailingCommas": "all"
     }
@@ -146,6 +146,9 @@
   },
   "overrides": [
     {
+      "formatter": {
+        "lineWidth": 300
+      },
       "include": [
         "src/db/drizzle.config.ts"
       ],

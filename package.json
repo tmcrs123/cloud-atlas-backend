@@ -10,7 +10,7 @@
   "type": "module",
   "main": "server.ts",
   "scripts": {
-    "test": "test",
+    "test": "vitest --config ./src/test/vitest.config.ts --watch",
     "build": "tsc",
     "local-infra": "bash scripts/init.bash && npx tsx scripts/populate-db.ts",
     "start:dev": "cross-env tsx watch --env-file=.env src/server.ts",
@@ -58,8 +58,10 @@
     "@fastify/swagger-ui": "^5.2.1",
     "@types/jwk-to-pem": "^2.0.3",
     "@types/node": "^22.10.5",
+    "@vitest/coverage-v8": "^3.0.5",
     "cross-env": "^7.0.3",
     "tsx": "^4.19.2",
-    "typescript": "^5.7.2"
+    "typescript": "^5.7.2",
+    "vitest": "^3.0.5"
   }
 }

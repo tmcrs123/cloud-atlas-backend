@@ -1,100 +1,62 @@
-import { FastifyReply, FastifyRequest } from "fastify";
-import { DomainService } from "../../domain/services/index.js";
-import {
-  CreateImageInDbRequestParams,
-  DeleteImageFromMarkerRequestParams,
-  GetImagesForMapRequestParams,
-  GetImagesForMarkerRequestParams,
-  GetPresignedUrlRequestParams,
-  UpdateImageDetailsRequestBody,
-  UpdateImageDetailsRequestParams,
-} from "../schemas/images-schema.js";
+import type { FastifyReply, FastifyRequest } from 'fastify'
+import type { DomainService } from '../../domain/services/index.js'
+import type { CreateImageInDbRequestParams, DeleteImageFromMarkerRequestParams, GetImagesForMapRequestParams, GetImagesForMarkerRequestParams, GetPresignedUrlRequestParams, Image, UpdateImageDetailsRequestBody, UpdateImageDetailsRequestParams } from '../schemas/images-schema.js'
 
-export const getImagesForMap = async (
-  request: FastifyRequest<{ Params: GetImagesForMapRequestParams }>,
-  reply: FastifyReply
-): Promise<void> => {
-  const domainService = request.diScope.resolve<DomainService>("domainService");
+export const getImagesForMap = async (request: FastifyRequest<{ Params: GetImagesForMapRequestParams }>, reply: FastifyReply): Promise<void> => {
+  const domainService = request.diScope.resolve<DomainService>('domainService')
 
-  let images = await domainService.getImagesForMap(request.params.mapId);
+  const images = await domainService.getImagesForMap(request.params.mapId)
 
-  return reply.status(200).send(images);
-};
+  return reply.status(200).send(images)
+}
 
-export const createImageDetailsInDb = async (
-  request: FastifyRequest<{ Params: CreateImageInDbRequestParams }>,
-  reply: FastifyReply
-): Promise<void> => {
-  const domainService = request.diScope.resolve<DomainService>("domainService");
+export const createImageDetailsInDb = async (request: FastifyRequest<{ Params: CreateImageInDbRequestParams }>, reply: FastifyReply): Promise<Image> => {
+  const domainService = request.diScope.resolve<DomainService>('domainService')
 
-  let image = await domainService.createImageInDb(
-    request.params.mapId,
-    request.params.markerId,
-    request.params.imageId
-  );
+  const image = await domainService.createImageInDb(request.params.mapId, request.params.markerId, request.params.imageId)
 
-  return reply.status(201).send(image);
-};
+  return reply.status(201).send(image)
+}
 
-export const getImagesForMarker = async (
-  request: FastifyRequest<{ Params: GetImagesForMarkerRequestParams }>,
-  reply: FastifyReply
-): Promise<void> => {
-  const domainService = request.diScope.resolve<DomainService>("domainService");
+export const getImagesForMarker = async (request: FastifyRequest<{ Params: GetImagesForMarkerRequestParams }>, reply: FastifyReply): Promise<void> => {
+  const domainService = request.diScope.resolve<DomainService>('domainService')
 
-  let images = await domainService.getImagesForMarker(
-    request.params.mapId,
-    request.params.markerId
-  );
+  const images = await domainService.getImagesForMarker(request.params.mapId, request.params.markerId)
 
-  return reply.status(200).send(images);
-};
+  return reply.status(200).send(images)
+}
 
-export const uploadImage = async (
-  request: FastifyRequest<{ Params: GetPresignedUrlRequestParams }>,
-  reply: FastifyReply
-): Promise<void> => {
-  const domainService = request.diScope.resolve<DomainService>("domainService");
+export const uploadImage = async (request: FastifyRequest<{ Params: GetPresignedUrlRequestParams }>, reply: FastifyReply): Promise<void> => {
+  const domainService = request.diScope.resolve<DomainService>('domainService')
 
-  let preSignedUrl = await domainService.uploadImage(
-    request.params.mapId,
-    request.params.markerId
-  );
+  const preSignedUrl = await domainService.uploadImage(request.params.mapId, request.params.markerId)
 
-  return reply.status(200).send(preSignedUrl);
-};
+  return reply.status(200).send(preSignedUrl)
+}
 
 export const updateImage = async (
   request: FastifyRequest<{
-    Params: UpdateImageDetailsRequestParams;
-    Body: UpdateImageDetailsRequestBody;
+    Params: UpdateImageDetailsRequestParams
+    Body: UpdateImageDetailsRequestBody
   }>,
-  reply: FastifyReply
+  reply: FastifyReply,
 ): Promise<void> => {
-  const domainService = request.diScope.resolve<DomainService>("domainService");
+  const domainService = request.diScope.resolve<DomainService>('domainService')
 
-  await domainService.updateImage(
-    request.body,
-    request.params.mapId,
-    request.params.imageId
-  );
+  await domainService.updateImage(request.body, request.params.mapId, request.params.imageId)
 
-  return reply.status(201).send();
-};
+  return reply.status(201).send()
+}
 
 export const deleteImageFromMarker = async (
   request: FastifyRequest<{
-    Params: DeleteImageFromMarkerRequestParams;
+    Params: DeleteImageFromMarkerRequestParams
   }>,
-  reply: FastifyReply
+  reply: FastifyReply,
 ): Promise<void> => {
-  const domainService = request.diScope.resolve<DomainService>("domainService");
+  const domainService = request.diScope.resolve<DomainService>('domainService')
 
-  await domainService.deleteImageForMarker(
-    request.params.mapId,
-    request.params.markerId,
-    request.params.imageId
-  );
+  await domainService.deleteImageForMarker(request.params.mapId, request.params.markerId, request.params.imageId)
 
-  return reply.status(204).send();
-};
+  return reply.status(204).send()
+}
