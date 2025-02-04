@@ -52,28 +52,48 @@ export class DynamoDbImagesRepository implements ImagesRepository {
   async deleteImages(mapId: string, imageIds: string[]): Promise<void> {
     if (imageIds.length === 0) return;
 
-    const deleteImagesRequests: WriteRequest[] = [];
+    const unprocessedImagesIds = [...imageIds];
 
-    imageIds.forEach((imageId) => {
-      deleteImagesRequests.push({
-        DeleteRequest: {
-          Key: {
-            mapId: marshall(mapId),
-            imageId: marshall(imageId),
+    function createBatchWriteCommand(imageIds: string[], tableName: string) {
+      let deleteImagesRequests: WriteRequest[] = [];
+      imageIds.forEach((imageId) => {
+        deleteImagesRequests.push({
+          DeleteRequest: {
+            Key: {
+              mapId: marshall(mapId),
+              imageId: marshall(imageId),
+            },
           },
+        });
+      });
+
+      return new BatchWriteItemCommand({
+        RequestItems: {
+          [tableName]: deleteImagesRequests,
         },
       });
-    });
+    }
 
-    const command = new BatchWriteItemCommand({
-      RequestItems: {
-        [this.appConfig.configurations.imagesTableName]: deleteImagesRequests,
-      },
-    });
+    if (unprocessedImagesIds.length <= 25) {
+      await sendCommand(() =>
+        this.dynamoClient.send(
+          createBatchWriteCommand(
+            unprocessedImagesIds,
+            this.appConfig.configurations.imagesTableName
+          )
+        )
+      );
+      return;
+    }
 
-    await sendCommand(() => this.dynamoClient.send(command));
-
-    return;
+    while (unprocessedImagesIds.length !== 0) {
+      const batch = unprocessedImagesIds.splice(0, 25);
+      const command = createBatchWriteCommand(
+        batch,
+        this.appConfig.configurations.imagesTableName
+      );
+      await sendCommand(() => this.dynamoClient.send(command));
+    }
   }
 
   async getImagesForMarker(mapId: string, markerId: string): Promise<Image[]> {
