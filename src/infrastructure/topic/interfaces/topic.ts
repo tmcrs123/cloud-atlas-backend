@@ -1,3 +1,3 @@
 export interface TopicService {
-  pushMessageToTopic(mapId: string, markerId: string, imageId: string): void;
+  pushMessageToTopic(atlasId: string, markerId: string, imageId: string): void
 }

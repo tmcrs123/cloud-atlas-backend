@@ -1,9 +1,9 @@
-import { CustomError } from "./custom-error.js";
+import { CustomError } from './custom-error.js'
 
-export default class RequestValidationError extends CustomError {
+export class RequestValidationError extends CustomError {
   constructor() {
-    super("Invalid request parameters", "REQUEST_PARAMETERS_ERROR", 400);
+    super('Invalid request parameters', 'REQUEST_PARAMETERS_ERROR', 400)
 
-    Object.setPrototypeOf(this, RequestValidationError.prototype);
+    Object.setPrototypeOf(this, RequestValidationError.prototype)
   }
 }

@@ -1,33 +1,27 @@
-import { asFunction, Resolver } from "awilix";
+import { asFunction, type Resolver } from 'awilix'
 
 export type DatabaseConfig = {
-  engine: "dynamoDb" | "postgres";
-  endpoint?: string,
-  
-};
+  engine: 'dynamoDb' | 'postgres'
+  endpoint?: string
+}
 
 export type DatabaseConfigDependencies = {
-  databaseConfig: DatabaseConfig;
-};
+  databaseConfig: DatabaseConfig
+}
 
-type DatabaseDiConfig = Record<
-  keyof DatabaseConfigDependencies,
-  Resolver<DatabaseConfig>
->;
+type DatabaseDiConfig = Record<keyof DatabaseConfigDependencies, Resolver<DatabaseConfig>>
 
-export type DatabaseInjectableDependencies = DatabaseConfigDependencies;
+export type DatabaseInjectableDependencies = DatabaseConfigDependencies
 
-export function resolveDatabaseDiConfig(
-  dbConfig: DatabaseConfig
-): DatabaseDiConfig {
+export function resolveDatabaseDiConfig(dbConfig: DatabaseConfig): DatabaseDiConfig {
   return {
     databaseConfig: asFunction(
       () => {
         return {
           engine: dbConfig.engine,
-        };
+        }
       },
-      { lifetime: "SINGLETON" }
+      { lifetime: 'SINGLETON' },
     ),
-  };
+  }
 }

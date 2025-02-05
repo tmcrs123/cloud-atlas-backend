@@ -1,5 +1,5 @@
-import type { Routes } from '../../../shared/types/index.js'
-import { createMarkers, deleteMarkers, getMarker, getMarkers, updateMarker } from '../controllers/index.js'
+import type { Routes } from '../../../shared/types/common-types.js'
+import { createMarkers, deleteMarkers, getMarker, getMarkers, updateMarker } from '../controllers/markers-controller.js'
 import {
   CREATE_MARKERS_REQUEST_BODY_SCHEMA,
   CREATE_MARKERS_REQUEST_PARAMS_SCHEMA,
@@ -17,7 +17,7 @@ export const getMarkersRoutes = (): { routes: Routes } => {
     routes: [
       {
         method: 'POST',
-        url: '/markers/:mapId',
+        url: '/markers/:atlasId',
         handler: createMarkers,
         schema: {
           body: CREATE_MARKERS_REQUEST_BODY_SCHEMA,
@@ -26,7 +26,7 @@ export const getMarkersRoutes = (): { routes: Routes } => {
       },
       {
         method: 'GET',
-        url: '/markers/:mapId',
+        url: '/markers/:atlasId',
         handler: getMarkers,
         schema: {
           params: GET_MARKERS_REQUEST_PARAMS_SCHEMA,
@@ -34,7 +34,7 @@ export const getMarkersRoutes = (): { routes: Routes } => {
       },
       {
         method: 'GET',
-        url: '/markers/:mapId/:markerId',
+        url: '/markers/:atlasId/:markerId',
         handler: getMarker,
         schema: {
           params: GET_MARKER_REQUEST_PARAMS_SCHEMA,
@@ -42,7 +42,7 @@ export const getMarkersRoutes = (): { routes: Routes } => {
       },
       {
         method: 'DELETE',
-        url: '/markers/:mapId',
+        url: '/markers/:atlasId',
         handler: deleteMarkers,
         schema: {
           params: DELETE_MARKERS_REQUEST_PARAMS_SCHEMA,
@@ -52,7 +52,7 @@ export const getMarkersRoutes = (): { routes: Routes } => {
       },
       {
         method: 'PUT',
-        url: '/markers/:mapId/:markerId',
+        url: '/markers/:atlasId/:markerId',
         handler: updateMarker,
         schema: {
           body: UPDATE_MARKER_REQUEST_BODY_SCHEMA,

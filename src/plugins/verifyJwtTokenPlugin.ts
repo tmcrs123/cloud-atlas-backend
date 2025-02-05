@@ -1,24 +1,18 @@
-import fastify, {
-  FastifyInstance,
-  FastifyPluginCallback,
-  FastifyReply,
-  FastifyRequest,
-  HookHandlerDoneFunction,
-} from "fastify";
-import fastifyPlugin from "fastify-plugin";
+import type { FastifyInstance, FastifyPluginCallback, FastifyReply, FastifyRequest, HookHandlerDoneFunction } from 'fastify'
+import fastifyPlugin from 'fastify-plugin'
 
 export type JwtTokenPluginOptions = {
-  skipList: Set<string>;
-};
-
-interface User {
-  sub: string;
-  email: string;
+  skipList: Set<string>
 }
 
-declare module "@fastify/jwt" {
+interface User {
+  sub: string
+  email: string
+}
+
+declare module '@fastify/jwt' {
   interface FastifyJWT {
-    user: User;
+    user: User
   }
 }
 
@@ -34,34 +28,18 @@ declare module "@fastify/jwt" {
  *
  * the done() fn is your way of saying the you're done with the hook and you want to let the request on to whatever plugins/controllers you have.
  */
-export const verifyJwtTokenPlugin: FastifyPluginCallback<JwtTokenPluginOptions> =
-  fastifyPlugin<JwtTokenPluginOptions>(
-    (
-      app: FastifyInstance,
-      options: JwtTokenPluginOptions,
-      next: (err?: Error) => void
-    ) => {
-      app.addHook(
-        "onRequest",
-        (
-          req: FastifyRequest,
-          reply: FastifyReply,
-          done: HookHandlerDoneFunction
-        ) => {
-          if (
-            req.routeOptions.url &&
-            options.skipList.has(req.routeOptions.url)
-          )
-            return done();
+export const verifyJwtTokenPlugin: FastifyPluginCallback<JwtTokenPluginOptions> = fastifyPlugin<JwtTokenPluginOptions>(
+  (app: FastifyInstance, options: JwtTokenPluginOptions, next: (err?: Error) => void) => {
+    app.addHook('onRequest', (req: FastifyRequest, _reply: FastifyReply, done: HookHandlerDoneFunction) => {
+      if (req.routeOptions.url && options.skipList.has(req.routeOptions.url)) return done()
 
-          req
-            .jwtVerify()
-            .then(() => done())
-            .catch((err) => done(err));
-        }
-      );
+      req
+        .jwtVerify()
+        .then(() => done())
+        .catch((err) => done(err))
+    })
 
-      next();
-    },
-    { name: "jwt-token-plugin" }
-  );
+    next()
+  },
+  { name: 'jwt-token-plugin' },
+)

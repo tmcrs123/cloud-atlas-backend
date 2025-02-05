@@ -1,164 +1,164 @@
 import type { TopicService } from '../../../infrastructure/topic/interfaces/topic.js'
 import type { AppConfig } from '../../../shared/configs/app-config.js'
-import { stripProperties } from '../../../utils/index.js'
+import { stripProperties } from '../../../utils/stripProperties.js'
+import type { Atlas, CreateAtlasRequestBody, UpdateAtlasRequestBody } from '../../atlas/schemas/atlas-schema.js'
+import type { AtlasService } from '../../atlas/services/atlas-service.js'
 import type { Image, UpdateImageDetailsRequestBody } from '../../images/schemas/images-schema.js'
 import type { ImagesService } from '../../images/services/images-service.js'
-import type { CreateMapRequestBody, Map, UpdateMapRequestBody } from '../../maps/schemas/index.js'
-import type { MapsService } from '../../maps/services/maps-service.js'
-import type { CreateMarkersRequestBody, UpdateMarkerRequestBody } from '../../markers/schemas/index.js'
+import type { CreateMarkersRequestBody, UpdateMarkerRequestBody } from '../../markers/schemas/markers-schema.js'
 import type { MarkersService } from '../../markers/services/markers-service.js'
 import type { DomainInjectableDependencies } from '../domain-config.js'
 
 export class DomainService {
-  private readonly mapsService: MapsService
+  private readonly atlasService: AtlasService
   private readonly markersService: MarkersService
   private readonly imagesService: ImagesService
   private readonly appConfig: AppConfig
   private readonly topicService: TopicService
 
-  constructor({ mapsService, markersService, imagesService, appConfig, topicService }: DomainInjectableDependencies) {
-    this.mapsService = mapsService
+  constructor({ atlasService, markersService, imagesService, appConfig, topicService }: DomainInjectableDependencies) {
+    this.atlasService = atlasService
     this.markersService = markersService
     this.imagesService = imagesService
     this.appConfig = appConfig
     this.topicService = topicService
   }
 
-  async createMap(request: CreateMapRequestBody, owner: string) {
-    const map = await this.mapsService.createMap(request.title, owner)
-    return stripProperties<Partial<Map>>({ ...map }, ['owner'])
+  async createAtlas(request: CreateAtlasRequestBody, owner: string) {
+    const atlas = await this.atlasService.createAtlas(request.title, owner)
+    return stripProperties<Partial<Atlas>>({ ...atlas }, ['owner'])
   }
 
-  async getMapsForUser(owner: string) {
-    const maps = await this.mapsService.getMapsByOwner(owner)
-    return maps?.map((map) => {
-      return stripProperties<Map>(map, ['owner', 'claims'])
+  async getAtlasForUser(owner: string) {
+    const atlas = await this.atlasService.getAtlasByOwner(owner)
+    return atlas?.map((atlas) => {
+      return stripProperties<Atlas>(atlas, ['owner', 'claims'])
     })
   }
 
-  async getMapsDetails(mapIds: string[]) {
-    const maps = await this.mapsService.getMapsDetails(mapIds)
-    return maps?.map((map) => {
-      return stripProperties<Map>(map, ['owner', 'claims'])
+  async getAtlasDetails(atlasIds: string[]) {
+    const atlas = await this.atlasService.getAtlasDetails(atlasIds)
+    return atlas?.map((atlas) => {
+      return stripProperties<Atlas>(atlas, ['owner', 'claims'])
     })
   }
 
-  async updateMap(updatedData: UpdateMapRequestBody, mapId: string) {
-    const updatedMap = await this.mapsService.updateMap({ ...updatedData }, mapId)
-    if (!updatedMap) return null
-    return stripProperties<Partial<Map>>(updatedMap, ['owner', 'claims'])
+  async updateAtlas(updatedData: UpdateAtlasRequestBody, atlasId: string) {
+    const updatedAtlas = await this.atlasService.updateAtlas({ ...updatedData }, atlasId)
+    if (!updatedAtlas) return null
+    return stripProperties<Partial<Atlas>>(updatedAtlas, ['owner', 'claims'])
   }
 
-  async deleteMap(owner: string, mapId: string) {
-    await this.mapsService.deleteMap(owner, mapId)
+  async deleteAtlas(owner: string, atlasId: string) {
+    await this.atlasService.deleteAtlas(owner, atlasId)
 
-    const markers = await this.markersService.getMarkers(mapId)
+    const markers = await this.markersService.getMarkers(atlasId)
 
     if (!markers || markers.length === 0) return
 
     const markerIds = markers.map((marker) => marker.markerId)
 
-    await this.markersService.deleteMarkers(markerIds, mapId)
+    await this.markersService.deleteMarkers(markerIds, atlasId)
 
-    const images = await this.imagesService.getImagesForMap(mapId)
+    const images = await this.imagesService.getImagesForAtlas(atlasId)
 
     if (!images || images.length === 0) return
 
     const imageIds = images.map((img) => img.imageId)
 
-    this.imagesService.deleteImages(mapId, imageIds)
+    this.imagesService.deleteImages(atlasId, imageIds)
 
     if (this.appConfig.configurations.topicEnabled) {
       for await (const image of images) {
-        this.topicService.pushMessageToTopic(mapId, image.markerId, image.imageId)
+        this.topicService.pushMessageToTopic(atlasId, image.markerId, image.imageId)
       }
     }
   }
 
   //#region markers
-  async createMarkers(request: CreateMarkersRequestBody, mapId: string) {
-    return await this.markersService.createMarkers([...request.markers], mapId)
+  async createMarkers(request: CreateMarkersRequestBody, atlasId: string) {
+    return await this.markersService.createMarkers([...request.markers], atlasId)
   }
 
-  async updateMarker(request: UpdateMarkerRequestBody, markerId: string, mapId: string) {
-    return await this.markersService.updateMarker(markerId, mapId, {
+  async updateMarker(request: UpdateMarkerRequestBody, markerId: string, atlasId: string) {
+    return await this.markersService.updateMarker(markerId, atlasId, {
       ...request,
     })
   }
 
-  async deleteMarkers(markerIds: string[], mapId: string, deleteAll = false) {
-    await this.markersService.deleteMarkers(markerIds, mapId, deleteAll)
+  async deleteMarkers(markerIds: string[], atlasId: string, deleteAll = false) {
+    await this.markersService.deleteMarkers(markerIds, atlasId, deleteAll)
 
     for await (const markerId of markerIds) {
-      const images = await this.imagesService.getImagesForMarker(mapId, markerId)
+      const images = await this.imagesService.getImagesForMarker(atlasId, markerId)
       if (!images) continue
 
       await this.imagesService.deleteImages(
-        mapId,
+        atlasId,
         images.map((img) => img.imageId),
       )
 
       if (this.appConfig.configurations.topicEnabled) {
         for await (const image of images) {
-          this.topicService.pushMessageToTopic(mapId, image.markerId, image.imageId)
+          this.topicService.pushMessageToTopic(atlasId, image.markerId, image.imageId)
         }
       }
     }
   }
 
-  async getMarker(mapId: string, markerId: string) {
-    return await this.markersService.getMarker(mapId, markerId)
+  async getMarker(atlasId: string, markerId: string) {
+    return await this.markersService.getMarker(atlasId, markerId)
   }
 
-  async getMarkers(mapId: string) {
-    return await this.markersService.getMarkers(mapId)
+  async getMarkers(atlasId: string) {
+    return await this.markersService.getMarkers(atlasId)
   }
   //#endregion
 
   //#region IMAGES
-  async getImagesForMap(mapId: string) {
-    const images = await this.imagesService.getImagesForMap(mapId)
+  async getImagesForAtlas(atlasId: string) {
+    const images = await this.imagesService.getImagesForAtlas(atlasId)
 
     if (!images) return null
 
     await this.imagesService.generateUrlsForExistingImages(images)
 
     const urls = images.map((image) => {
-      return stripProperties<Partial<Image>>(image, ['mapId', 'markerId', 'imageId']).url
+      return stripProperties<Partial<Image>>(image, ['atlasId', 'markerId', 'imageId']).url
     })
 
     return urls
   }
 
-  async createImageInDb(mapId: string, markerId: string, imageId: string) {
-    return await this.imagesService.createImageInDb(mapId, markerId, imageId)
+  async createImageInDb(atlasId: string, markerId: string, imageId: string) {
+    return await this.imagesService.createImageInDb(atlasId, markerId, imageId)
   }
 
-  async getImagesForMarker(mapId: string, markerId: string) {
-    const images = await this.imagesService.getImagesForMarker(mapId, markerId)
+  async getImagesForMarker(atlasId: string, markerId: string) {
+    const images = await this.imagesService.getImagesForMarker(atlasId, markerId)
 
     if (!images) return null
 
     return images.map((image) => {
-      return stripProperties<Partial<Image>>(image, ['markerId', 'mapId'])
+      return stripProperties<Partial<Image>>(image, ['markerId', 'atlasId'])
     })
   }
 
-  async deleteImageForMarker(mapId: string, markerId: string, imageId: string) {
-    await this.imagesService.deleteImages(mapId, [imageId])
+  async deleteImageForMarker(atlasId: string, markerId: string, imageId: string) {
+    await this.imagesService.deleteImages(atlasId, [imageId])
 
     if (this.appConfig.configurations.topicEnabled) {
-      this.topicService.pushMessageToTopic(mapId, markerId, imageId)
+      this.topicService.pushMessageToTopic(atlasId, markerId, imageId)
     }
     return
   }
 
-  async updateImage(requestBody: UpdateImageDetailsRequestBody, mapId: string, imageId: string) {
-    return await this.imagesService.updateImage(requestBody, mapId, imageId)
+  async updateImage(requestBody: UpdateImageDetailsRequestBody, atlasId: string, imageId: string) {
+    return await this.imagesService.updateImage(requestBody, atlasId, imageId)
   }
 
-  async uploadImage(mapId: string, markerId: string) {
-    return await this.imagesService.getPresignedUrl(mapId, markerId)
+  async uploadImage(atlasId: string, markerId: string) {
+    return await this.imagesService.getPresignedUrl(atlasId, markerId)
   }
   //#endregion
 }

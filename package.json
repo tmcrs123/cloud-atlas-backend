@@ -1,7 +1,7 @@
 {
-  "name": "snappin",
+  "name": "cloud-atlas-api",
   "version": "1.0.0",
-  "description": "a template for snappin services",
+  "description": "the API for the Cloud Atlas project",
   "engines": {
     "node": ">=22.10.0"
   },
@@ -13,19 +13,16 @@
     "test": "vitest --config ./src/test/vitest.config.ts --watch",
     "build": "tsc",
     "local-infra": "bash scripts/init.bash && npx tsx scripts/populate-db.ts",
-    "start:dev": "cross-env tsx watch --env-file=.env src/server.ts",
+    "start:dev": "cross-env tsx watch --env-file=.env.dev src/server.ts",
     "local": "npm run docker-build && docker-compose up -d && npm run local-infra",
     "docker-start-local-ddb": "docker run -p 8000:8000 -d amazon/dynamodb-local -jar DynamoDBLocal.jar -sharedDb -dbPath .",
-    "docker-build": "docker build -t snappin-api .",
-    "docker-start": "docker run --env-file .env  -p 3000:3000 -network dev snappin-api:latest",
+    "docker-build": "docker build -t cloud-atlas-api .",
+    "docker-start": "docker run --env-file .env  -p 3000:3000 -network dev cloud-atlas-api:latest",
     "docker-local": "npm run docker-build && npm run docker-start",
     "acr-login": "aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin 891376964515.dkr.ecr.us-east-1.amazonaws.com",
-    "acr-tag": "docker tag snappin-api:latest 891376964515.dkr.ecr.us-east-1.amazonaws.com/snappin-api:latest",
-    "acr-push": "docker push 891376964515.dkr.ecr.us-east-1.amazonaws.com/snappin-api:latest",
+    "acr-tag": "docker tag cloud-atlas-api:latest 891376964515.dkr.ecr.us-east-1.amazonaws.com/cloud-atlas-api:latest",
+    "acr-push": "docker push 891376964515.dkr.ecr.us-east-1.amazonaws.com/cloud-atlas-api:latest",
     "acr-stuff": "npm run acr-login & npm run acr-tag & npm run acr-push",
-    "s3-mb": "aws --endpoint-url=http://localhost:4566 s3 mb s3://my-bucket",
-    "s3-lb": "aws --endpoint-url=http://localhost:4566 s3 ls",
-    "s3-ls": "aws --endpoint-url=http://localhost:4566 s3 ls --recursive",
     "send-to-aws": "tsc && npm run docker-build && npm run acr-stuff"
   },
   "dependencies": {

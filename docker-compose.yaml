@@ -29,13 +29,13 @@ services:
   # restart: on-failure
 
   api:
-    image: snappin-api:latest
-    hostname: snappin-api
+    image: cloud-atlas-api:latest
+    hostname: cloud-atlas-api
     networks:
       - dev
     ports:
       - 3000:3000
-    env_file: .env
+    env_file: .env.docker
 
 volumes:
   dynamodb-data:

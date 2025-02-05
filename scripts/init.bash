@@ -2,28 +2,28 @@
 #!/bin/bash
 
 # Define table name and AWS CLI settings
-MAPS_TABLE_NAME="snappin-maps"
-MARKERS_TABLE_NAME="snappin-markers"
-IMAGES_TABLE_NAME="snappin-images"
-OWNERS_TABLE_NAME="snappin-owners"
+ATLAS_TABLE_NAME="ca-dev-atlas"
+MARKERS_TABLE_NAME="ca-dev-markers"
+IMAGES_TABLE_NAME="ca-dev-images"
+OWNERS_TABLE_NAME="ca-dev-owners"
 AWS_PROFILE="default"
 DYNAMODB_ENDPOINT="http://localhost:8000"
 
-echo "Checking if table $MAPS_TABLE_NAME exists..."
-if aws dynamodb describe-table --table-name "$MAPS_TABLE_NAME" --endpoint-url "$DYNAMODB_ENDPOINT" --profile "$AWS_PROFILE" >/dev/null 2>&1; then
-    echo "Table $MAPS_TABLE_NAME already exists. Skipping creation."
+echo "Checking if table $ATLAS_TABLE_NAME exists..."
+if aws dynamodb describe-table --table-name "$ATLAS_TABLE_NAME" --endpoint-url "$DYNAMODB_ENDPOINT" --profile "$AWS_PROFILE" >/dev/null 2>&1; then
+    echo "Table $ATLAS_TABLE_NAME already exists. Skipping creation."
 else
-    echo "Creating table: $MAPS_TABLE_NAME"
+    echo "Creating table: $ATLAS_TABLE_NAME"
 
     aws dynamodb create-table \
-        --table-name $MAPS_TABLE_NAME \
-        --attribute-definitions AttributeName=mapId,AttributeType=S \
-        --key-schema AttributeName=mapId,KeyType=HASH \
+        --table-name $ATLAS_TABLE_NAME \
+        --attribute-definitions AttributeName=atlasId,AttributeType=S \
+        --key-schema AttributeName=atlasId,KeyType=HASH \
         --provisioned-throughput ReadCapacityUnits=2,WriteCapacityUnits=2 \
         --endpoint-url "$DYNAMODB_ENDPOINT" \
         --profile "$AWS_PROFILE"
 
-    echo "Table $MAPS_TABLE_NAME created successfully."
+    echo "Table $ATLAS_TABLE_NAME created successfully."
 fi
 
 echo "Checking if table $MARKERS_TABLE_NAME exists..."
@@ -34,8 +34,8 @@ else
 
     aws dynamodb create-table \
         --table-name $MARKERS_TABLE_NAME \
-        --attribute-definitions AttributeName=mapId,AttributeType=S AttributeName=markerId,AttributeType=S \
-        --key-schema AttributeName=mapId,KeyType=HASH AttributeName=markerId,KeyType=RANGE \
+        --attribute-definitions AttributeName=atlasId,AttributeType=S AttributeName=markerId,AttributeType=S \
+        --key-schema AttributeName=atlasId,KeyType=HASH AttributeName=markerId,KeyType=RANGE \
         --provisioned-throughput ReadCapacityUnits=2,WriteCapacityUnits=2 \
         --endpoint-url "$DYNAMODB_ENDPOINT" \
         --profile "$AWS_PROFILE"
@@ -51,19 +51,19 @@ else
 
     aws dynamodb create-table \
         --table-name $IMAGES_TABLE_NAME \
-        --attribute-definitions AttributeName=mapId,AttributeType=S AttributeName=markerId,AttributeType=S AttributeName=imageId,AttributeType=S \
-        --key-schema AttributeName=mapId,KeyType=HASH AttributeName=imageId,KeyType=RANGE \
+        --attribute-definitions AttributeName=atlasId,AttributeType=S AttributeName=markerId,AttributeType=S AttributeName=imageId,AttributeType=S \
+        --key-schema AttributeName=atlasId,KeyType=HASH AttributeName=imageId,KeyType=RANGE \
         --provisioned-throughput ReadCapacityUnits=2,WriteCapacityUnits=2 \
         --local-secondary-indexes '[
         {
-            "IndexName": "snappin-local-images-table-LSI",
+            "IndexName": "ca-dev-local-images-table-LSI",
             "KeySchema": [
-                {"AttributeName": "mapId", "KeyType": "HASH"},
+                {"AttributeName": "atlasId", "KeyType": "HASH"},
                 {"AttributeName": "markerId", "KeyType": "RANGE"}
             ],
             "Projection": {
                 "ProjectionType": "INCLUDE",
-                "NonKeyAttributes": ["mapId", "imageId", "comment"]
+                "NonKeyAttributes": ["atlasId", "imageId", "comment"]
             }
         }
     ]' \
@@ -80,19 +80,19 @@ else
 
     aws dynamodb create-table \
         --table-name $OWNERS_TABLE_NAME \
-        --attribute-definitions AttributeName=userId,AttributeType=S AttributeName=mapId,AttributeType=S \
-        --key-schema AttributeName=userId,KeyType=HASH AttributeName=mapId,KeyType=RANGE \
+        --attribute-definitions AttributeName=userId,AttributeType=S AttributeName=atlasId,AttributeType=S \
+        --key-schema AttributeName=userId,KeyType=HASH AttributeName=atlasId,KeyType=RANGE \
         --provisioned-throughput ReadCapacityUnits=2,WriteCapacityUnits=2 \
         --local-secondary-indexes '[
         {
-            "IndexName": "snappin-local-owners-table-LSI",
+            "IndexName": "ca-dev-local-owners-table-LSI",
             "KeySchema": [
                 {"AttributeName": "userId", "KeyType": "HASH"},
-                {"AttributeName": "mapId", "KeyType": "RANGE"}
+                {"AttributeName": "atlasId", "KeyType": "RANGE"}
             ],
             "Projection": {
                 "ProjectionType": "INCLUDE",
-                "NonKeyAttributes": ["mapId", "userId"]
+                "NonKeyAttributes": ["atlasId", "userId"]
             }
         }
     ]' \
@@ -105,7 +105,7 @@ fi
 #SECRETS MANAGER
 
 # Configuration
-SECRET_NAME="snappin-local-cloudfront-private-key"
+SECRET_NAME="ca-dev-local-cloudfront-private-key"
 SECRET_VALUE="bananas"
 AWS_REGION="us-east-1"
 LOCALSTACK_ENDPOINT="http://localhost:4566"

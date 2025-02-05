@@ -1,102 +1,69 @@
-import { FastifyReply, FastifyRequest } from "fastify";
-import { AppConfig } from "../../../shared/configs/index.js";
-import { DomainService } from "../../domain/services/index.js";
-import {
-  CreateMarkersRequestBody,
-  CreateMarkersRequestParams,
-  DeleteMarkersRequestBody,
-  DeleteMarkersRequestParams,
-  DeleteMarkersRequestQueryString,
-  GetMarkerRequestParams,
-  GetMarkersRequestParams,
-  UpdateMarkerRequestBody,
-  UpdateMarkerRequestParams,
-} from "../schemas/index.js";
+import type { FastifyRequest, FastifyReply } from 'fastify'
+import type { AppConfig } from '../../../shared/configs/app-config.js'
+import type { DomainService } from '../../domain/services/domain-service.js'
+import type { CreateMarkersRequestBody, CreateMarkersRequestParams, GetMarkerRequestParams, GetMarkersRequestParams, DeleteMarkersRequestParams, DeleteMarkersRequestBody, DeleteMarkersRequestQueryString, UpdateMarkerRequestBody, UpdateMarkerRequestParams } from '../schemas/markers-schema.js'
 
 export const createMarkers = async (
   request: FastifyRequest<{
-    Body: CreateMarkersRequestBody;
-    Params: CreateMarkersRequestParams;
+    Body: CreateMarkersRequestBody
+    Params: CreateMarkersRequestParams
   }>,
-  reply: FastifyReply
+  reply: FastifyReply,
 ) => {
-  const domainService = request.diScope.resolve<DomainService>("domainService");
-  const appConfig = request.diScope.resolve<AppConfig>("appConfig");
+  const domainService = request.diScope.resolve<DomainService>('domainService')
+  const appConfig = request.diScope.resolve<AppConfig>('appConfig')
 
-  const { mapId } = request.params;
+  const { atlasId } = request.params
 
-  let markers = await domainService.createMarkers(
-    request.body,
-    request.params.mapId
-  );
+  const markers = await domainService.createMarkers(request.body, request.params.atlasId)
 
-  return reply
-    .status(201)
-    .header("Location", `${appConfig.getURL()}/markers/${mapId}`)
-    .send(markers);
-};
+  return reply.status(201).header('Location', `${appConfig.getURL()}/markers/${atlasId}`).send(markers)
+}
 
-export const getMarker = async (
-  request: FastifyRequest<{ Params: GetMarkerRequestParams }>,
-  reply: FastifyReply
-) => {
-  const domainService = request.diScope.resolve<DomainService>("domainService");
+export const getMarker = async (request: FastifyRequest<{ Params: GetMarkerRequestParams }>, reply: FastifyReply) => {
+  const domainService = request.diScope.resolve<DomainService>('domainService')
 
-  let marker = await domainService.getMarker(
-    request.params.mapId,
-    request.params.markerId
-  );
+  const marker = await domainService.getMarker(request.params.atlasId, request.params.markerId)
 
-  if (!marker) return reply.status(404).send();
-  return reply.status(200).send(marker);
-};
+  if (!marker) return reply.status(404).send()
+  return reply.status(200).send(marker)
+}
 
-export const getMarkers = async (
-  request: FastifyRequest<{ Params: GetMarkersRequestParams }>,
-  reply: FastifyReply
-) => {
-  const domainService = request.diScope.resolve<DomainService>("domainService");
+export const getMarkers = async (request: FastifyRequest<{ Params: GetMarkersRequestParams }>, reply: FastifyReply) => {
+  const domainService = request.diScope.resolve<DomainService>('domainService')
 
-  let markers = await domainService.getMarkers(request.params.mapId);
+  const markers = await domainService.getMarkers(request.params.atlasId)
 
-  return reply.status(200).send(markers);
-};
+  return reply.status(200).send(markers)
+}
 
 export const deleteMarkers = async (
   request: FastifyRequest<{
-    Params: DeleteMarkersRequestParams;
-    Body: DeleteMarkersRequestBody;
-    Querystring: DeleteMarkersRequestQueryString;
+    Params: DeleteMarkersRequestParams
+    Body: DeleteMarkersRequestBody
+    Querystring: DeleteMarkersRequestQueryString
   }>,
-  reply: FastifyReply
+  reply: FastifyReply,
 ) => {
-  const domainService = request.diScope.resolve<DomainService>("domainService");
+  const domainService = request.diScope.resolve<DomainService>('domainService')
 
-  await domainService.deleteMarkers(
-    request.body.markerIds,
-    request.params.mapId,
-    request.query.all
-  );
+  await domainService.deleteMarkers(request.body.markerIds, request.params.atlasId, request.query.all)
 
-  return reply.status(204).send();
-};
+  return reply.status(204).send()
+}
 
 export const updateMarker = async (
   request: FastifyRequest<{
-    Body: UpdateMarkerRequestBody;
-    Params: UpdateMarkerRequestParams;
+    Body: UpdateMarkerRequestBody
+    Params: UpdateMarkerRequestParams
   }>,
-  reply: FastifyReply
+  reply: FastifyReply,
 ) => {
-  const domainService = request.diScope.resolve<DomainService>("domainService");
+  const domainService = request.diScope.resolve<DomainService>('domainService')
 
-  const response = await domainService.updateMarker(
-    request.body,
-    request.params.markerId,
-    request.params.mapId
-  );
+  const response = await domainService.updateMarker(request.body, request.params.markerId, request.params.atlasId)
 
-  if (!response) return reply.status(204).send();
+  if (!response) return reply.status(204).send()
 
-  return reply.status(200).send(response);
-};
+  return reply.status(200).send(response)
+}

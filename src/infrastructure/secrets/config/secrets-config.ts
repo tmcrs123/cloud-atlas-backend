@@ -1,25 +1,21 @@
-import { asClass, Resolver } from "awilix";
-import { AwsSecretsService } from "../implementations/aws-secrets-service.js";
-import { SecretsService } from "../interfaces/secrets-service.js";
-import { AppConfig } from "../../../shared/configs/index.js";
+import { asClass, type Resolver } from 'awilix'
+import { AppConfig } from '../../../shared/configs/app-config.js'
+import { AwsSecretsService } from '../implementations/aws-secrets-service.js'
+import type { SecretsService } from '../interfaces/secrets-service.js'
 
 export type SecretsInfrastructureModuleDependencies = {
-  appConfig: AppConfig;
-  secretsService: SecretsService;
-};
+  appConfig: AppConfig
+  secretsService: SecretsService
+}
 
-type SecretsDiConfig = Record<
-  keyof SecretsInfrastructureModuleDependencies,
-  Resolver<any>
->;
-export type SecretsInjectableDependencies =
-  SecretsInfrastructureModuleDependencies;
+type SecretsDiConfig = Record<keyof SecretsInfrastructureModuleDependencies, Resolver<any>>
+export type SecretsInjectableDependencies = SecretsInfrastructureModuleDependencies
 
 export function resolveSecretsDiConfig(): SecretsDiConfig {
   return {
-    appConfig: asClass(AppConfig, { lifetime: "SINGLETON" }),
+    appConfig: asClass(AppConfig, { lifetime: 'SINGLETON' }),
     secretsService: asClass(AwsSecretsService, {
-      lifetime: "SINGLETON",
+      lifetime: 'SINGLETON',
     }),
-  };
+  }
 }

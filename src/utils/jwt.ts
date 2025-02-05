@@ -1,5 +1,5 @@
-import { JWT } from "@fastify/jwt";
-import jwksRsa from "jwks-rsa";
+import type { JWT } from '@fastify/jwt'
+import jwksRsa from 'jwks-rsa'
 
 export const createJwksClient = (publicKeysUri: string) =>
   jwksRsa({
@@ -9,11 +9,8 @@ export const createJwksClient = (publicKeysUri: string) =>
     cacheMaxAge: 10 * 60 * 1000, // 10 minutes
     rateLimit: true,
     jwksRequestsPerMinute: 10,
-  });
+  })
 
-export function generateJwtToken(
-  jwt: JWT,
-  payload: Record<string, unknown>
-): string {
-  return jwt.sign(payload);
+export function generateJwtToken(jwt: JWT, payload: Record<string, unknown>): string {
+  return jwt.sign(payload)
 }
