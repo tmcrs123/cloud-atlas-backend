@@ -84,7 +84,7 @@ export class DynamoDbImagesRepository implements ImagesRepository {
       TableName: this.appConfig.configurations.imagesTableName,
       ExpressionAttributeValues,
       KeyConditionExpression,
-      IndexName: this.appConfig.configurations.imagesTableLSI,
+      IndexName: this.appConfig.configurations.imagesTableLSIName,
     })
 
     const commandResponse: QueryCommandOutput = await sendCommand(() => this.dynamoClient.send(command))

@@ -5,6 +5,7 @@ import { MissingConfigError } from '../../errors/missing-config-error.js'
 import { parseBoolean } from '../../utils/parse-boolean.js'
 
 export type Configurations = {
+  atlasTableName: string
   bindAddress: string
   databaseAccessKeyId: string
   databaseEndpoint: string
@@ -12,16 +13,16 @@ export type Configurations = {
   domain: string
   environment: string
   gracefulShutdownTimeoutInMs: number
-  imagesTableLSI: string
+  imagesTableLSIName: string
   imagesTableName: string
   infrastructureEndpoint: string
   jwtPublicKey: string
   logLevel: LogLevel
-  atlasTableName: string
   markersTableName: string
   optimizedPhotoDistributionUrl: string
   optimizedPhotosKeypairId: string
   optimizedPhotosPrivateKeyName: string
+  ownersTableLSIName: string
   ownersTableName: string
   port: number
   protocol: string
@@ -55,15 +56,16 @@ export class AppConfig {
         domain: ENVIRONMENT.DOMAIN,
         environment: ENVIRONMENT.ENVIRONMENT,
         gracefulShutdownTimeoutInMs: Number.parseInt(ENVIRONMENT.GRACEFUL_SHUTDOWN_TIMEOUT_IN_MSECS),
-        imagesTableLSI: ENVIRONMENT.IMAGES_TABLE_NAME_LSI,
-        imagesTableName: ENVIRONMENT.IMAGES_TABLE_NAME,
         infrastructureEndpoint: ENVIRONMENT.INFRASTRUCTURE_ENDPOINT,
+        imagesTableLSIName: ENVIRONMENT.IMAGES_TABLE_LSI_NAME,
+        imagesTableName: ENVIRONMENT.IMAGES_TABLE_NAME,
         jwtPublicKey: ENVIRONMENT.JWT_PUBLIC_KEY,
         logLevel: ENVIRONMENT.LOG_LEVEL,
         markersTableName: ENVIRONMENT.MARKERS_TABLE_NAME,
         optimizedPhotoDistributionUrl: ENVIRONMENT.OPTIMIZED_PHOTOS_DISTRIBUTION_URL,
         optimizedPhotosKeypairId: ENVIRONMENT.OPTIMIZED_PHOTOS_KEYPAIR_ID,
         optimizedPhotosPrivateKeyName: ENVIRONMENT.OPTIMIZED_PHOTOS_PRIVATE_KEY_NAME,
+        ownersTableLSIName: ENVIRONMENT.OWNERS_TABLE_LSI_NAME,
         ownersTableName: ENVIRONMENT.OWNERS_TABLE_NAME,
         port: Number.parseInt(ENVIRONMENT.PORT),
         protocol: ENVIRONMENT.PROTOCOL,
