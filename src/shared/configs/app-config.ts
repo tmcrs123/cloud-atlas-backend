@@ -16,7 +16,7 @@ export type Configurations = {
   imagesTableLSIName: string
   imagesTableName: string
   infrastructureEndpoint: string
-  jwtPublicKey: string
+  jwtPublicKey: string | undefined
   logLevel: LogLevel
   markersTableName: string
   optimizedPhotoDistributionUrl: string
@@ -39,7 +39,7 @@ export type Configurations = {
   subdomain: string
   topicARN: string
   topicEnabled: boolean
-  userId: string
+  userId: string | undefined
 }
 
 export class AppConfig {
@@ -50,13 +50,13 @@ export class AppConfig {
       this.configurations = {
         atlasTableName: ENVIRONMENT.ATLAS_TABLE_NAME,
         bindAddress: ENVIRONMENT.BIND_ADDRESS,
-        databaseAccessKeyId: ENVIRONMENT.DATABASE_ACCESS_KEY_ID,
-        databaseEndpoint: ENVIRONMENT.DATABASE_ENDPOINT,
-        databaseSecretAccessKey: ENVIRONMENT.DATABASE_SECRET_ACCESS_KEY,
+        databaseAccessKeyId: ENVIRONMENT.DATABASE_ACCESS_KEY_ID || 'onlyUsedInDockerLocal',
+        databaseEndpoint: ENVIRONMENT.DATABASE_ENDPOINT || 'onlyUsedForLocalDevelopment',
+        databaseSecretAccessKey: ENVIRONMENT.DATABASE_SECRET_ACCESS_KEY || 'onlyUsedInDockerLocal',
         domain: ENVIRONMENT.DOMAIN,
         environment: ENVIRONMENT.ENVIRONMENT,
         gracefulShutdownTimeoutInMs: Number.parseInt(ENVIRONMENT.GRACEFUL_SHUTDOWN_TIMEOUT_IN_MSECS),
-        infrastructureEndpoint: ENVIRONMENT.INFRASTRUCTURE_ENDPOINT,
+        infrastructureEndpoint: ENVIRONMENT.INFRASTRUCTURE_ENDPOINT || 'onlyUsedForLocalDevelopment',
         imagesTableLSIName: ENVIRONMENT.IMAGES_TABLE_LSI_NAME,
         imagesTableName: ENVIRONMENT.IMAGES_TABLE_NAME,
         jwtPublicKey: ENVIRONMENT.JWT_PUBLIC_KEY,

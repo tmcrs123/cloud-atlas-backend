@@ -112,6 +112,7 @@ export async function getApp(): Promise<FastifyInstance> {
 
   const jwtConfig = (() => {
     if (appConfig.isLocalEnv()) {
+      if (!appConfig.configurations.jwtPublicKey) throw new Error('JWT Public key missing for local development')
       return { secret: appConfig.configurations.jwtPublicKey }
     }
     return {
@@ -128,7 +129,10 @@ export async function getApp(): Promise<FastifyInstance> {
 
   await app.register(fastifyJwt, { ...jwtConfig })
 
-  if (appConfig.isLocalEnv()) await app.register(fakeJwtPlugin(appConfig.configurations.userId))
+  if (appConfig.isLocalEnv()) {
+    if (!appConfig.configurations.userId) throw new Error('User Id key missing for local development')
+    await app.register(fakeJwtPlugin(appConfig.configurations.userId))
+  }
 
   await app.register(verifyJwtTokenPlugin, {
     skipList: new Set(['/', '/healthcheck', '/favicon.ico', '/login', '/access-token', '/refresh-token', '/documentation', '/reference/', '/reference/js/scalar.js', '/reference/openapi.json']),

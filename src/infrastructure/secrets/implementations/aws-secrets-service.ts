@@ -21,7 +21,7 @@ export class AwsSecretsService implements SecretsService {
     const command = new GetSecretValueCommand({
       SecretId: secretId,
     })
-    console.info(JSON.stringify(command))
+
     const commandResponse = await this.secretsManagerClient.send(command)
 
     if (!commandResponse.SecretString) return null

@@ -3,17 +3,17 @@ import { z } from 'zod'
 const environmentVariables = z.object({
   ATLAS_TABLE_NAME: z.string(),
   BIND_ADDRESS: z.string(),
-  DATABASE_ACCESS_KEY_ID: z.string(),
-  DATABASE_ENDPOINT: z.string(),
-  DATABASE_SECRET_ACCESS_KEY: z.string(),
+  DATABASE_ACCESS_KEY_ID: z.string().optional(),
+  DATABASE_ENDPOINT: z.string().optional(),
+  DATABASE_SECRET_ACCESS_KEY: z.string().optional(),
   DOMAIN: z.string(),
   DUMP_BUCKET_NAME: z.string(),
   ENVIRONMENT: z.string(),
   GRACEFUL_SHUTDOWN_TIMEOUT_IN_MSECS: z.string(),
-  INFRASTRUCTURE_ENDPOINT: z.string(),
+  INFRASTRUCTURE_ENDPOINT: z.string().optional(),
   IMAGES_TABLE_LSI_NAME: z.string(),
   IMAGES_TABLE_NAME: z.string(),
-  JWT_PUBLIC_KEY: z.string(),
+  JWT_PUBLIC_KEY: z.string().optional(),
   LOG_LEVEL: z.enum(['debug', 'error', 'info']),
   MARKERS_TABLE_NAME: z.string(),
   OPTIMIZED_BUCKET_NAME: z.string(),
@@ -35,8 +35,7 @@ const environmentVariables = z.object({
   SUBDOMAIN: z.string(),
   TOPIC_ARN: z.string(),
   TOPIC_ENABLED: z.string(),
-  TOPIC_URL: z.string(),
-  USER_ID: z.string(),
+  USER_ID: z.string().optional(),
 })
 
 export const ENVIRONMENT = environmentVariables.parse(process.env)
