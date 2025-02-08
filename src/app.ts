@@ -127,22 +127,25 @@ export async function getApp(): Promise<FastifyInstance> {
     }
   })()
 
-  await app.register(fastifyJwt, { ...jwtConfig })
+  // biome-ignore lint/complexity/useLiteralKeys: <explanation>
+  await app.register(fastifyJwt, { ...jwtConfig, verify: { extractToken: (request) => request.headers['customauthheader'] as string } })
 
   if (appConfig.isLocalEnv()) {
     if (!appConfig.configurations.userId) throw new Error('User Id key missing for local development')
-    await app.register(fakeJwtPlugin(appConfig.configurations.userId))
+    await app.register(fakeJwtPlugin(appConfig.configurations.userId, 'someemail@email.com'))
   }
 
-  await app.register(verifyJwtTokenPlugin, {
-    skipList: new Set(['/', '/healthcheck', '/favicon.ico', '/login', '/access-token', '/refresh-token', '/documentation', '/reference/', '/reference/js/scalar.js', '/reference/openapi.json']),
-  })
+  if (!appConfig.isLocalEnv()) {
+    await app.register(verifyJwtTokenPlugin, {
+      skipList: new Set(['/', '/healthcheck', '/favicon.ico', '/login', '/access-token', '/refresh-token', '/documentation', '/reference/', '/reference/js/scalar.js', '/reference/openapi.json']),
+    })
+  }
 
   await app.register(fastifyCors, {
     origin: '*',
-    credentials: true,
+    credentials: false,
     methods: ['GET', 'PUT', 'PATCH', 'POST', 'DELETE', 'OPTIONS'],
-    allowedHeaders: ['Origin', 'X-Requested-With', 'Accept', 'Content-Type', 'Authorization'],
+    allowedHeaders: ['Origin', 'X-Requested-With', 'Accept', 'Content-Type', 'customauthheader'],
     exposedHeaders: ['Access-Control-Allow-Origin', 'Access-Control-Allow-Methods', 'Access-Control-Allow-Headers'],
   })
 

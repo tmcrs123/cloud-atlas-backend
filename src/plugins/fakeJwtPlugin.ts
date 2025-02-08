@@ -1,17 +1,12 @@
 import type { FastifyPluginCallback } from 'fastify'
 import fastifyPlugin from 'fastify-plugin'
-import { generateJwtToken } from '../utils/jwt.js'
 
-export const fakeJwtPlugin: (fakeUserId: string) => FastifyPluginCallback = (fakeUserId) =>
+export const fakeJwtPlugin: (fakeUserId: string, fakeUserEmail: string) => FastifyPluginCallback = (fakeUserId, fakeUserEmail) =>
   fastifyPlugin(
     // biome-ignore lint/correctness/noEmptyPattern: <explanation>
     (app, {}, next) => {
       app.addHook('onRequest', (req, _reply, done) => {
-        const fakeToken = generateJwtToken(app.jwt, {
-          sub: fakeUserId,
-          email: 'some_email@test.com',
-        })
-        req.headers.authorization = `Bearer ${fakeToken}`
+        req.user = { sub: fakeUserId, email: fakeUserEmail }
         return done()
       })
       next()

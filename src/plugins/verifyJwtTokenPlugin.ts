@@ -31,10 +31,11 @@ declare module '@fastify/jwt' {
 export const verifyJwtTokenPlugin: FastifyPluginCallback<JwtTokenPluginOptions> = fastifyPlugin<JwtTokenPluginOptions>(
   (app: FastifyInstance, options: JwtTokenPluginOptions, next: (err?: Error) => void) => {
     app.addHook('onRequest', (req: FastifyRequest, _reply: FastifyReply, done: HookHandlerDoneFunction) => {
+      if (req.method === 'OPTIONS') return done()
       if (req.routeOptions.url && options.skipList.has(req.routeOptions.url)) return done()
 
       req
-        .jwtVerify()
+        .jwtVerify({ algorithms: ['RS256'] })
         .then(() => done())
         .catch((err) => done(err))
     })
