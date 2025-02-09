@@ -32,6 +32,7 @@ const environmentVariables = z.object({
   QUEUE_URL: z.string(),
   QUEUE_WAIT_TIME_SECONDS: z.string(),
   REGION: z.string(),
+  REQUIRE_AUTH: z.string(),
   SUBDOMAIN: z.string(),
   TOPIC_ARN: z.string(),
   TOPIC_ENABLED: z.string(),

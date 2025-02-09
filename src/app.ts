@@ -110,12 +110,9 @@ export async function getApp(): Promise<FastifyInstance> {
     return app.swagger()
   })
 
-  const jwtConfig = (() => {
-    if (appConfig.isLocalEnv()) {
-      if (!appConfig.configurations.jwtPublicKey) throw new Error('JWT Public key missing for local development')
-      return { secret: appConfig.configurations.jwtPublicKey }
-    }
-    return {
+  //Auth config
+  if (appConfig.configurations.requireAuth) {
+    const jwtConfig = (() => ({
       secret: {
         public: async () => {
           const jwt_client = createJwksClient(appConfig.configurations.publicKeyURI)
@@ -124,22 +121,21 @@ export async function getApp(): Promise<FastifyInstance> {
           return keys[0].getPublicKey()
         },
       },
-    }
-  })()
+    }))()
 
-  // biome-ignore lint/complexity/useLiteralKeys: <explanation>
-  await app.register(fastifyJwt, { ...jwtConfig, verify: { extractToken: (request) => request.headers['customauthheader'] as string } })
-
-  if (appConfig.isLocalEnv()) {
-    if (!appConfig.configurations.userId) throw new Error('User Id key missing for local development')
-    await app.register(fakeJwtPlugin(appConfig.configurations.userId, 'someemail@email.com'))
-  }
-
-  if (!appConfig.isLocalEnv()) {
     await app.register(verifyJwtTokenPlugin, {
       skipList: new Set(['/', '/healthcheck', '/favicon.ico', '/login', '/access-token', '/refresh-token', '/documentation', '/reference/', '/reference/js/scalar.js', '/reference/openapi.json']),
     })
+    // biome-ignore lint/complexity/useLiteralKeys: <explanation>
+    await app.register(fastifyJwt, { ...jwtConfig, verify: { extractToken: (request) => request.headers['customauthheader'] as string } })
+  } else {
+    await app.register(fakeJwtPlugin(appConfig.configurations.userId || randomUUID()))
   }
+
+  await app.register(fastifyGracefulShutdown, {
+    resetHandlersOnInit: true,
+    timeout: appConfig.configurations.gracefulShutdownTimeoutInMs,
+  })
 
   await app.register(fastifyCors, {
     origin: '*',
@@ -148,13 +144,6 @@ export async function getApp(): Promise<FastifyInstance> {
     allowedHeaders: ['Origin', 'X-Requested-With', 'Accept', 'Content-Type', 'customauthheader'],
     exposedHeaders: ['Access-Control-Allow-Origin', 'Access-Control-Allow-Methods', 'Access-Control-Allow-Headers'],
   })
-
-  if (!appConfig.isLocalEnv()) {
-    await app.register(fastifyGracefulShutdown, {
-      resetHandlersOnInit: true,
-      timeout: appConfig.configurations.gracefulShutdownTimeoutInMs,
-    })
-  }
 
   await app.register(
     fastifyHelmet,

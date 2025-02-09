@@ -33,6 +33,7 @@ export type Configurations = {
   queueURL: string
   queueWaitTimeSeconds: number
   region: string
+  requireAuth: boolean
   s3DumpBucketName: string
   s3OptimizedBucketName: string
   s3PresignedUrlExpirationInSeconds: number
@@ -76,6 +77,7 @@ export class AppConfig {
         queueURL: ENVIRONMENT.QUEUE_URL,
         queueWaitTimeSeconds: Number.parseInt(ENVIRONMENT.QUEUE_WAIT_TIME_SECONDS),
         region: ENVIRONMENT.REGION,
+        requireAuth: parseBoolean(ENVIRONMENT.REQUIRE_AUTH),
         s3DumpBucketName: ENVIRONMENT.DUMP_BUCKET_NAME,
         s3OptimizedBucketName: ENVIRONMENT.OPTIMIZED_BUCKET_NAME,
         s3PresignedUrlExpirationInSeconds: Number.parseInt(ENVIRONMENT.PRESIGNED_URL_EXPIRATION_IN_SECONDS),
