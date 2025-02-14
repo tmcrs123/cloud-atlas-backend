@@ -112,6 +112,7 @@ export class DynamoDbImagesRepository implements ImagesRepository {
       ExpressionAttributeValues,
       KeyConditionExpression,
       IndexName: this.appConfig.configurations.imagesTableLSIName,
+      ProjectionExpression: "atlasId, markerId, imageId, legend",
     });
 
     const commandResponse: QueryCommandOutput = await sendCommand(() =>
