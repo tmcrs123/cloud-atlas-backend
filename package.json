@@ -12,9 +12,10 @@
   "scripts": {
     "test": "vitest --config ./src/test/vitest.config.ts --watch",
     "build": "tsc",
+    "wait": "sh -c 'sleep 5'",
     "local-infra": "bash scripts/init.bash && npx tsx scripts/populate-db.ts",
     "start:dev": "cross-env tsx watch --env-file=.env.dev src/server.ts",
-    "local": "npm run docker-build && docker-compose up -d && npm run local-infra",
+    "local": "npm run docker-build && docker-compose up -d && npm run wait && npm run local-infra",
     "docker-start-local-ddb": "docker run -p 8000:8000 -d amazon/dynamodb-local -jar DynamoDBLocal.jar -sharedDb -dbPath .",
     "docker-build": "docker build -t cloud-atlas-api .",
     "docker-start": "docker run --env-file .env  -p 3000:3000 -network dev cloud-atlas-api:latest",
